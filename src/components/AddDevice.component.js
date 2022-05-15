@@ -10,21 +10,21 @@ export default class AddDevice extends Component {
 		this.onChangeType = this.onChangeType.bind(this);
 		
 		this.state = {
-			deviceName: '',
-			deviceType: '',
-			deviceSlots: [],
+			name: '',
+			type: '',
+			slots: [],
 		};
 	}
 	
 	onChangeName(e) {
 		this.setState({
-			deviceName: e.target.value,
+			name: e.target.value,
 		});
 	}
 	
 	onChangeType(e) {
 		this.setState({
-			deviceType: e.target.value,
+			type: e.target.value,
 		});
 	}
 	
@@ -32,13 +32,12 @@ export default class AddDevice extends Component {
 		e.preventDefault();
 		
 		const newDevice = {
-			deviceName: this.state.deviceName,
-			deviceType: this.state.deviceType,
-			deviceSlots: this.state.deviceSlots,
+			name: this.state.name,
+			type: this.state.type,
+			slots: this.state.slots,
 		};
 		
-		console.log(newDevice);
-		axios.post('http://localhost:5000/devices/add', newDevice)
+		axios.post('http://localhost:5000/api/devices/add', newDevice)
 		
 		window.location = '/';
 	}
@@ -50,12 +49,12 @@ export default class AddDevice extends Component {
 				<form onSubmit={this.onSubmit.bind(this)}>
 					<div className='form-group'>
 						<label>Device Name: </label>
-						<input type='text' className='form-control' value={this.state.deviceName} onChange={this.onChangeName} />
+						<input type='text' className='form-control' value={this.state.name} onChange={this.onChangeName} />
 					</div>
 					<br />
 					<div className='form-group'>
 						<label>Device Type: </label>
-						<input type='text' className='form-control' value={this.state.deviceType} onChange={this.onChangeType} />
+						<input type='text' className='form-control' value={this.state.type} onChange={this.onChangeType} />
 					</div>
 					<br />
 					<div className='form-group'>
