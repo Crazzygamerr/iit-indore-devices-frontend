@@ -5,34 +5,42 @@ import { Container } from "react-bootstrap";
 
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Button from "react-bootstrap/Button";
+import { Button, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import "./Home.component.css";
 
-const removeDevice = () => {
-	//axios.delete("http://localhost:5000/api/devices/1");
-	
-};
+function removeDevice(id) {
+	axios
+		.delete("http://localhost:5000/api/devices/" + id)
+		.then(res => console.log(res.data))
+		.catch(err => console.log(err));
+}
 
 const Home = () => {
 	const navigate = useNavigate();
 	const [devices, setDevices] = useState([]);
+	const [loading, setLoading] = useState(true);
 	
 	useEffect(() => {
 		axios.get('http://localhost:5000/api/devices/')
 			.then(response => {
 				setDevices(response.data);
+				setLoading(false);
 			})
 			.catch(function (error) {
 				console.log(error);
+				setLoading(false);
 			})
 	});
 	
 	return (
 		<Container fluid>
 			<h1>Device List</h1>
-			<table className='table' >
+			{loading && <Spinner animation="border" role="status">
+				<span className="visually-hidden">Loading...</span>
+			</Spinner> }
+			{ !loading && <table className='table'>
 				<thead className='thead-light'>
 					<tr>
 						<th>Device Name</th>
@@ -53,7 +61,7 @@ const Home = () => {
 										</Button>
 								</td>
 								<td className="fit">
-									<Button onClick={() => removeDevice()}>
+									<Button onClick={() => removeDevice(currentDevice._id)}>
 										Remove
 									</Button>
 								</td>
@@ -61,7 +69,7 @@ const Home = () => {
 						)
 					})}
 				</tbody>
-			</table>
+			</table> }
 		</Container>
 	);
 }
