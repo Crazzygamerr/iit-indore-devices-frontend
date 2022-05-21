@@ -1,29 +1,37 @@
 
 import React, { useState, useEffect } from "react";
 
-import { Container } from "react-bootstrap";
-
-import axios from "axios";
+import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Auth";
+
+import { Container } from "react-bootstrap";
 import { Button, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-
 import "./Home.component.css";
 
+
 function removeDevice(id) {
-	axios
-		.delete("http://localhost:5000/api/devices/" + id)
-		.then(res => console.log(res.data))
-		.catch(err => console.log(err));
+	supabase.from("devices")
+		.delete()
+		.eq("id", id)
+		.then(response => {
+			console.log(response);
+			window.location.reload();
+		})
+		.catch(function (error) {
+			console.log(error);
+		});
 }
 
 const Home = () => {
 	const navigate = useNavigate();
 	const [devices, setDevices] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const { user } = useAuth();
 	
 	useEffect(() => {
-		axios.get('http://localhost:5000/api/devices/')
+		supabase.from("devices").select()
 			.then(response => {
 				setDevices(response.data);
 				setLoading(false);
@@ -31,8 +39,8 @@ const Home = () => {
 			.catch(function (error) {
 				console.log(error);
 				setLoading(false);
-			})
-	});
+			});
+	}, []);
 	
 	return (
 		<Container fluid>
@@ -45,7 +53,6 @@ const Home = () => {
 					<tr>
 						<th>Device Name</th>
 						<th>Device Type</th>
-						<th>Device Slots</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -54,17 +61,25 @@ const Home = () => {
 							<tr key={i}>
 								<td>{currentDevice.name}</td>
 								<td>{currentDevice.type}</td>
-								<td>{currentDevice.slots}</td>
 								<td className="fit">
-									<Button onClick={() => navigate("/editDevice/" + currentDevice._id)}>
-											Edit
+									<Button onClick={() => navigate("/bookDevice/" + currentDevice.id)}>
+											Book
 										</Button>
 								</td>
-								<td className="fit">
-									<Button onClick={() => removeDevice(currentDevice._id)}>
-										Remove
-									</Button>
-								</td>
+								{ user.isAdmin &&
+									<td className="fit">
+										<Button onClick={() => navigate("/editDevice/" + currentDevice.id)}>
+												Edit
+											</Button>
+									</td>
+								}
+								{ user.isAdmin &&
+									<td className="fit">
+										<Button onClick={() => removeDevice(currentDevice.id)}>
+											Remove
+										</Button>
+									</td>
+								}
 							</tr>
 						)
 					})}
