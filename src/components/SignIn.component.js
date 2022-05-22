@@ -1,10 +1,12 @@
-import { useRef } from 'react'
-import { supabase } from '../supabaseClient'
-import { Link } from 'react-router-dom'
+import { useEffect, useRef } from 'react';
+import { supabase } from '../supabaseClient';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../Auth';
 
 export default function SignIn() {
-  const emailRef = useRef()
-  const passwordRef = useRef()
+	const emailRef = useRef();
+	const passwordRef = useRef();
+	const { user } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -13,7 +15,7 @@ export default function SignIn() {
 		const password = passwordRef.current.value
 		
 		var error;
-		if (password == "") {
+		if (password === "") {
 			error = await supabase.auth.signIn({ email });
 		} else {
 			error = await supabase.auth.signIn({ email, password });
@@ -25,7 +27,13 @@ export default function SignIn() {
     } else {
 			window.location.href = '/';
     }
-  }
+	}
+	
+	useEffect(() => {
+		if (user) {
+			window.location.href = '/';
+		}
+	}, [user]);
 
   return (
 		<>

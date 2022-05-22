@@ -1,11 +1,13 @@
-import { useRef } from 'react'
-import { Link } from 'react-router-dom'
-import { supabase } from '../supabaseClient'
+import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
+import { useAuth } from '../Auth';
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function Signup() {
-  const emailRef = useRef()
-  const passwordRef = useRef()
+	const emailRef = useRef();
+	const passwordRef = useRef();
+	const { user } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -21,7 +23,13 @@ export default function Signup() {
       window.location.href = '/'
     }
   }
-
+	
+	useEffect(() => {
+		if (user) {
+			window.location.href = '/';
+		}
+	}, [user]);
+	
   return (
 		<>
 			<h1> Sign Up </h1>

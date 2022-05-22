@@ -22,7 +22,7 @@ export default function MyNavbar() {
 					<Nav className="ml-auto">
 						{user ? (
 							<NavDropdown title={user.email} id="basic-nav-dropdown">
-								<NavDropdown.Item onClick={() => { console.log(user) }}>ConsoleLog</NavDropdown.Item>
+								{/* <NavDropdown.Item onClick={() => { console.log(user) }}>ConsoleLog</NavDropdown.Item> */}
 								<NavDropdown.Item onClick={() => {supabase.auth.signOut()}}>Sign Out</NavDropdown.Item>
 							</NavDropdown>
 						) : (

@@ -64,23 +64,25 @@ export default function BookDevice() {
 					<p>Device Type: {device.type}</p>
 				</div>
 			)}
-			<div>
-				<LocalizationProvider dateAdapter={AdapterDateFns}>
-					<DateTimePicker
-						renderInput={(props) => <TextField {...props} />}
-						label="DateTimePicker"
-						value={date}
-						onChange={(newValue) => {
-							setDate(newValue);
-						}}
-					/>
-				</LocalizationProvider>
-			</div>
-			<br />
 			{ device && !(device.slots.some(slot => slot.email === user.email)) && 
-				<Button onClick={book}>
-					Book Device
-				</Button>
+				<div>
+					<div>
+						<LocalizationProvider dateAdapter={AdapterDateFns}>
+							<DateTimePicker
+								renderInput={(props) => <TextField {...props} />}
+								label="DateTimePicker"
+								value={date}
+								onChange={(newValue) => {
+									setDate(newValue);
+								}}
+							/>
+						</LocalizationProvider>
+					</div>
+					<br />
+					<Button onClick={book}>
+						Book Device
+					</Button>
+				</div>
 			}
 			<br />
 			<h2>Booked Slots</h2>

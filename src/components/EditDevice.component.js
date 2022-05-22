@@ -2,11 +2,15 @@ import React, { useEffect, useState } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { supabase } from '../supabaseClient';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '../Auth';
+import { Button } from 'react-bootstrap';
 
 const EditDevice = () => {
 	const [name, setName] = useState('');
 	const [type, setType] = useState('');
 	const [isNew, setIsNew] = useState(true);
+	const [device, setDevice] = useState(null);
+	const { user } = useAuth();
 	
 	const { id } = useParams();
 	
@@ -30,7 +34,6 @@ const EditDevice = () => {
 				.then(res => window.location = '/')
 				.catch(err => console.log(err));
 		}
-		
 	}
 	
 	useEffect(() => {
@@ -41,7 +44,7 @@ const EditDevice = () => {
 			.then(response => {
 				setName(response.data[0].name);
 				setType(response.data[0].type);
-				
+				setDevice(response.data[0]);
 				setIsNew(false);
 			})
 			.catch(function (error) {
@@ -65,9 +68,30 @@ const EditDevice = () => {
 				</div>
 				<br />
 				<div className='form-group'>
-					<input type='submit' value={ (isNew) ? "Add Device" : "Edit Device" } className='btn btn-primary' />
+					<input type='submit' value={ (isNew) ? "Add Device" : "Save changes" } className='btn btn-primary' />
 				</div>
 			</form>
+			<br />
+			<h2>Booked slots</h2>
+			<ul>
+				{device && device.slots.map((slot, index) => (
+					<li key={index}>
+						{(slot.email === user.email ? "You" : slot.email) + ": "}
+						{new Date(slot.date).toLocaleDateString() + "  " + new Date(slot.date).toLocaleTimeString()}
+						<Button onClick={() => {
+							const newSlots = device.slots.filter(s => s !== slot);
+							supabase.from("devices")
+								.update({
+									slots: newSlots,
+								})
+								.eq("id", id)
+								.then(res => {window.location.reload()})
+								.catch(err => console.log(err));
+						}
+						}>Remove</Button>
+					</li>
+				))}
+			</ul>
 		</div>
 	);
 }

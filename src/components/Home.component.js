@@ -45,6 +45,15 @@ const Home = () => {
 	return (
 		<Container fluid>
 			<h1>Device List</h1>
+			{/* <Button onClick={() => {
+				supabase.rpc("bookDevice", {
+					device_id: 1,
+					email: user.email,
+					booking_time: Date.now(),
+				}).then(response => {
+					console.log(response);
+				});
+			}}>Call</Button> */}
 			{loading && <Spinner animation="border" role="status">
 				<span className="visually-hidden">Loading...</span>
 			</Spinner> }
