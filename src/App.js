@@ -4,8 +4,7 @@ import EditDevice from "./components/EditDevice.component";
 import Home from "./components/Home.component";
 import MyNavbar from './components/navbar.component';
 import NotFound from './components/NotFound.component';
-import SignIn from "./components/SignIn.component";
-import Signup from './components/SignUp.component';
+import SignUp from './components/SignUp.component';
 import PrivateRoute from './components/PrivateRoute.component';
 import { AuthProvider } from './Auth';
 import BookDevice from './components/BookDevice.component';
@@ -17,8 +16,8 @@ function App() {
 				<div>
 					<MyNavbar />
 					<Routes>
-						<Route path="/signin" element={<SignIn />} />
-						<Route path="/signup" element={<Signup />} />
+						<Route path="/signin" element={<SignUp />} />
+						<Route path="/signup" element={<SignUp />} />
 						
 						<Route path="/" element={<PrivateRoute />}>
 							<Route path="/" element={<Home />} />

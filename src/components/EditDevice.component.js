@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import "bootstrap/dist/css/bootstrap.min.css";
 import { supabase } from '../supabaseClient';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../Auth';
-import { Button } from 'react-bootstrap';
+
+import { Button, IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+const divStyle = {
+	padding: '1%',
+	width: '100%',
+	maxWidth: '300px',
+};
 
 const EditDevice = () => {
 	const [name, setName] = useState('');
@@ -54,8 +61,8 @@ const EditDevice = () => {
 	}, [id]);
 	
 	return (
-		<div>
-			<h1>{ (isNew) ? "Add Device" : "Edit Device" }</h1>
+		<div style={divStyle}>
+			<h3>{ (isNew) ? "Add Device" : "Edit Device" }</h3>
 			<form onSubmit={onSubmit}>
 				<div className='form-group'>
 					<label>Device Name: </label>
@@ -68,30 +75,54 @@ const EditDevice = () => {
 				</div>
 				<br />
 				<div className='form-group'>
-					<input type='submit' value={ (isNew) ? "Add Device" : "Save changes" } className='btn btn-primary' />
+					<Button type="submit" variant='contained'>
+						{(isNew) ? "Add Device" : "Save changes"}
+					</Button>
 				</div>
 			</form>
-			<br />
-			<h2>Booked slots</h2>
-			<ul>
-				{device && device.slots.map((slot, index) => (
-					<li key={index}>
-						{(slot.email === user.email ? "You" : slot.email) + ": "}
-						{new Date(slot.date).toLocaleDateString() + "  " + new Date(slot.date).toLocaleTimeString()}
-						<Button onClick={() => {
-							const newSlots = device.slots.filter(s => s !== slot);
-							supabase.from("devices")
-								.update({
-									slots: newSlots,
-								})
-								.eq("id", id)
-								.then(res => {window.location.reload()})
-								.catch(err => console.log(err));
-						}
-						}>Remove</Button>
-					</li>
-				))}
-			</ul>
+			{!isNew && device && device.hasOwnProperty('slots') && device.slots.length > 0 &&
+				<div style={{
+					width: "min-content",
+					whiteSpace: "nowrap"
+				}}>
+				<br />
+				<h4>Booked slots</h4>
+					<table className='table'>
+						<thead>
+							<tr>
+								<th>User</th>
+								<th>Date</th>
+							</tr>
+						</thead>
+						<tbody>
+							{device && device.slots.map((slot, index) => (
+								<tr key={index}>
+									<td>
+										{(slot.email === user.email ? "You" : slot.email)}
+									</td>
+									<td>
+										{new Date(slot.date).toLocaleDateString() + "  " + new Date(slot.date).toLocaleTimeString()}
+									</td>
+									<td>
+										<IconButton onClick={() => {
+											const newSlots = device.slots.filter(s => s !== slot);
+											supabase.from("devices")
+												.update({
+													slots: newSlots,
+												})
+												.eq("id", id)
+												.then(res => {window.location.reload()})
+												.catch(err => console.log(err));
+											}}>
+											<DeleteIcon />
+										</IconButton>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	);
 }

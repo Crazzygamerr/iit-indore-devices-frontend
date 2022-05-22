@@ -1,27 +1,50 @@
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../Auth';
 import "bootstrap/dist/css/bootstrap.min.css";
+
+const divStyle = {
+	padding: '1%',
+	width: '100%',
+	maxWidth: '300px',
+};
 
 export default function Signup() {
 	const emailRef = useRef();
 	const passwordRef = useRef();
 	const { user } = useAuth();
-
+	const location = useLocation();
+	
   async function handleSubmit(e) {
     e.preventDefault()
 
     const email = emailRef.current.value
 		const password = passwordRef.current.value
 		
-    const { error } = await supabase.auth.signUp({ email, password })
-
-    if (error) {
-			console.log(error);
-    } else {
-      window.location.href = '/'
-    }
+		if (location.pathname === '/signup') {			
+			supabase.auth.signUp({ email, password }).then(() => {
+				window.location.href = '/';
+			}).catch((error) => {
+				console.log(error);
+			});
+		} else {
+			if (password === "") {
+				supabase.auth.signIn({ email })
+					.then(() => {
+						window.location.href = '/';
+					}).catch((error) => {
+						console.log(error);
+					});
+			} else {
+				supabase.auth.signIn({ email, password })
+					.then(() => {
+						window.location.href = '/';
+					}).catch((error) => {
+						console.log(error);
+					});
+			}
+		}
   }
 	
 	useEffect(() => {
@@ -31,8 +54,8 @@ export default function Signup() {
 	}, [user]);
 	
   return (
-		<>
-			<h1> Sign Up </h1>
+		<div style={divStyle}>
+			<h3>{location.pathname === "/signup" ? "Sign Up" : "Sign In"}</h3>
 			<form onSubmit={handleSubmit}>
 				<div className='form-group'>
 					<label>Email</label>
@@ -44,12 +67,19 @@ export default function Signup() {
 					<input id="input-password" className='form-control' type="password" ref={passwordRef} />
 				</div>
 				<br />
-        <button type="submit" className='btn btn-primary'>Sign up</button>
+        <button type="submit" className='btn btn-primary'>{location.pathname === "/signup" ? "Sign Up" : "Sign In"}</button>
       </form>
       <br />
-      <p>
-        Already have an account? <Link to="/signin">Log In</Link>
-      </p>
-    </>
+			{ location.pathname === "/signup" ? (
+				<p>
+    	    Already have an account? <Link to="/signin">Log In</Link>
+				</p>
+			) : (
+					<p>
+						Don't have an account? <Link to="/signup">Sign Up</Link>
+					</p>
+				)
+			}
+    </div>
   )
 }

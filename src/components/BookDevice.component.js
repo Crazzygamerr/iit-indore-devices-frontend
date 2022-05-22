@@ -3,11 +3,10 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../Auth";
 import { supabase } from "../supabaseClient";
 
-import TextField from '@mui/material/TextField';
+import { TextField, Button } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { Button } from "react-bootstrap";
 
 export default function BookDevice() {
 	const { user } = useAuth();
@@ -28,7 +27,7 @@ export default function BookDevice() {
 			.eq("id", device.id)
 			.then(response => {
 				console.log(response);
-				window.location.href="/"
+				window.location.reload();
 			})
 			.catch(function (error) {
 				console.log(error);
@@ -56,12 +55,15 @@ export default function BookDevice() {
 	}, [id]);
 	
 	return (
-		<div>
-			<h1>Device Booking</h1>
+		<div style={{ padding: "1%" }}>
+			<h3>Device Booking</h3>
 			{device && (
 				<div>
-					<h2>{device.name}</h2>
-					<p>Device Type: {device.type}</p>
+					<p>
+						Device name: {device.name} <br />
+						Device Type: {device.type}
+					</p>
+					<br />
 				</div>
 			)}
 			{ device && !(device.slots.some(slot => slot.email === user.email)) && 
@@ -79,21 +81,40 @@ export default function BookDevice() {
 						</LocalizationProvider>
 					</div>
 					<br />
-					<Button onClick={book}>
+					<Button variant="contained" onClick={book}>
 						Book Device
 					</Button>
+					<br /><br />
 				</div>
 			}
-			<br />
-			<h2>Booked Slots</h2>
-			<ul>
-				{device && device.slots.map(slot => (
-					<li key={slot.date}>
-						{(slot.email === user.email ? "You" : slot.email) + ": "}
-						{new Date(slot.date).toLocaleDateString() + "  " + new Date(slot.date).toLocaleTimeString()}
-					</li>
-				))}
-			</ul>
+			{ device && device.hasOwnProperty('slots') && device.slots.length > 0 && 
+				<div style={{
+					width: "min-content",
+					whiteSpace: "nowrap"
+				}}>
+					<h4>Booked Slots</h4>
+					<table className="table">
+						<thead className="thead-light">
+							<tr>
+								<td>User</td>
+								<td>Date</td>
+							</tr>
+						</thead>
+						<tbody>
+							{device && device.slots.map(slot => (
+								<tr key={slot.date}>
+									<td>
+										{(slot.email === user.email ? "You" : slot.email)}
+									</td>
+									<td>
+										{new Date(slot.date).toLocaleDateString() + "  " + new Date(slot.date).toLocaleTimeString()}
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	);
 }

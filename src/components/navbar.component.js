@@ -15,10 +15,12 @@ export default function MyNavbar() {
 			<Container fluid>
 				<Navbar.Brand href="/">IIT Indore Devices</Navbar.Brand>
 				<Navbar.Toggle aria-controls="basic-navbar-nav" />
-				<Navbar.Collapse id="basic-navbar-nav">
+				<Navbar.Collapse id="basic-navbar-nav">				
 					<Nav className="me-auto">
-						<Nav.Link href="/addDevice">Add Device</Nav.Link>
-					</Nav>
+						{ user && user.isAdmin &&
+							<Nav.Link href="/addDevice">Add Device</Nav.Link>
+						}
+					</Nav>					
 					<Nav className="ml-auto">
 						{user ? (
 							<NavDropdown title={user.email} id="basic-nav-dropdown">
@@ -26,7 +28,7 @@ export default function MyNavbar() {
 								<NavDropdown.Item onClick={() => {supabase.auth.signOut()}}>Sign Out</NavDropdown.Item>
 							</NavDropdown>
 						) : (
-							<Nav.Link href="/signin">Sign In</Nav.Link>
+							<></>
 						)}
 					</Nav>
 				</Navbar.Collapse>

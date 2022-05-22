@@ -5,12 +5,25 @@ import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth";
 
-import { Container } from "react-bootstrap";
-import { Button, Spinner } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./Home.component.css";
+import { Button, IconButton, CircularProgress } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import styled from "styled-components";
 
+const CenteredDiv = styled.div`
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1%;
+	`;
 
+const FitStyle = {
+	whiteSpace: 'nowrap',
+  width: '1%'
+};
+	
 function removeDevice(id) {
 	supabase.from("devices")
 		.delete()
@@ -43,8 +56,8 @@ const Home = () => {
 	}, []);
 	
 	return (
-		<Container fluid>
-			<h1>Device List</h1>
+		<div style={{padding: "1%"}}>
+			<h3>Device List</h3>
 			{/* <Button onClick={() => {
 				supabase.rpc("bookDevice", {
 					device_id: 1,
@@ -54,47 +67,49 @@ const Home = () => {
 					console.log(response);
 				});
 			}}>Call</Button> */}
-			{loading && <Spinner animation="border" role="status">
-				<span className="visually-hidden">Loading...</span>
-			</Spinner> }
-			{ !loading && <table className='table'>
-				<thead className='thead-light'>
-					<tr>
-						<th>Device Name</th>
-						<th>Device Type</th>
-					</tr>
-				</thead>
-				<tbody>
-					{devices.map(function (currentDevice, i) {
-						return (
-							<tr key={i}>
-								<td>{currentDevice.name}</td>
-								<td>{currentDevice.type}</td>
-								<td className="fit">
-									<Button onClick={() => navigate("/bookDevice/" + currentDevice.id)}>
-											Book
-										</Button>
-								</td>
-								{ user.isAdmin &&
-									<td className="fit">
-										<Button onClick={() => navigate("/editDevice/" + currentDevice.id)}>
-												Edit
+			{loading && <CenteredDiv>
+				<CircularProgress />
+			</CenteredDiv>}
+			{!loading &&
+				<table className='table'>
+					<thead className='thead-light'>
+						<tr>
+							<th>Device Name</th>
+							<th>Device Type</th>
+						</tr>
+					</thead>
+					<tbody>
+						{devices.map(function (currentDevice, i) {
+							return (
+								<tr key={i}>
+									<td>{currentDevice.name}</td>
+									<td>{currentDevice.type}</td>
+									<td style={FitStyle}>
+										<Button variant="contained" onClick={() => navigate("/bookDevice/" + currentDevice.id)}>
+												Book
 											</Button>
 									</td>
-								}
-								{ user.isAdmin &&
-									<td className="fit">
-										<Button onClick={() => removeDevice(currentDevice.id)}>
-											Remove
-										</Button>
-									</td>
-								}
-							</tr>
-						)
-					})}
-				</tbody>
-			</table> }
-		</Container>
+									{ user && user.isAdmin &&
+										<td style={FitStyle}>
+											<IconButton onClick={() => navigate("/editDevice/" + currentDevice.id)}>
+													<EditIcon />
+												</IconButton>
+										</td>
+									}
+									{ user && user.isAdmin &&
+										<td style={FitStyle}>
+											<IconButton aria-label="delete" onClick={() => removeDevice(currentDevice.id)}>
+												<DeleteIcon />
+											</IconButton>
+										</td>
+									}
+								</tr>
+							)
+						})}
+					</tbody>
+				</table>
+			}
+		</div>
 	);
 }
 
