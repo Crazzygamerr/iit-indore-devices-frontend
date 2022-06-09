@@ -1,13 +1,26 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import EditDevice from "./components/EditDevice.component";
-import Home from "./components/Home.component";
+import EditDevice from "./pages/EditDevice.component";
+import Home from "./pages/Home.component";
 import MyNavbar from './components/navbar.component';
-import NotFound from './components/NotFound.component';
-import SignUp from './components/SignUp.component';
+import NotFound from './pages/NotFound.component';
+import SignUp from './pages/SignUp.component';
 import PrivateRoute from './components/PrivateRoute.component';
 import { AuthProvider } from './Auth';
-import BookDevice from './components/BookDevice.component';
+import BookDevice from './pages/BookDevice.component';
+
+/* admin sets slots, user books those
+calendar view to select day, day view shows all slots
+
+show all slots from all devices in a table
+
+option to download data
+
+6AM to 10PM - 1 hour
+
+Generate email for slot booking
+
+Unbook slot */
 
 function App() {
 	return (

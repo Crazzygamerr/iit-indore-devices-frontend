@@ -75,7 +75,6 @@ const Home = () => {
 					<thead className='thead-light'>
 						<tr>
 							<th>Device Name</th>
-							<th>Device Type</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -83,12 +82,13 @@ const Home = () => {
 							return (
 								<tr key={i}>
 									<td>{currentDevice.name}</td>
-									<td>{currentDevice.type}</td>
-									<td style={FitStyle}>
-										<Button variant="contained" onClick={() => navigate("/bookDevice/" + currentDevice.id)}>
+									{ user && !user.isAdmin &&
+										<td style={FitStyle}>
+											<Button variant="contained" onClick={() => navigate("/bookDevice/" + currentDevice.id)}>
 												Book
 											</Button>
-									</td>
+										</td>
+									}
 									{ user && user.isAdmin &&
 										<td style={FitStyle}>
 											<IconButton onClick={() => navigate("/editDevice/" + currentDevice.id)}>
