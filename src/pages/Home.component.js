@@ -29,7 +29,6 @@ function removeDevice(id) {
 		.delete()
 		.eq("id", id)
 		.then(response => {
-			console.log(response);
 			window.location.reload();
 		})
 		.catch(function (error) {

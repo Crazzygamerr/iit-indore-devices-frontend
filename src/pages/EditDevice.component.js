@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useParams } from 'react-router-dom';
-import { useAuth } from '../Auth';
 
 import { TextField, Button, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -24,45 +23,53 @@ const cardStyle = {
 };
 
 const EditDevice = () => {
-	const [name, setName] = useState('');
-	const [device, setDevice] = useState(null);
-	const [isNew, setIsNew] = useState(true);
+	const [device, setDevice] = useState({name: ""});
 	const [startTime, setStartTime] = useState(Date.now());
 	const [endTime, setEndTime] = useState(Date.now() + 3600000);
 	const [slots, setSlots] = useState([]);
-	
-	const { user } = useAuth();
+	const [dbSlots, setDbSlots] = useState([]);
 	
 	const { id } = useParams();
 	
 	async function saveDevice() {
 		
-		const newDevice = {
-			name: name,
-		};
+		await supabase.from("devices")
+			.upsert(device)
+			.then(res => {
+				console.log(res);
+				setDevice(res.data[0]);
+			})
+			.catch(err => console.log(err));
 		
-		if (isNew) {
-			await supabase.from("devices")
-				.insert(newDevice)
-				.then(res => setDevice(res.data[0]))
-				.catch(err => console.log(err));
-		} else {
-			await supabase.from("devices")
-				.update(newDevice)
-				.eq("id", id)
-				.catch(err => console.log(err));
-		}
 		
 		setSlots(slots.map(slot => {
 			slot.device_id = device.id;
 			return slot;
 		}));
 		
+		//get slots present in slots but not in dbSlots
+		var newSlots = slots.filter(slot => !slot.id);
 		await supabase.from("slots")
-			.insert(slots, { upsert: true })
-			.then(res => window.location = '/')
+			.insert(newSlots)
+			.then(res => { })
 			.catch(err => console.log(err));
 		
+		//get slots present in both slots and dbSlots
+		/* var updatedSlots = slots.filter(slot => dbSlots.current.some(dbSlot => dbSlot.id === slot.id));
+		await supabase.from("slots")
+			.upsert(updatedSlots)
+			.catch(err => console.log(err)); */
+		
+		//get slots present in dbSlots but not in slots
+		/* var deletedSlots = dbSlots.filter(dbSlot => !slots.some(slot => slot.id === dbSlot.id));
+		await supabase.from("slots")
+			.delete()
+			.in("id", deletedSlots.map(slot => slot.id))
+			.then(res => {
+				// window.location = '/';
+				
+			})
+			.catch(err => console.log(err)); */
 	}
 	
 	useEffect(() => {
@@ -71,9 +78,8 @@ const EditDevice = () => {
 		}
 		supabase.from("devices").select().eq("id", id)
 			.then(response => {
-				setName(response.data[0].name);
+				// setName(response.data[0].name);
 				setDevice(response.data[0]);
-				setIsNew(false);
 			})
 			.catch(function (error) {
 				console.log(error);
@@ -82,18 +88,25 @@ const EditDevice = () => {
 		supabase.from("slots").select().eq("device_id", id)
 			.then(response => {
 				setSlots(response.data);
+				setDbSlots(response.data);
 			});
 		
 	}, [id]);
 	
 	return (
 		<div style={divStyle}>
-			<h3>{ (isNew) ? "Add Device" : "Edit Device" }</h3>
+			<h3>{ (!device) ? "Add Device" : "Edit Device" }</h3>
 			<div style={cardStyle}>
-				<div>
-					<label>Device Name: </label>
-					<input type='text' name='name' className='form-control' value={name} onChange={e => setName(e.target.value)} />
-				</div>
+				<label>Device Name: </label>
+				<input
+					type='text'
+					name='name'
+					value={device.name}
+					onChange={e => {
+						let newDevice = { ...device };
+						newDevice.name = e.target.value;
+						setDevice(newDevice);
+					}} />
 			</div>
 			<br />
 			<div style={cardStyle}>
@@ -105,7 +118,7 @@ const EditDevice = () => {
 						label="Start Time"
 						value={startTime}
 						onChange={(newValue) => {
-							setStartTime(newValue);
+							setStartTime(newValue.getTime());
 						}}
 					/>
 				</LocalizationProvider>
@@ -116,16 +129,20 @@ const EditDevice = () => {
 						label="End Time"
 						value={endTime}
 						onChange={(newValue) => {
-							setEndTime(newValue);
+							setEndTime(newValue.getTime());
 						}}
 					/>
 				</LocalizationProvider>	
 				<Spacer height='20px' />
 				<div style={{display: 'flex', justifyContent: 'flex-end'}}>
 					<Button variant='contained' onClick={() => {
+						
+						const startTimeString = new Date(startTime).toLocaleTimeString('en-US', { hour12: false }).substring(0, 5);
+						const endTimeString = new Date(endTime).toLocaleTimeString('en-US', { hour12: false }).substring(0, 5);
+						
 						setSlots([...slots, {
-							start_time: startTime,
-							end_time: endTime,
+							start_time: startTimeString,
+							end_time: endTimeString,
 						}]);
 					}}>
 						Add Slot
@@ -143,39 +160,22 @@ const EditDevice = () => {
 						<tr>
 							<th>Start time</th>
 							<th>End time</th>
-							<th>User</th>
 						</tr>
 					</thead>
 					<tbody>
 						{ slots.map((slot, index) => (
 							<tr key={index}>
 								<td>
-									{new Date(slot.start_time).toLocaleTimeString(
-										'en-US',
-										{hour: 'numeric', minute: 'numeric', hour12: true}
-									)}
+									{new Date('1970-01-01T' + slot.start_time + 'Z')
+										.toLocaleTimeString('en-US',
+											{timeZone:'UTC',hour12:true,hour:'numeric',minute:'numeric'}
+										)}
 								</td>
 								<td>
-									{new Date(slot.end_time).toLocaleTimeString(
-										'en-US',
-										{hour: 'numeric', minute: 'numeric', hour12: true}
-									)}
-								</td>
-								<td>
-									{( slot.email === user.email ? "You" : slot.email)}
-									{(slot.email) && 
-										<IconButton aria-label="delete" onClick={() => {
-											setSlots(slots.map((s, i) => {
-												if (i === index) {
-													s.email = "";
-												}
-												return s;
-											}
-											));
-										}}>
-											<DeleteIcon fontSize="small" />
-										</IconButton>
-									}
+									{new Date('1970-01-01T' + slot.end_time + 'Z')
+										.toLocaleTimeString('en-US',
+											{timeZone:'UTC',hour12:true,hour:'numeric',minute:'numeric'}
+										)}
 								</td>
 								<td>
 									<IconButton onClick={() => {
@@ -191,7 +191,7 @@ const EditDevice = () => {
 			</div>
 			<div style={{ display: 'flex', justifyContent: 'flex-end', }}>
 				<Button type="submit" variant='contained' onClick={saveDevice}>
-					{(isNew) ? "Add Device" : "Save changes"}
+					{(!device) ? "Add Device" : "Save changes"}
 				</Button>
 			</div>
 		</div>
