@@ -1,11 +1,10 @@
-//import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
-import { AppBar, Toolbar } from "@mui/material";
-import "bootstrap/dist/css/bootstrap.min.css";
 import React from 'react';
+import { useAuth } from "../Auth";
 import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { Container } from "react-bootstrap";
-import { useAuth } from "../Auth";
 import { supabase } from "../supabaseClient";
+
+// import './navbar.css';
 
 export default function MyNavbar() {
 	const { user } = useAuth();
@@ -18,13 +17,15 @@ export default function MyNavbar() {
 				<Navbar.Collapse id="basic-navbar-nav">				
 					<Nav className="me-auto">
 						{ user && user.isAdmin &&
-							<Nav.Link href="/addDevice">Add Device</Nav.Link>
+							<Nav>
+								<Nav.Link href="/devices">Device List</Nav.Link>
+								<Nav.Link href="/addDevice">Add Device</Nav.Link>
+							</Nav>
 						}
-					</Nav>					
-					<Nav className="ml-auto">
+					</Nav>
+					<Nav className="">
 						{user ? (
 							<NavDropdown title={user.email} id="basic-nav-dropdown">
-								{/* <NavDropdown.Item onClick={() => { console.log(user) }}>ConsoleLog</NavDropdown.Item> */}
 								<NavDropdown.Item onClick={() => {supabase.auth.signOut()}}>Sign Out</NavDropdown.Item>
 							</NavDropdown>
 						) : (
@@ -36,12 +37,20 @@ export default function MyNavbar() {
 		</Navbar>
 	);
 	
-	// return (
-	// 	<AppBar position="static">
-	// 		<Toolbar>
-				
-	// 		</Toolbar>
-	// 	</AppBar>
-	// );
+	/* return (
+		<nav className="navbar">
+			<a href="/" className="brand-logo">IIT Indore Devices</a>
+			<ul className="navbar-links">
+				{user && user.isAdmin &&
+					<li><a href="/addDevice">Add Device</a></li>
+				}
+				{user ? (
+					<li><a href="/signout">Sign Out</a></li>
+				) : (
+					<li><a href="/signin">Sign In</a></li>
+				)}
+			</ul>
+		</nav>
+	); */
 
 }

@@ -1,13 +1,16 @@
-import React from 'react';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import EditDevice from "./pages/EditDevice.component";
-import Home from "./pages/Home.component";
+import { AuthProvider } from './Auth';
+import { PrivateRoute, AdminRoute } from './components/PrivateRoute.component';
 import MyNavbar from './components/navbar.component';
+
+import BookDevice from './pages/BookDevice.component';
+import Devices from "./pages/Devices.component";
+import EditDevice from "./pages/EditDevice.component";
 import NotFound from './pages/NotFound.component';
 import SignUp from './pages/SignUp.component';
-import PrivateRoute from './components/PrivateRoute.component';
-import { AuthProvider } from './Auth';
-import BookDevice from './pages/BookDevice.component';
+import Home from './pages/home.component';
+
+import './styles.css';
 
 /* admin sets slots, user books those
 calendar view to select day, day view shows all slots
@@ -31,12 +34,15 @@ function App() {
 					<Routes>
 						<Route path="/signin" element={<SignUp />} />
 						<Route path="/signup" element={<SignUp />} />
-						
+
 						<Route path="/" element={<PrivateRoute />}>
 							<Route path="/" element={<Home />} />
-							<Route path="/addDevice" element={<EditDevice />} />
-							<Route path="/editDevice/:id" element={<EditDevice />} />
+							<Route path="/devices" element={<Devices />} />
 							<Route path="/bookDevice/:id" element={<BookDevice />} />
+							<Route path="/" element={<AdminRoute />}>
+								<Route path="/addDevice" element={<EditDevice />} />
+								<Route path="/editDevice/:id" element={<EditDevice />} />
+							</Route>
 						</Route>
 						<Route path="*" element={<NotFound />} />
 					</Routes>
