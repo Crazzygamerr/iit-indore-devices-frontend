@@ -27,49 +27,55 @@ const EditDevice = () => {
 	const [startTime, setStartTime] = useState(Date.now());
 	const [endTime, setEndTime] = useState(Date.now() + 3600000);
 	const [slots, setSlots] = useState([]);
-	const [dbSlots, setDbSlots] = useState([]);
 	
 	const { id } = useParams();
 	
 	async function saveDevice() {
-		
+		var ret_id;
 		await supabase.from("devices")
 			.upsert(device)
 			.then(res => {
 				console.log(res);
-				setDevice(res.data[0]);
+				ret_id = res.data[0].id;
 			})
 			.catch(err => console.log(err));
 		
-		
-		setSlots(slots.map(slot => {
-			slot.device_id = device.id;
-			return slot;
-		}));
-		
-		//get slots present in slots but not in dbSlots
-		var newSlots = slots.filter(slot => !slot.id);
-		await supabase.from("slots")
-			.insert(newSlots)
-			.then(res => { })
-			.catch(err => console.log(err));
-		
-		//get slots present in both slots and dbSlots
-		/* var updatedSlots = slots.filter(slot => dbSlots.current.some(dbSlot => dbSlot.id === slot.id));
-		await supabase.from("slots")
-			.upsert(updatedSlots)
-			.catch(err => console.log(err)); */
-		
-		//get slots present in dbSlots but not in slots
-		/* var deletedSlots = dbSlots.filter(dbSlot => !slots.some(slot => slot.id === dbSlot.id));
-		await supabase.from("slots")
-			.delete()
-			.in("id", deletedSlots.map(slot => slot.id))
-			.then(res => {
-				// window.location = '/';
-				
-			})
-			.catch(err => console.log(err)); */
+		if (!id) {
+			setSlots(slots.map(slot => {
+				slot.device_id = ret_id;
+				return slot;
+			}));
+			await supabase.from("slots")
+				.insert(slots)
+				.then(res => window.location = "/")
+				.catch(err => console.log(err));
+		} else {
+			window.location = "/";
+		}
+	}
+	
+	async function addSlot() {
+		const startTimeString = new Date(startTime).toLocaleTimeString('en-US', { hour12: false }).substring(0, 5);
+		const endTimeString = new Date(endTime).toLocaleTimeString('en-US', { hour12: false }).substring(0, 5);
+						
+		if (id) {
+			supabase.from("slots").insert({
+				start_time: startTimeString,
+				end_time: endTimeString,
+				device_id: device.id,
+			}).then(res => {
+				setSlots([...slots, {
+					start_time: startTimeString,
+					end_time: endTimeString,
+					device_id: device.id,
+				}]);
+			}).catch(err => console.log(err));
+		} else {
+			setSlots([...slots, {
+				start_time: startTimeString,
+				end_time: endTimeString,
+			}]);
+		}
 	}
 	
 	useEffect(() => {
@@ -88,7 +94,6 @@ const EditDevice = () => {
 		supabase.from("slots").select().eq("device_id", id)
 			.then(response => {
 				setSlots(response.data);
-				setDbSlots(response.data);
 			});
 		
 	}, [id]);
@@ -135,16 +140,7 @@ const EditDevice = () => {
 				</LocalizationProvider>	
 				<Spacer height='20px' />
 				<div style={{display: 'flex', justifyContent: 'flex-end'}}>
-					<Button variant='contained' onClick={() => {
-						
-						const startTimeString = new Date(startTime).toLocaleTimeString('en-US', { hour12: false }).substring(0, 5);
-						const endTimeString = new Date(endTime).toLocaleTimeString('en-US', { hour12: false }).substring(0, 5);
-						
-						setSlots([...slots, {
-							start_time: startTimeString,
-							end_time: endTimeString,
-						}]);
-					}}>
+					<Button variant='contained' onClick={() => {addSlot();}}>
 						Add Slot
 					</Button>
 				</div>
@@ -179,7 +175,15 @@ const EditDevice = () => {
 								</td>
 								<td>
 									<IconButton onClick={() => {
-										setSlots(slots.filter((s, i) => i !== index));
+										if (id) {
+											supabase.from("slots")
+												.delete().eq("id", slot.id)
+												.then(res => {
+													setSlots(slots.filter((s, i) => i !== index));
+												}).catch(err => console.log(err));
+										} else {
+											setSlots(slots.filter((s, i) => i !== index));
+										}
 										}}>
 										<DeleteIcon />
 									</IconButton>
@@ -191,7 +195,7 @@ const EditDevice = () => {
 			</div>
 			<div style={{ display: 'flex', justifyContent: 'flex-end', }}>
 				<Button type="submit" variant='contained' onClick={saveDevice}>
-					{(!device) ? "Add Device" : "Save changes"}
+					{(!id) ? "Add Device" : "Save changes"}
 				</Button>
 			</div>
 		</div>
