@@ -10,7 +10,7 @@ export default function MyNavbar() {
 	const { user } = useAuth();
 	
 	return (
-		<Navbar collapseOnSelect bg="dark" variant="dark" expand="lg">
+		<Navbar collapseOnSelect bg="dark" variant="dark" expand="md">
 			<Container fluid>
 				<Navbar.Brand href="/">IIT Indore Devices</Navbar.Brand>
 				<Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -19,6 +19,7 @@ export default function MyNavbar() {
 						{ user && user.isAdmin &&
 							<Nav>
 								<Nav.Link href="/devices">Device List</Nav.Link>
+								<Nav.Link href="/equipment">Equipment List</Nav.Link>
 								<Nav.Link href="/addDevice">Add Device</Nav.Link>
 							</Nav>
 						}

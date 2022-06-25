@@ -11,6 +11,7 @@ import SignUp from './pages/SignUp.component';
 import Home from './pages/home.component';
 
 import './styles.css';
+import EquipmentList from "./pages/equipmentList.component";
 
 /* admin sets slots, user books those
 calendar view to select day, day view shows all slots
@@ -39,9 +40,11 @@ function App() {
 							<Route path="/" element={<Home />} />
 							<Route path="/devices" element={<Devices />} />
 							<Route path="/bookDevice/:id" element={<BookDevice />} />
+							
 							<Route path="/" element={<AdminRoute />}>
 								<Route path="/addDevice" element={<EditDevice />} />
 								<Route path="/editDevice/:id" element={<EditDevice />} />
+								<Route path="/equipment" element={ <EquipmentList /> } />
 							</Route>
 						</Route>
 						<Route path="*" element={<NotFound />} />

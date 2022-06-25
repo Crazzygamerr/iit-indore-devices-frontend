@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useParams } from 'react-router-dom';
 
-import { TextField, Button, IconButton } from '@mui/material';
+import { TextField, Button, IconButton, CircularProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { Spacer } from '../components/spacer.component';
+import { getDateString } from '../components/utils';
+
+import './editDevice.css';
 
 const divStyle = {
 	padding: '1%',
@@ -22,25 +25,34 @@ const cardStyle = {
 	width: '100%',
 };
 
+const timeStyle = {
+	boxShadow: '4px 4px 8px 0 rgba(0, 0, 0, 0.4)',
+	padding: '2%',
+	borderRadius: '25px',
+	width: '100%',	
+	fontSize: '0.75em',
+	marginRight: '4%',
+}
+
 const EditDevice = () => {
 	const [device, setDevice] = useState({name: ""});
 	const [startTime, setStartTime] = useState(Date.now());
 	const [endTime, setEndTime] = useState(Date.now() + 3600000);
-	const [slots, setSlots] = useState([]);
+	const [equipment, setEquipment] = useState([]);
+	const [loading, setLoading] = useState(true);
 	
 	const { id } = useParams();
 	
 	async function saveDevice() {
-		var ret_id;
+		// var ret_id;
 		await supabase.from("devices")
 			.upsert(device)
 			.then(res => {
-				console.log(res);
-				ret_id = res.data[0].id;
+				window.location = '/';
 			})
 			.catch(err => console.log(err));
 		
-		if (!id) {
+		/* if (!id) {
 			setSlots(slots.map(slot => {
 				slot.device_id = ret_id;
 				return slot;
@@ -51,10 +63,10 @@ const EditDevice = () => {
 				.catch(err => console.log(err));
 		} else {
 			window.location = "/";
-		}
+		} */
 	}
 	
-	async function addSlot() {
+	/* async function addSlot() {
 		const startTimeString = new Date(startTime).toLocaleTimeString('en-US', { hour12: false }).substring(0, 5);
 		const endTimeString = new Date(endTime).toLocaleTimeString('en-US', { hour12: false }).substring(0, 5);
 						
@@ -76,13 +88,11 @@ const EditDevice = () => {
 				end_time: endTimeString,
 			}]);
 		}
-	}
+	} */
 	
 	useEffect(() => {
-		if (!id) {
-			return;
-		}
-		supabase.from("devices").select().eq("id", id)
+		if (id) {
+			supabase.from("devices").select().eq("id", id)
 			.then(response => {
 				// setName(response.data[0].name);
 				setDevice(response.data[0]);
@@ -90,10 +100,38 @@ const EditDevice = () => {
 			.catch(function (error) {
 				console.log(error);
 			});
+		}
 		
-		supabase.from("slots").select().eq("device_id", id)
+		supabase.from("slots")
+			.select(`
+				id,
+				start_time,
+				end_time,
+				equipment: equipment_id(
+					id,
+					name
+				)
+			`)
+			.order("start_time")
 			.then(response => {
-				setSlots(response.data);
+				var temp_equipment = [];
+				response.data.forEach(slot => {
+					if (!temp_equipment.some(equipment => equipment.id === slot.equipment.id)) {
+						temp_equipment.push({
+							id: slot.equipment.id,
+							name: slot.equipment.name,
+							slots: [],
+						});
+					}
+					
+					temp_equipment.find(equipment => equipment.id === slot.equipment.id).slots.push({
+						id: slot.id,
+						start_time: slot.start_time,
+						end_time: slot.end_time,
+					});
+				});
+				setEquipment(temp_equipment);
+				setLoading(false);
 			});
 		
 	}, [id]);
@@ -114,7 +152,7 @@ const EditDevice = () => {
 					}} />
 			</div>
 			<br />
-			<div style={cardStyle}>
+			{/* <div style={cardStyle}>
 				<h5>Add slot</h5>
 				<Spacer height='10px' />
 				<LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -144,13 +182,57 @@ const EditDevice = () => {
 						Add Slot
 					</Button>
 				</div>
-			</div>
+			</div> */}
 			<br />
 			<div style={{
 				width: "min-content",
 				whiteSpace: "nowrap",
 			}}>
-				<h4>Slots</h4>
+				<h4>Equipment</h4>
+				{loading &&
+					<div>
+						<CircularProgress />
+					</div>
+				}
+				{ !loading &&
+					<table>
+						<thead>
+							<tr>
+								<th></th>
+								<th>Name</th>
+								<th>Slots</th>
+							</tr>
+						</thead>
+						<tbody>
+							{equipment.map(equipment => (
+								<tr key={equipment.id}>
+									<td>
+										<input
+											type="radio"
+											name="equipment"
+											checked={device.equipment_id == equipment.id}
+											value={equipment.id}
+											onChange={e => {
+												let newDevice = { ...device };
+												newDevice.equipment_id = e.target.value;
+												setDevice(newDevice);
+											}} />
+									</td>
+									<td>{equipment.name}</td>
+									<td>
+										{equipment.slots.map(slot => (
+											<span key={slot.id} style={timeStyle}>
+												{getDateString(slot.start_time) + " - " + getDateString(slot.end_time)}
+											</span>
+										))}
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				}
+				{/* radio buttons to select equipment */}
+				{/* <h4>Slots</h4>
 				<table className='table'>
 					<thead>
 						<tr>
@@ -191,9 +273,11 @@ const EditDevice = () => {
 							</tr>
 						))}
 					</tbody>
-				</table>
+				</table> */}
 			</div>
-			<div style={{ display: 'flex', justifyContent: 'flex-end', }}>
+			<div style={{
+				marginTop: '20px',
+			}}>
 				<Button type="submit" variant='contained' onClick={saveDevice}>
 					{(!id) ? "Add Device" : "Save changes"}
 				</Button>

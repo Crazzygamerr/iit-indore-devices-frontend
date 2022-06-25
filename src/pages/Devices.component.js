@@ -38,13 +38,21 @@ function removeDevice(id) {
 
 const Devices = () => {
 	const navigate = useNavigate();
-	const [devices, setDevices] = useState([]);
-	const [loading, setLoading] = useState(true);
 	const { user } = useAuth();
 	
+	const [devices, setDevices] = useState([]);
+	const [loading, setLoading] = useState(true);
+	
 	useEffect(() => {
-		supabase.from("devices").select()
+
+		supabase.from("devices")
+			.select(`
+				id,
+				name,
+				equipment: equipment_id (name)
+				`)
 			.then(response => {
+				console.log(response.data);
 				setDevices(response.data);
 				setLoading(false);
 			})
@@ -52,61 +60,60 @@ const Devices = () => {
 				console.log(error);
 				setLoading(false);
 			});
+		
 	}, []);
 	
 	return (
 		<div style={{padding: "1%"}}>
 			<h3>Device List</h3>
-			{/* <Button onClick={() => {
-				supabase.rpc("bookDevice", {
-					device_id: 1,
-					email: user.email,
-					booking_time: Date.now(),
-				}).then(response => {
-					console.log(response);
-				});
-			}}>Call</Button> */}
 			{loading && <CenteredDiv>
 				<CircularProgress />
 			</CenteredDiv>}
 			{!loading &&
-				<table>
-					<thead>
-						<tr>
-							<th>Device Name</th>
-						</tr>
-					</thead>
-					<tbody>
-						{devices.map(currentDevice => {
-							return (
-								<tr key={currentDevice.id}>
-									<td>{currentDevice.name}</td>
-									{ user && !user.isAdmin &&
-										<td style={FitStyle}>
-											<Button variant="contained" onClick={() => navigate("/bookDevice/" + currentDevice.id)}>
-												Book
-											</Button>
-										</td>
-									}
-									{ user && user.isAdmin &&
-										<td style={FitStyle}>
-											<IconButton onClick={() => navigate("/editDevice/" + currentDevice.id)}>
-													<EditIcon />
+				<div style={{
+					width: 'min-content',
+					whiteSpace: 'nowrap'
+				}}>
+					<table>
+						<thead>
+							<tr>
+								<th>Device Name</th>
+								<th>Equipment</th>
+							</tr>
+						</thead>
+						<tbody>
+							{devices.map(currentDevice => {
+								return (
+									<tr key={currentDevice.id}>
+										<td>{currentDevice.name}</td>
+										<td>{currentDevice.equipment.name}</td>
+										{ user && !user.isAdmin &&
+											<td style={FitStyle}>
+												<Button variant="contained" onClick={() => navigate("/bookDevice/" + currentDevice.id)}>
+													Book
+												</Button>
+											</td>
+										}
+										{ user && user.isAdmin &&
+											<td style={FitStyle}>
+												<IconButton onClick={() => navigate("/editDevice/" + currentDevice.id)}>
+														<EditIcon />
+													</IconButton>
+											</td>
+										}
+										{ user && user.isAdmin &&
+											<td style={FitStyle}>
+												<IconButton aria-label="delete" onClick={() => removeDevice(currentDevice.id)}>
+													<DeleteIcon />
 												</IconButton>
-										</td>
-									}
-									{ user && user.isAdmin &&
-										<td style={FitStyle}>
-											<IconButton aria-label="delete" onClick={() => removeDevice(currentDevice.id)}>
-												<DeleteIcon />
-											</IconButton>
-										</td>
-									}
-								</tr>
-							)
-						})}
-					</tbody>
-				</table>
+											</td>
+										}
+									</tr>
+								)
+							})}
+						</tbody>
+					</table>
+				</div>
 			}
 		</div>
 	);
