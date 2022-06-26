@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../Auth";
 
 import { Button, IconButton, CircularProgress } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -38,7 +37,6 @@ function removeDevice(id) {
 
 const Devices = () => {
 	const navigate = useNavigate();
-	const { user } = useAuth();
 	
 	const [devices, setDevices] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -87,27 +85,16 @@ const Devices = () => {
 									<tr key={currentDevice.id}>
 										<td>{currentDevice.name}</td>
 										<td>{currentDevice.equipment.name}</td>
-										{ user && !user.isAdmin &&
-											<td style={FitStyle}>
-												<Button variant="contained" onClick={() => navigate("/bookDevice/" + currentDevice.id)}>
-													Book
-												</Button>
-											</td>
-										}
-										{ user && user.isAdmin &&
-											<td style={FitStyle}>
-												<IconButton onClick={() => navigate("/editDevice/" + currentDevice.id)}>
-														<EditIcon />
-													</IconButton>
-											</td>
-										}
-										{ user && user.isAdmin &&
-											<td style={FitStyle}>
-												<IconButton aria-label="delete" onClick={() => removeDevice(currentDevice.id)}>
-													<DeleteIcon />
-												</IconButton>
-											</td>
-										}
+										<td style={FitStyle}>
+											<IconButton onClick={() => navigate("/editDevice/" + currentDevice.id)}>
+												<EditIcon />
+											</IconButton>
+										</td>
+										<td style={FitStyle}>
+											<IconButton aria-label="delete" onClick={() => removeDevice(currentDevice.id)}>
+												<DeleteIcon />
+											</IconButton>
+										</td>
 									</tr>
 								)
 							})}

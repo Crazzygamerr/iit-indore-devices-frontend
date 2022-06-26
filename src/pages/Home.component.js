@@ -13,15 +13,14 @@ export default function Home() {
 	const [loading, setLoading] = useState(true);
 	
 	useEffect(() => {				
-		supabase.rpc("get_by_equipment")
+		supabase.rpc("get_all_by_equipment")
 			.then(response => {
 				setEquipment(response.data);
 				// console.log(response);
 				// console.log(JSON.stringify(response.data, null, 2));
 				setLoading(false);
 			})
-			.catch(error => console.log(error));
-			
+			.catch(error => console.log(error));			
 	}, []);
 	
 	return (

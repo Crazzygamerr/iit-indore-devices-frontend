@@ -4,14 +4,18 @@ import { PrivateRoute, AdminRoute } from './components/PrivateRoute.component';
 import MyNavbar from './components/navbar.component';
 
 import BookDevice from './pages/BookDevice.component';
+
+import Home from './pages/home.component';
 import Devices from "./pages/Devices.component";
 import EditDevice from "./pages/EditDevice.component";
-import NotFound from './pages/NotFound.component';
+
+import EquipmentList from "./pages/equipmentList.component";
+import EditEquipment from "./pages/editEquipment.component";
+
 import SignUp from './pages/SignUp.component';
-import Home from './pages/home.component';
+import NotFound from './pages/NotFound.component';
 
 import './styles.css';
-import EquipmentList from "./pages/equipmentList.component";
 
 /* admin sets slots, user books those
 calendar view to select day, day view shows all slots
@@ -38,13 +42,17 @@ function App() {
 
 						<Route path="/" element={<PrivateRoute />}>
 							<Route path="/" element={<Home />} />
-							<Route path="/devices" element={<Devices />} />
 							<Route path="/bookDevice/:id" element={<BookDevice />} />
 							
 							<Route path="/" element={<AdminRoute />}>
+								
+								<Route path="/devices" element={<Devices />} />
 								<Route path="/addDevice" element={<EditDevice />} />
 								<Route path="/editDevice/:id" element={<EditDevice />} />
-								<Route path="/equipment" element={ <EquipmentList /> } />
+								
+								<Route path="/equipmentList" element={<EquipmentList />} />
+								<Route path="/addEquipment" element={<EditEquipment />} />
+								<Route path="/editEquipment/:id" element={<EditEquipment />} />
 							</Route>
 						</Route>
 						<Route path="*" element={<NotFound />} />
