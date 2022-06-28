@@ -13,13 +13,6 @@ const divStyle = {
 	maxWidth: '300px',
 };
 
-const cardStyle = {
-	boxShadow: '4px 4px 8px 0 rgba(0, 0, 0, 0.4)',
-	padding: '5%',
-	borderRadius: '5px',
-	width: '100%',
-};
-
 const timeStyle = {
 	boxShadow: '4px 4px 8px 0 rgba(0, 0, 0, 0.4)',
 	padding: '2%',
@@ -69,7 +62,7 @@ const EditDevice = () => {
 	return (
 		<div style={divStyle}>
 			<h3>{ (!device) ? "Add Device" : "Edit Device" }</h3>
-			<div style={cardStyle}>
+			<div className="card-style">
 				<label>Device Name: </label>
 				<input
 					type='text'

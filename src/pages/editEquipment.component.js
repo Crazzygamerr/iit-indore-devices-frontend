@@ -20,22 +20,6 @@ const divStyle = {
 	maxWidth: '300px',
 };
 
-const cardStyle = {
-	boxShadow: '4px 4px 8px 0 rgba(0, 0, 0, 0.4)',
-	padding: '5%',
-	borderRadius: '5px',
-	width: '100%',
-};
-
-const timeStyle = {
-	boxShadow: '4px 4px 8px 0 rgba(0, 0, 0, 0.4)',
-	padding: '2%',
-	borderRadius: '25px',
-	width: '100%',	
-	fontSize: '0.75em',
-	marginRight: '4%',
-}
-
 const EditEquipment = () => {
 	const [equipment, setEquipment] = useState({
 		equipment_name: "",
@@ -198,7 +182,7 @@ const EditEquipment = () => {
 				</div>
 			}
 			<h3>{ (!equipment) ? "Add Equipment" : "Edit Equipment" }</h3>
-			<div style={cardStyle}>
+			<div className="card-style">
 				<label>Equipment Name: </label>
 				<input
 					type='text'
