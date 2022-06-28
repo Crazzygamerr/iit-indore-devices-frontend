@@ -3,29 +3,53 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
 import { CircularProgress } from "@mui/material";
-import styled from "styled-components";
+// import calendar icon
+import CalendarIcon from "@mui/icons-material/CalendarToday";
+
 import "./home.css";
-import { margin } from "@mui/system";
 import { getDateString } from "../components/utils";
 
 export default function Home() {
 	const [equipment, setEquipment] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [date, setDate] = useState(new Date());
+	const [open, setOpen] = useState(false);
 	
 	useEffect(() => {				
-		supabase.rpc("get_all_by_equipment")
-			.then(response => {
-				setEquipment(response.data);
-				// console.log(response);
-				// console.log(JSON.stringify(response.data, null, 2));
-				setLoading(false);
-			})
-			.catch(error => console.log(error));			
+		const temp_equipment = [];
+		async function getAllByEquipment() {
+			supabase.rpc("get_all_by_equipment")
+				.then(response => {
+					response.data.forEach(element => element.bookings = []);
+					temp_equipment.push(...response.data);
+				})
+				.catch(error => console.log(error));
+			
+			await supabase.from("bookings")
+				.select()
+				.then(response => {
+					response.data.forEach(booking => {
+						const index = temp_equipment.findIndex(equipment => equipment.devices.some(device => device.id === booking.device_id));
+						if (index !== -1) {
+							temp_equipment[index].bookings.push(booking);
+						}
+					});
+					setEquipment(temp_equipment);
+				}).catch(error => console.log(error));
+			setLoading(false);
+		}
+		
+		getAllByEquipment();
 	}, []);
 	
 	return (
 		<div style={{ padding: "1%" }}>
 			<h3>Home</h3>
+			<input
+				type="text"
+				placeholder="Search"
+				style={{ width: "100%", marginBottom: "1%" }}
+			/>
 			{loading &&
 				<div className="centeredDiv">
 					<CircularProgress />
@@ -82,16 +106,6 @@ export default function Home() {
 										</tr>
 									})
 								}
-								{/* {equipment_item.devices !== null && equipment_item.devices.map(device => {
-									return <tr key={device.id}>
-										<td>{device.name}</td>
-										{equipment_item.slots.map(slot => {
-											return <td key={slot.slot_id}>{device.bookings.find(booking => booking.slot_id === slot.slot_id) ? "Booked" : "Available"}</td>
-										})
-										}
-									</tr>
-								})
-								} */}
 							</tbody>
 						</table>
 					</div>
