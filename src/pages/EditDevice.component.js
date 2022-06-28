@@ -4,6 +4,8 @@ import { supabase } from '../supabaseClient';
 
 import { Button, CircularProgress } from '@mui/material';
 import { getTimeString } from '../components/utils';
+import { IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import './editDevice.css';
 
@@ -25,6 +27,7 @@ const timeStyle = {
 const EditDevice = () => {
 	const [device, setDevice] = useState({ name: "" });
 	const [equipment, setEquipment] = useState([]);
+	const [bookings, setBookings] = useState([]);
 	const [loading, setLoading] = useState(true);
 
 	const { id } = useParams();
@@ -56,6 +59,13 @@ const EditDevice = () => {
 				setLoading(false);
 			})
 			.catch(error => console.log(error));
+		
+		supabase.from("bookings")
+			.select()
+			.eq("device_id", id)
+			.then(response => {
+				setBookings(response.data);
+			}).catch(error => console.log(error));
 
 	}, [id]);
 
@@ -128,6 +138,44 @@ const EditDevice = () => {
 			<div style={{
 				marginTop: '20px',
 			}}>
+			<h4>Slots</h4>
+			{loading &&
+				<div>
+					<CircularProgress />
+				</div>
+				}
+				{!loading &&
+					<table>
+						<thead>
+							<tr>
+								<th>Slot</th>
+								<th>User</th>
+							</tr>
+						</thead>
+						<tbody>
+							{bookings.map((booking, index) => (
+								<tr key={index}>
+									<td>
+										<span style={timeStyle}>
+											{/* {getTimeString(slot.start_time) + " - " + getTimeString(slot.end_time)} */}
+										</span>
+									</td>
+									<td>{booking.email}</td>
+									<td>
+										<IconButton onClick={() => {
+											// setSlots(slots.filter((s, i) => i !== index));
+										}}>
+											<DeleteIcon />
+										</IconButton>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				}
+				<div style={{
+					marginTop: '20px',
+				}}></div>
 				<Button type="submit" variant='contained' onClick={saveDevice}>
 					{(!id) ? "Add Device" : "Save changes"}
 				</Button>
