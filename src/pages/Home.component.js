@@ -1,21 +1,34 @@
-import React from "react";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
 import { CircularProgress } from "@mui/material";
-// import calendar icon
-import CalendarIcon from "@mui/icons-material/CalendarToday";
+import TextField from '@mui/material/TextField';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
+import { getTimeString, getDateString } from "../components/utils";
 import "./home.css";
-import { getDateString } from "../components/utils";
 
 export default function Home() {
 	const [equipment, setEquipment] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [date, setDate] = useState(new Date());
-	const [open, setOpen] = useState(false);
 	
-	useEffect(() => {				
+	async function bookDevice(device_id, slot_id) {
+		const { data, error } = await supabase.rpc("bookdevice", {
+			b_date: getDateString(date),
+			s_id: slot_id,
+			d_id: device_id,
+		});
+		if (error) {
+			console.error(error);
+		} else {
+			window.location.reload();
+		}
+	}
+
+	useEffect(() => {
 		const temp_equipment = [];
 		async function getAllByEquipment() {
 			supabase.rpc("get_all_by_equipment")
@@ -27,6 +40,7 @@ export default function Home() {
 			
 			await supabase.from("bookings")
 				.select()
+				.eq("booking_date", getDateString(date))
 				.then(response => {
 					response.data.forEach(booking => {
 						const index = temp_equipment.findIndex(equipment => equipment.devices.some(device => device.id === booking.device_id));
@@ -38,18 +52,30 @@ export default function Home() {
 				}).catch(error => console.log(error));
 			setLoading(false);
 		}
-		
+
 		getAllByEquipment();
-	}, []);
-	
+	}, [date]);
+
 	return (
 		<div style={{ padding: "1%" }}>
 			<h3>Home</h3>
-			<input
-				type="text"
-				placeholder="Search"
-				style={{ width: "100%", marginBottom: "1%" }}
-			/>
+			<div style={{
+				display: "flex",
+				justifyContent: "center",
+				alignItems: "center",
+				margin: "1%"
+			}}>
+				<LocalizationProvider dateAdapter={AdapterDateFns}>
+					<DatePicker
+						value={date}
+						label="Date"
+						onChange={(newValue) => {
+							setDate(newValue);
+						}}
+						renderInput={(params) => <TextField {...params} />}
+					/>
+				</LocalizationProvider>
+			</div>
 			{loading &&
 				<div className="centeredDiv">
 					<CircularProgress />
@@ -60,14 +86,14 @@ export default function Home() {
 					console.log(JSON.stringify(response.data, null, 2));
 				});
 			}}>Call</button> */}
-			{!loading && 
+			{!loading &&
 				equipment.map(equipment_item => {
 					return <div
 						key={equipment_item.equipment_id}
 						// use card-style class defined in home.module.css
 						className="card-style"
 					>
-						<div style={{marginBottom: "1%"}}>
+						<div style={{ marginBottom: "1%" }}>
 							{equipment_item.equipment}
 						</div>
 						<table>
@@ -76,7 +102,7 @@ export default function Home() {
 									<th>Device Name</th>
 									{equipment_item.slots[0] != null && equipment_item.slots.map(slot => {
 										return <th key={slot.id}>
-											{getDateString(slot.start_time) +  " - " + getDateString(slot.end_time)}
+											{getTimeString(slot.start_time) + " - " + getTimeString(slot.end_time)}
 										</th>
 									})
 									}
@@ -98,7 +124,18 @@ export default function Home() {
 														if (test)
 															return <div>{test.email}</div>
 														else
-															return <div>-</div>
+															return <div>
+																<button
+																	onClick={() => {
+																		bookDevice(
+																			device.id,
+																			slot.id
+																		);
+																	}}
+																>
+																	Book
+																</button>
+															</div>
 													})()}
 												</td>
 											})
@@ -114,4 +151,3 @@ export default function Home() {
 		</div>
 	);
 }
-		

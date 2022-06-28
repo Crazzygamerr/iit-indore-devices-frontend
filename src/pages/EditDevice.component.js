@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 
 import { Button, CircularProgress } from '@mui/material';
-import { getDateString } from '../components/utils';
+import { getTimeString } from '../components/utils';
 
 import './editDevice.css';
 
@@ -17,18 +17,18 @@ const timeStyle = {
 	boxShadow: '4px 4px 8px 0 rgba(0, 0, 0, 0.4)',
 	padding: '2%',
 	borderRadius: '25px',
-	width: '100%',	
+	width: '100%',
 	fontSize: '0.75em',
 	marginRight: '4%',
 }
 
 const EditDevice = () => {
-	const [device, setDevice] = useState({name: ""});
+	const [device, setDevice] = useState({ name: "" });
 	const [equipment, setEquipment] = useState([]);
 	const [loading, setLoading] = useState(true);
-	
+
 	const { id } = useParams();
-	
+
 	async function saveDevice() {
 		await supabase.from("devices")
 			.upsert(device)
@@ -37,31 +37,31 @@ const EditDevice = () => {
 			})
 			.catch(err => console.log(err));
 	}
-	
+
 	useEffect(() => {
 		if (id) {
 			supabase.from("devices").select().eq("id", id)
-			.then(response => {
-				// setName(response.data[0].name);
-				setDevice(response.data[0]);
-			})
-			.catch(function (error) {
-				console.log(error);
-			});
+				.then(response => {
+					// setName(response.data[0].name);
+					setDevice(response.data[0]);
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
 		}
-		
+
 		supabase.rpc("get_slots_by_equipment")
 			.then(response => {
 				setEquipment(response.data);
 				setLoading(false);
 			})
 			.catch(error => console.log(error));
-		
+
 	}, [id]);
-	
+
 	return (
 		<div style={divStyle}>
-			<h3>{ (!device) ? "Add Device" : "Edit Device" }</h3>
+			<h3>{(!device) ? "Add Device" : "Edit Device"}</h3>
 			<div className="card-style">
 				<label>Device Name: </label>
 				<input
@@ -85,7 +85,7 @@ const EditDevice = () => {
 						<CircularProgress />
 					</div>
 				}
-				{ !loading &&
+				{!loading &&
 					<table>
 						<thead>
 							<tr>
@@ -114,7 +114,7 @@ const EditDevice = () => {
 										{equipment.slots &&
 											equipment.slots.map(slot => (
 												<span key={slot.id} style={timeStyle}>
-													{getDateString(slot.start_time) + " - " + getDateString(slot.end_time)}
+													{getTimeString(slot.start_time) + " - " + getTimeString(slot.end_time)}
 												</span>
 											))
 										}

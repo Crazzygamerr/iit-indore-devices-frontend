@@ -50,7 +50,6 @@ const Devices = () => {
 				equipment: equipment_id (name)
 				`)
 			.then(response => {
-				console.log(response.data);
 				setDevices(response.data);
 				setLoading(false);
 			})

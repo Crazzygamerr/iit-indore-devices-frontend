@@ -1,17 +1,17 @@
-import { React, useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 
-import { getDateString } from '../components/utils';
-import { IconButton, CircularProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import { CircularProgress, IconButton } from '@mui/material';
+import { getTimeString } from '../components/utils';
 
 const timeStyle = {
 	boxShadow: '4px 4px 8px 0 rgba(0, 0, 0, 0.4)',
 	padding: '2%',
 	borderRadius: '25px',
-	width: '100%',	
+	width: '100%',
 	fontSize: '0.75em',
 	marginRight: '4%',
 }
@@ -19,8 +19,7 @@ const timeStyle = {
 export default function EquipmentList() {
 	const [equipment, setEquipment] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [name, setName] = useState('');
-	
+
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -30,7 +29,7 @@ export default function EquipmentList() {
 				setLoading(false);
 			})
 			.catch(error => console.log(error));
-		
+
 	}, []);
 
 	return (
@@ -61,7 +60,7 @@ export default function EquipmentList() {
 									{equipment_item.slots &&
 										equipment_item.slots.map(slot => (
 											<span key={slot.id} style={timeStyle}>
-												{getDateString(slot.start_time) + " - " + getDateString(slot.end_time)}
+												{getTimeString(slot.start_time) + " - " + getTimeString(slot.end_time)}
 											</span>
 										))
 									}
