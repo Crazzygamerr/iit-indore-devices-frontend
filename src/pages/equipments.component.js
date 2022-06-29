@@ -11,9 +11,9 @@ const timeStyle = {
 	boxShadow: '4px 4px 8px 0 rgba(0, 0, 0, 0.4)',
 	padding: '2%',
 	borderRadius: '25px',
-	width: '100%',
 	fontSize: '0.75em',
 	marginRight: '4%',
+	display: 'inline-block',
 }
 
 export default function EquipmentList() {
@@ -35,10 +35,11 @@ export default function EquipmentList() {
 	return (
 		<div
 			style={{
-				width: "min-content",
+				// width: "min-content",
 				whiteSpace: "nowrap",
 				padding: '1%',
-			}}>
+			}}
+		>
 			<h3>Equipment</h3>
 			{loading &&
 				<div>
@@ -56,7 +57,10 @@ export default function EquipmentList() {
 						{equipment.map(equipment_item => (
 							<tr key={equipment_item.equipment_id}>
 								<td>{equipment_item.equipment_name}</td>
-								<td>
+								<td style={{
+									// overflow: "auto",
+									// width: "min-content",
+								}}>
 									{equipment_item.slots &&
 										equipment_item.slots.map(slot => (
 											<span key={slot.id} style={timeStyle}>

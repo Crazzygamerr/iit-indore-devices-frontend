@@ -1,19 +1,19 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from './Auth';
-import { PrivateRoute, AdminRoute } from './components/PrivateRoute.component';
 import MyNavbar from './components/navbar.component';
+import { AdminRoute, PrivateRoute } from './components/PrivateRoute.component';
 
 import BookDevice from './pages/BookDevice.component';
 
-import Home from './pages/home.component';
 import Devices from "./pages/Devices.component";
 import EditDevice from "./pages/EditDevice.component";
+import Home from './pages/home.component';
 
-import EquipmentList from "./pages/equipmentList.component";
 import EditEquipment from "./pages/editEquipment.component";
+import Equipments from "./pages/equipments.component";
 
-import SignUp from './pages/SignUp.component';
 import NotFound from './pages/NotFound.component';
+import SignUp from './pages/SignUp.component';
 
 import './styles.css';
 
@@ -43,14 +43,14 @@ function App() {
 						<Route path="/" element={<PrivateRoute />}>
 							<Route path="/" element={<Home />} />
 							<Route path="/bookDevice/:id" element={<BookDevice />} />
-							
+
 							<Route path="/" element={<AdminRoute />}>
-								
+
 								<Route path="/devices" element={<Devices />} />
 								<Route path="/addDevice" element={<EditDevice />} />
 								<Route path="/editDevice/:id" element={<EditDevice />} />
-								
-								<Route path="/equipmentList" element={<EquipmentList />} />
+
+								<Route path="/equipments" element={<Equipments />} />
 								<Route path="/addEquipment" element={<EditEquipment />} />
 								<Route path="/editEquipment/:id" element={<EditEquipment />} />
 							</Route>

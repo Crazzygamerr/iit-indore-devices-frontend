@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 
-import { Button, CircularProgress } from '@mui/material';
-import { getTimeString } from '../components/utils';
-import { IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Button, CircularProgress, IconButton } from '@mui/material';
+import { getTimeString } from '../components/utils';
 
 import './editDevice.css';
 
@@ -22,6 +21,7 @@ const timeStyle = {
 	width: '100%',
 	fontSize: '0.75em',
 	marginRight: '4%',
+	whiteSpace: 'nowrap',
 }
 
 const EditDevice = () => {
@@ -51,27 +51,39 @@ const EditDevice = () => {
 				.catch(function (error) {
 					console.log(error);
 				});
+			
+			supabase.from("bookings")
+				.select(`
+				id,
+				booking_date,
+				email,
+				slot: slots (
+					id,
+					start_time,
+					end_time
+				)`)
+				.eq("device_id", id)
+				.then(response => {
+					console.log(response);
+					setBookings(response.data);
+				}).catch(error => console.log(error));
 		}
 
 		supabase.rpc("get_slots_by_equipment")
 			.then(response => {
 				setEquipment(response.data);
+				if (!id) {
+					setDevice({ name: "", equipment_id: response.data[0].equipment_id });
+				}
 				setLoading(false);
 			})
 			.catch(error => console.log(error));
-		
-		supabase.from("bookings")
-			.select()
-			.eq("device_id", id)
-			.then(response => {
-				setBookings(response.data);
-			}).catch(error => console.log(error));
 
 	}, [id]);
 
 	return (
 		<div style={divStyle}>
-			<h3>{(!device) ? "Add Device" : "Edit Device"}</h3>
+			<h3>{(!id) ? "Add Device" : "Edit Device"}</h3>
 			<div className="card-style">
 				<label>Device Name: </label>
 				<input
@@ -137,49 +149,55 @@ const EditDevice = () => {
 			</div>
 			<div style={{
 				marginTop: '20px',
-			}}>
-			<h4>Slots</h4>
+			}}></div>
+			{id &&
+				<h4>Bookings</h4>
+			}
 			{loading &&
 				<div>
 					<CircularProgress />
 				</div>
-				}
-				{!loading &&
-					<table>
-						<thead>
-							<tr>
-								<th>Slot</th>
-								<th>User</th>
+			}
+			{!loading && id &&
+				<table>
+					<thead>
+						<tr>
+							<th>Slot</th>
+							<th>User</th>
+						</tr>
+					</thead>
+					<tbody>
+						{bookings.length > 0 && bookings.map((booking, index) => (
+							<tr key={index}>
+								<td>
+									<span style={timeStyle}>
+										{getTimeString(booking.slot.start_time) + " - " + getTimeString(booking.slot.end_time)}
+									</span>
+								</td>
+								<td>{booking.email}</td>
+								<td>
+									<IconButton onClick={() => {
+										supabase.from("bookings")
+											.delete()
+											.eq("id", booking.id)
+											.then(response => {
+												window.location.reload();
+											}).catch(error => console.log(error));
+									}}>
+										<DeleteIcon />
+									</IconButton>
+								</td>
 							</tr>
-						</thead>
-						<tbody>
-							{bookings.map((booking, index) => (
-								<tr key={index}>
-									<td>
-										<span style={timeStyle}>
-											{/* {getTimeString(slot.start_time) + " - " + getTimeString(slot.end_time)} */}
-										</span>
-									</td>
-									<td>{booking.email}</td>
-									<td>
-										<IconButton onClick={() => {
-											// setSlots(slots.filter((s, i) => i !== index));
-										}}>
-											<DeleteIcon />
-										</IconButton>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				}
-				<div style={{
-					marginTop: '20px',
-				}}></div>
-				<Button type="submit" variant='contained' onClick={saveDevice}>
-					{(!id) ? "Add Device" : "Save changes"}
-				</Button>
-			</div>
+						))}
+					</tbody>
+				</table>
+			}
+			<div style={{
+				marginTop: '20px',
+			}}></div>
+			<Button type="submit" variant='contained' onClick={saveDevice}>
+				{(!id) ? "Add Device" : "Save changes"}
+			</Button>
 		</div>
 	);
 }

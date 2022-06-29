@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 
-import { Button, IconButton, CircularProgress } from "@mui/material";
+import { IconButton, CircularProgress } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import styled from "styled-components";
@@ -39,7 +39,6 @@ const Devices = () => {
 	const navigate = useNavigate();
 	
 	const [devices, setDevices] = useState([]);
-	const [loading, setLoading] = useState(true);
 	
 	useEffect(() => {
 
@@ -51,11 +50,9 @@ const Devices = () => {
 				`)
 			.then(response => {
 				setDevices(response.data);
-				setLoading(false);
 			})
 			.catch(function (error) {
 				console.log(error);
-				setLoading(false);
 			});
 		
 	}, []);
@@ -63,13 +60,16 @@ const Devices = () => {
 	return (
 		<div style={{padding: "1%"}}>
 			<h3>Device List</h3>
-			{loading && <CenteredDiv>
+			{devices.length === 0 && <CenteredDiv>
 				<CircularProgress />
 			</CenteredDiv>}
-			{!loading &&
+			<div>
+				<button onClick={() => navigate("/addDevice")}>Add Device</button>
+			</div>
+			{devices.length !== 0 &&
 				<div style={{
-					width: 'min-content',
-					whiteSpace: 'nowrap'
+					whiteSpace: 'nowrap',
+					overflowX: 'auto',
 				}}>
 					<table>
 						<thead>

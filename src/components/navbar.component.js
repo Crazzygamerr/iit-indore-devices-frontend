@@ -19,9 +19,7 @@ export default function MyNavbar() {
 						{ user && user.isAdmin &&
 							<Nav>
 								<Nav.Link href="/devices">Device List</Nav.Link>
-								<Nav.Link href="/equipmentList">Equipment List</Nav.Link>
-								<Nav.Link href="/addDevice">Add Device</Nav.Link>
-								<Nav.Link href="/addEquipment">Add Equipment</Nav.Link>
+								<Nav.Link href="/equipments">Equipment List</Nav.Link>
 							</Nav>
 						}
 					</Nav>

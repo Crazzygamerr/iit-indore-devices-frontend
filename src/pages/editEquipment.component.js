@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { Button, CircularProgress, IconButton, TextField } from '@mui/material';
+import { CircularProgress, IconButton, TextField } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -56,10 +56,10 @@ const EditEquipment = () => {
 
 			await supabase.from("slots")
 				.insert(equipment.slots)
-				.then(res => window.location = "/")
+				.then(res => window.location = "/equipments")
 				.catch(err => console.log(err));
 		} else {
-			// window.location = "/";
+			window.location = "/equipments";
 		}
 	}
 
@@ -205,11 +205,11 @@ const EditEquipment = () => {
 				}
 				{equipment &&
 					<div>
-						<Button variant='contained' onClick={() => {
+						<button onClick={() => {
 							setDialogId(-1);
 						}}>
 							Add Slot
-						</Button>
+						</button>
 						<table className='table'>
 							<thead>
 								<tr>
@@ -270,9 +270,9 @@ const EditEquipment = () => {
 			<div style={{
 				marginTop: '20px',
 			}}>
-				<Button type="submit" variant='contained' onClick={saveDevice}>
+				<button onClick={saveDevice}>
 					{(!id) ? "Add Device" : "Save changes"}
-				</Button>
+				</button>
 			</div>
 		</div>
 	);

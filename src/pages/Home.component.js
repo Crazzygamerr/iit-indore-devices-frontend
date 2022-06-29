@@ -10,9 +10,18 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { getTimeString, getDateString } from "../components/utils";
 import "./home.css";
 
+/* 
+remove add devices from nav
+sort filter search
+no booking for past date
+no refresh after booking
+Change device list to devices
+equipment list overlap
+email sign in error handling
+forgot password
+ */
 export default function Home() {
 	const [equipment, setEquipment] = useState([]);
-	const [loading, setLoading] = useState(true);
 	const [date, setDate] = useState(new Date());
 	
 	async function bookDevice(device_id, slot_id) {
@@ -50,7 +59,6 @@ export default function Home() {
 					});
 					setEquipment(temp_equipment);
 				}).catch(error => console.log(error));
-			setLoading(false);
 		}
 
 		getAllByEquipment();
@@ -63,7 +71,7 @@ export default function Home() {
 				display: "flex",
 				justifyContent: "center",
 				alignItems: "center",
-				margin: "1%"
+				margin: "1%",
 			}}>
 				<LocalizationProvider dateAdapter={AdapterDateFns}>
 					<DatePicker
@@ -76,7 +84,7 @@ export default function Home() {
 					/>
 				</LocalizationProvider>
 			</div>
-			{loading &&
+			{equipment.length === 0 &&
 				<div className="centeredDiv">
 					<CircularProgress />
 				</div>
@@ -86,12 +94,12 @@ export default function Home() {
 					console.log(JSON.stringify(response.data, null, 2));
 				});
 			}}>Call</button> */}
-			{!loading &&
+			{equipment.length !== 0 &&
 				equipment.map(equipment_item => {
 					return <div
 						key={equipment_item.equipment_id}
-						// use card-style class defined in home.module.css
 						className="card-style"
+						style={{overflow: "auto"}}
 					>
 						<div style={{ marginBottom: "1%" }}>
 							{equipment_item.equipment}
@@ -101,7 +109,11 @@ export default function Home() {
 								<tr>
 									<th>Device Name</th>
 									{equipment_item.slots[0] != null && equipment_item.slots.map(slot => {
-										return <th key={slot.id}>
+										return <th
+											key={slot.id}
+											style={{
+												whiteSpace: "nowrap",
+											}}>
 											{getTimeString(slot.start_time) + " - " + getTimeString(slot.end_time)}
 										</th>
 									})
