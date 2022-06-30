@@ -7,16 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { IconButton, CircularProgress } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import styled from "styled-components";
-
-const CenteredDiv = styled.div`
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 1%;
-	`;
 
 const FitStyle = {
 	whiteSpace: 'nowrap',
@@ -58,11 +48,13 @@ const Devices = () => {
 	}, []);
 	
 	return (
-		<div style={{padding: "1%"}}>
+		<div style={{
+			padding: "1%",
+		}}>
 			<h3>Device List</h3>
-			{devices.length === 0 && <CenteredDiv>
+			{devices.length === 0 && <div className='centeredDiv'>
 				<CircularProgress />
-			</CenteredDiv>}
+			</div>}
 			<div>
 				<button onClick={() => navigate("/addDevice")}>Add Device</button>
 			</div>
@@ -70,6 +62,7 @@ const Devices = () => {
 				<div style={{
 					whiteSpace: 'nowrap',
 					overflowX: 'auto',
+					width: 'min-content',
 				}}>
 					<table>
 						<thead>

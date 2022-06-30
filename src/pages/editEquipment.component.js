@@ -1,8 +1,6 @@
 import { Children, useEffect, useState } from 'react';
-
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { CircularProgress, IconButton, TextField } from '@mui/material';
@@ -31,6 +29,7 @@ const EditEquipment = () => {
 	const [loading, setLoading] = useState(true);
 
 	const { id } = useParams();
+	let navigate = useNavigate();
 
 	async function saveDevice() {
 		const { data, error } = await supabase
@@ -56,10 +55,12 @@ const EditEquipment = () => {
 
 			await supabase.from("slots")
 				.insert(equipment.slots)
-				.then(res => window.location = "/equipments")
+				.then(res => {
+					navigate("/equipments");
+				})
 				.catch(err => console.log(err));
 		} else {
-			window.location = "/equipments";
+			navigate("/equipments");
 		}
 	}
 
@@ -199,7 +200,7 @@ const EditEquipment = () => {
 			}}>
 				<h4>Slots</h4>
 				{loading &&
-					<div>
+					<div className='centeredDiv'>
 						<CircularProgress />
 					</div>
 				}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -31,12 +31,13 @@ const EditDevice = () => {
 	const [loading, setLoading] = useState(true);
 
 	const { id } = useParams();
+	let navigate = useNavigate();
 
 	async function saveDevice() {
 		await supabase.from("devices")
 			.upsert(device)
 			.then(res => {
-				window.location = '/';
+				navigate("/devices");
 			})
 			.catch(err => console.log(err));
 	}
@@ -103,7 +104,7 @@ const EditDevice = () => {
 			}}>
 				<h4>Equipment</h4>
 				{loading &&
-					<div>
+					<div className='centeredDiv'>
 						<CircularProgress />
 					</div>
 				}
@@ -154,7 +155,7 @@ const EditDevice = () => {
 				<h4>Bookings</h4>
 			}
 			{loading &&
-				<div>
+				<div className='centeredDiv'>
 					<CircularProgress />
 				</div>
 			}

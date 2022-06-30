@@ -3,7 +3,7 @@ import { useAuth } from "../Auth";
 import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { Container } from "react-bootstrap";
 import { supabase } from "../supabaseClient";
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 // import './navbar.css';
 
 export default function MyNavbar() {

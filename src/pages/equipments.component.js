@@ -9,11 +9,13 @@ import { getTimeString } from '../components/utils';
 
 const timeStyle = {
 	boxShadow: '4px 4px 8px 0 rgba(0, 0, 0, 0.4)',
-	padding: '2%',
+	padding: '5px',
 	borderRadius: '25px',
 	fontSize: '0.75em',
-	marginRight: '4%',
-	display: 'inline-block',
+	marginRight: '4px',
+	marginTop: '8px',
+	float: 'left',
+	whiteSpace: 'nowrap',
 }
 
 export default function EquipmentList() {
@@ -36,36 +38,37 @@ export default function EquipmentList() {
 		<div
 			style={{
 				// width: "min-content",
-				whiteSpace: "nowrap",
 				padding: '1%',
+				overflowX: 'auto',
 			}}
 		>
 			<h3>Equipment</h3>
 			{loading &&
-				<div>
+				<div className='centeredDiv'>
 					<CircularProgress />
 				</div>
 			}
+			<div>
+				<button onClick={() => navigate("/addEquipment")}>Add Equipment</button>
+			</div>
 			{!loading &&
 				<table>
 					<thead>
 						<tr>
 							<th>Name</th>
+							<th>Slots</th>
 						</tr>
 					</thead>
 					<tbody>
 						{equipment.map(equipment_item => (
 							<tr key={equipment_item.equipment_id}>
 								<td>{equipment_item.equipment_name}</td>
-								<td style={{
-									// overflow: "auto",
-									// width: "min-content",
-								}}>
+								<td>
 									{equipment_item.slots &&
 										equipment_item.slots.map(slot => (
-											<span key={slot.id} style={timeStyle}>
+											<div key={slot.id} style={timeStyle}>
 												{getTimeString(slot.start_time) + " - " + getTimeString(slot.end_time)}
-											</span>
+											</div>
 										))
 									}
 								</td>

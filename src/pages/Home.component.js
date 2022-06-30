@@ -11,12 +11,12 @@ import { getTimeString, getDateString } from "../components/utils";
 import "./home.css";
 
 /* 
-remove add devices from nav
+// remove add devices from nav
+// no refresh after booking
+// Change device list to devices
+// equipment list overlap
+// no booking for past date
 sort filter search
-no booking for past date
-no refresh after booking
-Change device list to devices
-equipment list overlap
 email sign in error handling
 forgot password
  */
@@ -32,8 +32,15 @@ export default function Home() {
 		});
 		if (error) {
 			console.error(error);
+		} else if (data.id == null) {
+			console.error("Unable to book slot");
 		} else {
-			window.location.reload();
+			let temp_equipment = equipment;
+			const index = temp_equipment.findIndex(equipment => equipment.devices.some(device => device.id == data.device_id));
+			if (index !== -1) {
+				temp_equipment[index].bookings.push(data);
+			}
+			setEquipment(equipment => [...temp_equipment]);
 		}
 	}
 
@@ -102,7 +109,7 @@ export default function Home() {
 						style={{overflow: "auto"}}
 					>
 						<div style={{ marginBottom: "1%" }}>
-							{equipment_item.equipment}
+							<h5>{equipment_item.equipment}</h5>
 						</div>
 						<table>
 							<thead>
@@ -114,7 +121,9 @@ export default function Home() {
 											style={{
 												whiteSpace: "nowrap",
 											}}>
-											{getTimeString(slot.start_time) + " - " + getTimeString(slot.end_time)}
+											{getTimeString(slot.start_time)}
+											<br />
+											{getTimeString(slot.end_time)}
 										</th>
 									})
 									}
@@ -133,9 +142,13 @@ export default function Home() {
 																return false;
 															return booking.device_id === device.id && booking.slot_id === slot.id;
 														})
-														if (test)
+														var temp_date = new Date();
+														temp_date.setHours(0, 0, 0, 0);
+														if (test) {
 															return <div>{test.email}</div>
-														else
+														} else if (date < temp_date) { 
+															return <div className="slot-grey"></div>
+														} else {
 															return <div>
 																<button
 																	onClick={() => {
@@ -144,10 +157,9 @@ export default function Home() {
 																			slot.id
 																		);
 																	}}
-																>
-																	Book
-																</button>
+																>Book</button>
 															</div>
+														}
 													})()}
 												</td>
 											})
