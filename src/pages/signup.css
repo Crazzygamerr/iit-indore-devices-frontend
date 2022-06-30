@@ -1,0 +1,41 @@
+
+.github-grey-div {
+	width: 100%;
+	max-width: 300px;
+	margin: 15px;
+	padding: 16px;
+	border: 1px solid #d8dee4;
+	background-color: #f6f8fa;
+	border-radius: 6px;
+}
+
+.plain-div {
+	height: 5em;
+	width: 100%;
+	max-width: 300px;
+	padding: 16px;
+	border: 1px solid #d0d7de;
+	border-radius: 5px;
+	background-color: #fff;
+	text-align: center;
+}
+
+.main-div {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.forgot-password-link {
+	text-decoration: none;
+	font-size: 0.8em;
+	color: #0070f3;
+}
+
+label {
+	margin-bottom: 0.5em;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
