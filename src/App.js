@@ -3,8 +3,6 @@ import { AuthProvider } from './Auth';
 import MyNavbar from './components/navbar.component';
 import { AdminRoute, PrivateRoute } from './components/PrivateRoute.component';
 
-import BookDevice from './pages/BookDevice.component';
-
 import Devices from "./pages/Devices.component";
 import EditDevice from "./pages/EditDevice.component";
 import Home from './pages/home.component';
@@ -42,7 +40,7 @@ function App() {
 
 						<Route path="/" element={<PrivateRoute />}>
 							<Route path="/" element={<Home />} />
-							<Route path="/bookDevice/:id" element={<BookDevice />} />
+							{/* <Route path="/bookDevice/:id" element={<BookDevice />} /> */}
 
 							<Route path="/" element={<AdminRoute />}>
 

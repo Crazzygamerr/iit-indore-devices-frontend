@@ -19,6 +19,7 @@ import "./home.css";
 sort filter search
 email sign in error handling
 forgot password
+pagination
  */
 export default function Home() {
 	const [equipment, setEquipment] = useState([]);
