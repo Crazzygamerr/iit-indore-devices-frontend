@@ -6,24 +6,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Button, CircularProgress, IconButton } from '@mui/material';
 import { getTimeString } from '../components/utils';
 
-import './editDevice.css';
-
-const divStyle = {
-	padding: '1%',
-	width: '100%',
-	maxWidth: '300px',
-};
-
-const timeStyle = {
-	boxShadow: '4px 4px 8px 0 rgba(0, 0, 0, 0.4)',
-	padding: '2%',
-	borderRadius: '25px',
-	width: '100%',
-	fontSize: '0.75em',
-	marginRight: '4%',
-	whiteSpace: 'nowrap',
-}
-
 const EditDevice = () => {
 	const [device, setDevice] = useState({ name: "" });
 	const [equipment, setEquipment] = useState([]);
@@ -83,9 +65,15 @@ const EditDevice = () => {
 	}, [id]);
 
 	return (
-		<div style={divStyle}>
+		<div style={{
+			padding: '1%',
+		}}>
 			<h3>{(!id) ? "Add Device" : "Edit Device"}</h3>
-			<div className="card-style">
+			<div
+				className="card-style"
+				style={{
+					maxWidth: '300px',
+				}}>
 				<label>Device Name: </label>
 				<input
 					type='text'
@@ -98,10 +86,7 @@ const EditDevice = () => {
 					}} />
 			</div>
 			<br />
-			<div style={{
-				width: "min-content",
-				whiteSpace: "nowrap",
-			}}>
+			<div>
 				<h4>Equipment</h4>
 				{loading &&
 					<div className='centeredDiv'>
@@ -136,7 +121,7 @@ const EditDevice = () => {
 									<td>
 										{equipment.slots &&
 											equipment.slots.map(slot => (
-												<span key={slot.id} style={timeStyle}>
+												<span key={slot.id} className="time-style">
 													{getTimeString(slot.start_time) + " - " + getTimeString(slot.end_time)}
 												</span>
 											))
@@ -171,7 +156,7 @@ const EditDevice = () => {
 						{bookings.length > 0 && bookings.map((booking, index) => (
 							<tr key={index}>
 								<td>
-									<span style={timeStyle}>
+									<span className="time-style">
 										{getTimeString(booking.slot.start_time) + " - " + getTimeString(booking.slot.end_time)}
 									</span>
 								</td>

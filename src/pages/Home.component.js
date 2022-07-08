@@ -16,14 +16,16 @@ import "./home.css";
 // Change device list to devices
 // equipment list overlap
 // no booking for past date
+// email sign in error handling
 sort filter search
-email sign in error handling
 forgot password
 pagination
+unbook slot
  */
 export default function Home() {
 	const [equipment, setEquipment] = useState([]);
 	const [date, setDate] = useState(new Date());
+	const [search, setSearch] = useState("");
 	
 	async function bookDevice(device_id, slot_id) {
 		const { data, error } = await supabase.rpc("bookdevice", {
@@ -41,7 +43,7 @@ export default function Home() {
 			if (index !== -1) {
 				temp_equipment[index].bookings.push(data);
 			}
-			setEquipment(equipment => [...temp_equipment]);
+			setEquipment([...temp_equipment]);
 		}
 	}
 
@@ -73,13 +75,26 @@ export default function Home() {
 	}, [date]);
 
 	return (
-		<div style={{ padding: "1%" }}>
+		<div style={{ padding: "10px" }}>
 			<h3>Home</h3>
 			<div style={{
+				padding: "10px",
+			}}>
+				<input
+						type="text"
+						placeholder="Search"
+						className="search-input"
+						onChange={(e) => {
+							setSearch(e.target.value);
+						}}
+					/>
+			</div>
+			<div style={{
 				display: "flex",
-				justifyContent: "center",
+				flexDirection: "row",
+				justifyContent: "start",
 				alignItems: "center",
-				margin: "1%",
+				margin: "15px 10px",
 			}}>
 				<LocalizationProvider dateAdapter={AdapterDateFns}>
 					<DatePicker
@@ -88,7 +103,7 @@ export default function Home() {
 						onChange={(newValue) => {
 							setDate(newValue);
 						}}
-						renderInput={(params) => <TextField {...params} />}
+						renderInput={(params) => <TextField size="small" {...params} />}
 					/>
 				</LocalizationProvider>
 			</div>
@@ -104,6 +119,10 @@ export default function Home() {
 			}}>Call</button> */}
 			{equipment.length !== 0 &&
 				equipment.map(equipment_item => {
+					if (!(equipment_item.equipment.toLowerCase().includes(search.toLowerCase())
+						|| equipment_item.devices.some(device => device.name.toLowerCase().includes(search.toLowerCase())))) 
+						return null;
+					
 					return <div
 						key={equipment_item.equipment_id}
 						className="card-style"
@@ -133,6 +152,8 @@ export default function Home() {
 							<tbody>
 								{equipment_item.devices[0] != null &&
 									equipment_item.devices.map(device => {
+										if(!device.name.toLowerCase().includes(search.toLowerCase())) return null;
+										
 										return <tr key={device.id}>
 											<td>{device.name}</td>
 											{equipment_item.slots[0] != null && equipment_item.slots.map(slot => {

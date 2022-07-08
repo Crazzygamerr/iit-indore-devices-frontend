@@ -12,21 +12,9 @@ import Equipments from "./pages/equipments.component";
 
 import NotFound from './pages/NotFound.component';
 import SignUp from './pages/SignUp.component';
+import ForgotPassword from "./pages/forgotPassword.component";
 
 import './styles.css';
-
-/* admin sets slots, user books those
-calendar view to select day, day view shows all slots
-
-show all slots from all devices in a table
-
-option to download data
-
-6AM to 10PM - 1 hour
-
-Generate email for slot booking
-
-Unbook slot */
 
 function App() {
 	return (
@@ -37,6 +25,7 @@ function App() {
 					<Routes>
 						<Route path="/signin" element={<SignUp />} />
 						<Route path="/signup" element={<SignUp />} />
+						{/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
 
 						<Route path="/" element={<PrivateRoute />}>
 							<Route path="/" element={<Home />} />
