@@ -39,3 +39,49 @@ label {
 	justify-content: space-between;
 	align-items: center;
 }
+
+.notification {
+	width: 300px;
+	position: absolute;
+	top: 12px;
+	right:12px;
+	z-index: 999;
+	padding: 5px;
+	border-radius: 10px;
+	background-color: #ff3333;
+	color: #fff;
+}
+
+.notification-title {
+	font-weight: 700;
+	font-size: 16px;
+	text-align: left;
+	margin-top: 0;
+	margin-bottom: 6px;
+}
+
+.notification-message {
+	margin: 0;
+	text-align: left;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.fade-enter {
+	opacity: 0;
+}
+
+.fade-enter-active {
+	opacity: 1;
+	transition: opacity 0.5s;
+}
+
+.fade-exit {
+	opacity: 1;
+}
+
+.fade-exit-active {
+	opacity: 0;
+	transition: opacity 0.5s;
+}

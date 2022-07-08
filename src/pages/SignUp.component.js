@@ -1,8 +1,9 @@
-import { useEffect, useRef} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../Auth';
 import './signup.css';
+import { CSSTransition } from 'react-transition-group';
 
 const noBorderDiv = {
 	height: '5em',
@@ -23,26 +24,43 @@ export default function Signup() {
 	const location = useLocation();
 	const navigate = useNavigate();
 	
+	// const [toastList, setToastList] = useState([]);
+	const [error, setError] = useState(null);
+	
   async function handleSubmit(e) {
     e.preventDefault()
 
     const email = emailRef.current.value
 		const password = passwordRef.current.value
 		
+		let resError = null;
 		if (location.pathname === '/signup') {
-			supabase.auth.signUp({ email, password }).then((response) => {
+			const { response, error, user } = await supabase.auth.signUp({ email, password });
+				
+			if (error || !user) { 
+				resError = {
+					title: 'Error',
+					description: 'Something went wrong. Please try again.',
+				};
+			} else {
 				navigate("/");
-			}).catch((error) => {
-				console.log(error);
-			});
+			}
 		} else {
-			supabase.auth.signIn({ email, password })
-				.then(() => {
-					navigate("/");
-				}).catch((error) => {
-					console.log(error);
-				});
+			const { response, error, user } = await supabase.auth.signIn({ email, password });
+			if (error || !user) { 
+				resError = {
+					title: 'Error',
+					description: 'Something went wrong. Please try again.',
+				};
+			} else {
+				navigate("/");
+			}
 		}
+		if(resError)
+			setError({
+				title: resError.title,
+				description: resError.description,
+			});
   }
 	
 	useEffect(() => {
@@ -51,8 +69,38 @@ export default function Signup() {
 		}
 	}, [user, navigate]);
 	
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (error) {
+				setError(null);
+			}
+		}, 4000);
+		
+		return () => {
+			clearInterval(interval);
+		}
+	}, [error]);
+	
   return (
 		<div className='main-div'>
+			<CSSTransition
+				in={(error != null)}
+				unmountOnExit
+				timeout={500}
+				classNames="fade"
+				onExited={() => setError(null)}
+				>
+				<div
+					className="notification">
+					<div>
+						<p className="notification-title">{(error != null) ? error.title : ""}</p>
+						<p className="notification-message">
+							{(error != null) ? error.description : ""}
+						</p>
+					</div>
+				</div>
+			</CSSTransition>
+			
 			<div style={{margin: '20px'}}></div>
 			<h3>{location.pathname === "/signup" ? "Sign Up" : "Sign In"}</h3>
 			<div className="github-grey-div">
@@ -74,7 +122,12 @@ export default function Signup() {
 							{ location.pathname === "/signin" &&
 								<Link
 									className='forgot-password-link'
-									to="" onClick={() => { }}>
+									to="" onClick={() => {
+										// supabase.auth.api.resetPasswordForEmail(
+										// 	emailRef.current.value,
+										// 	{ redirectTo: 'https://localhost:3000/forgot-password' }
+										// )
+									}}>
 									Forgot Password?
 								</Link>
 							}
@@ -99,7 +152,7 @@ export default function Signup() {
 			<div style={noBorderDiv}>
 				{ location.pathname === "/signup" ? (
 					<p style={{marginTop: '10px'}}>
-						Already have an account? <Link to="/signin">Log In</Link>
+						Already have an account? <Link to="/signin">Sign In</Link>
 					</p>
 				) : (
 					<p style={{marginTop: '10px'}}>
