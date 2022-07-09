@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Button, CircularProgress, IconButton } from '@mui/material';
+import { CircularProgress, IconButton } from '@mui/material';
 import { getTimeString } from '../components/utils';
 
 const EditDevice = () => {
@@ -181,9 +181,9 @@ const EditDevice = () => {
 			<div style={{
 				marginTop: '20px',
 			}}></div>
-			<Button type="submit" variant='contained' onClick={saveDevice}>
+			<button type="submit" variant='contained' onClick={saveDevice}>
 				{(!id) ? "Add Device" : "Save changes"}
-			</Button>
+			</button>
 		</div>
 	);
 }

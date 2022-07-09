@@ -25,7 +25,7 @@ export default function Signup() {
 	const navigate = useNavigate();
 	
 	// const [toastList, setToastList] = useState([]);
-	const [error, setError] = useState(null);
+	const [errorToast, setErrorToast] = useState(null);
 	
   async function handleSubmit(e) {
     e.preventDefault()
@@ -35,9 +35,9 @@ export default function Signup() {
 		
 		let resError = null;
 		if (location.pathname === '/signup') {
-			const { response, error, user } = await supabase.auth.signUp({ email, password });
+			const { response, error, user, session } = await supabase.auth.signUp({ email, password });
 				
-			if (error || !user) { 
+			if (error || !user || !session) { 
 				resError = {
 					title: 'Error',
 					description: 'Something went wrong. Please try again.',
@@ -46,8 +46,8 @@ export default function Signup() {
 				navigate("/");
 			}
 		} else {
-			const { response, error, user } = await supabase.auth.signIn({ email, password });
-			if (error || !user) { 
+			const { response, error, user, session } = await supabase.auth.signIn({ email, password });
+			if (error || !user || !session) { 
 				resError = {
 					title: 'Error',
 					description: 'Something went wrong. Please try again.',
@@ -57,7 +57,7 @@ export default function Signup() {
 			}
 		}
 		if(resError)
-			setError({
+			setErrorToast({
 				title: resError.title,
 				description: resError.description,
 			});
@@ -71,31 +71,31 @@ export default function Signup() {
 	
 	useEffect(() => {
 		const interval = setInterval(() => {
-			if (error) {
-				setError(null);
+			if (errorToast) {
+				setErrorToast(null);
 			}
 		}, 4000);
 		
 		return () => {
 			clearInterval(interval);
 		}
-	}, [error]);
+	}, [errorToast]);
 	
   return (
 		<div className='main-div'>
 			<CSSTransition
-				in={(error != null)}
+				in={(errorToast != null)}
 				unmountOnExit
 				timeout={500}
 				classNames="fade"
-				onExited={() => setError(null)}
+				onExited={() => setErrorToast(null)}
 				>
 				<div
 					className="notification">
 					<div>
-						<p className="notification-title">{(error != null) ? error.title : ""}</p>
+						<p className="notification-title">{(errorToast != null) ? errorToast.title : ""}</p>
 						<p className="notification-message">
-							{(error != null) ? error.description : ""}
+							{(errorToast != null) ? errorToast.description : ""}
 						</p>
 					</div>
 				</div>

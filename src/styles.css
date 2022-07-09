@@ -5,9 +5,13 @@ body {
 
 th, td {
   padding: 12px 15px;
-  text-align: center;
+  text-align: left;
   border-bottom: 1px solid #E1E1E1; 
 	width: fit-content;
+	max-width: 50vw;
+	/* set text length */
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 button {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import { useAuth } from "../Auth";
 
 import { CircularProgress } from "@mui/material";
 import TextField from '@mui/material/TextField';
@@ -26,6 +27,9 @@ export default function Home() {
 	const [equipment, setEquipment] = useState([]);
 	const [date, setDate] = useState(new Date());
 	const [search, setSearch] = useState("");
+	const [dialog, setDialog] = useState(null);
+	
+	const { user } = useAuth();
 	
 	async function bookDevice(device_id, slot_id) {
 		const { data, error } = await supabase.rpc("bookdevice", {
@@ -39,7 +43,10 @@ export default function Home() {
 			console.error("Unable to book slot");
 		} else {
 			let temp_equipment = equipment;
-			const index = temp_equipment.findIndex(equipment => equipment.devices.some(device => device.id == data.device_id));
+			const index = temp_equipment.findIndex(
+				eq => eq.devices.some(
+					device => device.id == data.device_id
+				));
 			if (index !== -1) {
 				temp_equipment[index].bookings.push(data);
 			}
@@ -76,6 +83,28 @@ export default function Home() {
 
 	return (
 		<div style={{ padding: "10px" }}>
+			{dialog &&
+				<div className="dialog-backdrop">
+					<div className="dialog-container">
+						<h5>Slot Info</h5>
+						<p>
+							Equipment name: {dialog.equipment_name}
+							Device name: {dialog.device_name}
+							Slot: {dialog.start_time} - {dialog.end_time}
+							{dialog.booked && <p>Booked by: {dialog.email}</p>}
+						</p>
+						<div className="centeredDiv" style={{justifyContent: "space-between"}}>
+							<button onClick={() => setDialog(null)}>Close</button>
+							{!dialog.booked && dialog.email == user.email &&
+								<button onClick={() => bookDevice(dialog.device_id, dialog.slot_id)}>Unbook</button>
+							}
+							{!dialog.booked &&
+								<button onClick={() => bookDevice(dialog.device_id, dialog.slot_id)}>Book</button>
+							}
+						</div>
+					</div>
+				</div>
+			}
 			<h3>Home</h3>
 			<div style={{
 				padding: "10px",
@@ -172,14 +201,15 @@ export default function Home() {
 															return <div className="slot-grey"></div>
 														} else {
 															return <div>
-																<button
+																<div
+																	className="slot-green"
 																	onClick={() => {
 																		bookDevice(
 																			device.id,
 																			slot.id
 																		);
 																	}}
-																>Book</button>
+																/>
 															</div>
 														}
 													})()}

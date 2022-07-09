@@ -26,7 +26,6 @@ export default function EquipmentList() {
 	return (
 		<div
 			style={{
-				// width: "min-content",
 				padding: '1%',
 				overflowX: 'auto',
 			}}
@@ -38,7 +37,7 @@ export default function EquipmentList() {
 				</div>
 			}
 			<div>
-				<button onClick={() => navigate("/addEquipment")}>Add Equipment</button>
+				<button onClick={() => navigate("/addEquipment")}>+ Add Equipment</button>
 			</div>
 			{!loading &&
 				<table>

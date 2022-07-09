@@ -10,7 +10,7 @@ import EditIcon from '@mui/icons-material/Edit';
 
 const FitStyle = {
 	whiteSpace: 'nowrap',
-  width: '1%'
+  maxWidth: '1%'
 };
 	
 function removeDevice(id) {
@@ -56,15 +56,13 @@ const Devices = () => {
 				<CircularProgress />
 			</div>}
 			<div>
-				<button onClick={() => navigate("/addDevice")}>Add Device</button>
+				<button onClick={() => navigate("/addDevice")}>+ Add Device</button>
 			</div>
 			{devices.length !== 0 &&
 				<div style={{
-					whiteSpace: 'nowrap',
 					overflowX: 'auto',
-					width: 'min-content',
 				}}>
-					<table>
+					<table style={{width: "fit-content"}}>
 						<thead>
 							<tr>
 								<th>Device Name</th>
