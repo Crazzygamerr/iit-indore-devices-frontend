@@ -13,6 +13,7 @@ import Equipments from "./pages/equipments.component";
 import NotFound from './pages/NotFound.component';
 import SignUp from './pages/SignUp.component';
 import ForgotPassword from "./pages/forgotPassword.component";
+import Bookings from "./pages/bookings.component";
 
 import './styles.css';
 
@@ -29,6 +30,7 @@ function App() {
 
 						<Route path="/" element={<PrivateRoute />}>
 							<Route path="/" element={<Home />} />
+							<Route path="/bookings" element={<Bookings />} />
 							{/* <Route path="/bookDevice/:id" element={<BookDevice />} /> */}
 
 							<Route path="/" element={<AdminRoute />}>

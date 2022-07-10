@@ -37,7 +37,7 @@ export default function Home() {
 	
 	const { user } = useAuth();
 	
-	async function bookDevice(device_id, slot_id, isUnbook) {
+	async function handleBooking(device_id, slot_id, isUnbook) {
 		const { data, error } = await supabase.rpc((isUnbook) ? "unbook_device" : "bookdevice", {
 			b_date: getDateString(date),
 			s_id: slot_id,
@@ -84,7 +84,7 @@ export default function Home() {
 			
 			await supabase.from("bookings")
 				.select()
-				.eq("booking_date", getDateString(date))
+				.eq("booking_date", getDateString(date, true))
 				.then(response => {
 					response.data.forEach(booking => {
 						const index = temp_equipment.findIndex(
@@ -122,12 +122,12 @@ export default function Home() {
 						<div className="centeredDiv" style={{justifyContent: "space-between"}}>
 							<button onClick={() => setDialog(null)}>Close</button>
 							{dialog.booked && dialog.email === user.email &&
-								<button onClick={() => bookDevice(dialog.device_id, dialog.slot_id, true)}>
+								<button onClick={() => handleBooking(dialog.device_id, dialog.slot_id, true)}>
 									Unbook
 								</button>
 							}
 							{!dialog.booked &&
-								<button onClick={() => bookDevice(dialog.device_id, dialog.slot_id)}>
+								<button onClick={() => handleBooking(dialog.device_id, dialog.slot_id)}>
 									Book
 								</button>
 							}
@@ -159,6 +159,7 @@ export default function Home() {
 					<DatePicker
 						value={date}
 						label="Date"
+						inputFormat="dd/MM/yyyy"
 						onChange={(newValue) => {
 							setDate(newValue);
 						}}
@@ -223,8 +224,11 @@ export default function Home() {
 																return false;
 															return b.device_id === device.id && b.slot_id === slot.id;
 														})
-														var temp_date = new Date();
-														temp_date.setHours(0, 0, 0, 0);
+														
+														// var temp_date = new Date();
+														// temp_date.setHours(0, 0, 0, 0);
+														const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), slot.end_time.split(":")[0], slot.end_time.split(":")[1], slot.end_time.split(":")[2]);
+														
 														if (booking) {
 															return <div
 																style={{
@@ -246,7 +250,7 @@ export default function Home() {
 																	}}
 																/>
 															</div>
-														} else if (date < temp_date) { 
+														} else if (d < new Date()) { 
 															return <div className="slot-grey"></div>
 														} else {
 															return <div

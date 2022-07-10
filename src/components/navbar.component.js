@@ -25,6 +25,9 @@ export default function MyNavbar() {
 									<Nav.Link href="/equipments">Equipment List</Nav.Link>
 								</Nav>
 							}
+							<Nav>
+								<Nav.Link href="/bookings">Bookings</Nav.Link>
+							</Nav>
 						</Nav>
 						<Nav className="">
 							<NavDropdown title={user.email} id="basic-nav-dropdown">

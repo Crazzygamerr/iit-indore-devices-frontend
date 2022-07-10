@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import { CircularProgress, IconButton } from '@mui/material';
-import { getTimeString } from '../components/utils';
+import { getTimeString, getDateString } from '../components/utils';
 
 const EditDevice = () => {
 	const [device, setDevice] = useState({ name: "" });
@@ -46,6 +46,7 @@ const EditDevice = () => {
 					end_time
 				)`)
 				.eq("device_id", id)
+				.order("booking_date")
 				.then(response => {
 					console.log(response);
 					setBookings(response.data);
@@ -149,26 +150,28 @@ const EditDevice = () => {
 				<table>
 					<thead>
 						<tr>
-							<th>Slot</th>
 							<th>User</th>
+							<th>Date</th>
+							<th>Slot</th>
 						</tr>
 					</thead>
 					<tbody>
 						{bookings.length > 0 && bookings.map((booking, index) => (
 							<tr key={index}>
+								<td>{booking.email}</td>
+								<td>{getDateString(booking.booking_date)}</td>
 								<td>
 									<span className="time-style">
 										{getTimeString(booking.slot.start_time) + " - " + getTimeString(booking.slot.end_time)}
 									</span>
 								</td>
-								<td>{booking.email}</td>
 								<td>
 									<IconButton onClick={() => {
 										supabase.from("bookings")
 											.delete()
 											.eq("id", booking.id)
 											.then(response => {
-												window.location.reload();
+												setBookings(bookings.filter(b => b.id != booking.id));
 											}).catch(error => console.log(error));
 									}}>
 										<DeleteIcon />

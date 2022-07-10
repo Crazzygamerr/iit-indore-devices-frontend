@@ -6,9 +6,10 @@ export function getTimeString(date) {
 		);
 }
 
-export function getDateString(date) {
+export function getDateString(date, isUSformat = false) {
+	// Supabase/postgres date equates only to the US format
 	return new Date(date)
-		.toLocaleDateString('en-US',
+		.toLocaleDateString(isUSformat ? 'en-US' : 'en-GB',
 			{ day: 'numeric', month: 'numeric', year: 'numeric' }
 		);
 }
