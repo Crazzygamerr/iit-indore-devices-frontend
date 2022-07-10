@@ -79,6 +79,7 @@ const EditDevice = () => {
 					type='text'
 					name='name'
 					value={device.name}
+					maxLength={30}
 					onChange={e => {
 						let newDevice = { ...device };
 						newDevice.name = e.target.value;

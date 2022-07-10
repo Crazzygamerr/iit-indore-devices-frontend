@@ -8,8 +8,7 @@ th, td {
   text-align: left;
   border-bottom: 1px solid #E1E1E1; 
 	width: fit-content;
-	max-width: 50vw;
-	/* set text length */
+	/* max-width: 25vw; */
 	white-space: nowrap;
 	overflow: hidden;
 }

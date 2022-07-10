@@ -18,10 +18,16 @@ import "./home.css";
 // equipment list overlap
 // no booking for past date
 // email sign in error handling
+// unbook slot
+My bookings
 sort filter search
 forgot password
 pagination
-unbook slot
+ */
+
+/* 
+Added name length limit
+
  */
 export default function Home() {
 	const [equipment, setEquipment] = useState([]);
@@ -31,16 +37,22 @@ export default function Home() {
 	
 	const { user } = useAuth();
 	
-	async function bookDevice(device_id, slot_id) {
-		const { data, error } = await supabase.rpc("bookdevice", {
+	async function bookDevice(device_id, slot_id, isUnbook) {
+		const { data, error } = await supabase.rpc((isUnbook) ? "unbook_device" : "bookdevice", {
 			b_date: getDateString(date),
 			s_id: slot_id,
 			d_id: device_id,
 		});
+		setDialog(null);
+		
 		if (error) {
 			console.error(error);
 		} else if (data.id == null) {
-			console.error("Unable to book slot");
+			if (isUnbook) {
+				console.log("Unable to unbook device");
+			} else {
+				console.error("Unable to book slot");
+			}
 		} else {
 			let temp_equipment = equipment;
 			const index = temp_equipment.findIndex(
@@ -48,12 +60,18 @@ export default function Home() {
 					device => device.id == data.device_id
 				));
 			if (index !== -1) {
-				temp_equipment[index].bookings.push(data);
+				if (isUnbook) {
+					temp_equipment[index].bookings = temp_equipment[index].bookings.filter(
+						booking => booking.id != data.id
+					);
+				} else {
+					temp_equipment[index].bookings.push(data);
+				}
 			}
 			setEquipment([...temp_equipment]);
 		}
 	}
-
+	
 	useEffect(() => {
 		const temp_equipment = [];
 		async function getAllByEquipment() {
@@ -69,7 +87,11 @@ export default function Home() {
 				.eq("booking_date", getDateString(date))
 				.then(response => {
 					response.data.forEach(booking => {
-						const index = temp_equipment.findIndex(equipment => equipment.devices.some(device => device.id === booking.device_id));
+						const index = temp_equipment.findIndex(
+							eq => eq.devices.some(
+								device => device.id === booking.device_id
+							)
+						);
 						if (index !== -1) {
 							temp_equipment[index].bookings.push(booking);
 						}
@@ -88,18 +110,26 @@ export default function Home() {
 					<div className="dialog-container">
 						<h5>Slot Info</h5>
 						<p>
-							Equipment name: {dialog.equipment_name}
-							Device name: {dialog.device_name}
-							Slot: {dialog.start_time} - {dialog.end_time}
-							{dialog.booked && <p>Booked by: {dialog.email}</p>}
+							<b>Equipment name:</b> {dialog.equipment_name} <br />
+							<b>Device name:</b> {dialog.device_name} <br />
+							<b>Slot:</b> {dialog.start_time} - {dialog.end_time} <br />
+							{dialog.booked &&
+								<p>
+									<b>Booked by:</b> {dialog.email}
+								</p>
+							}
 						</p>
 						<div className="centeredDiv" style={{justifyContent: "space-between"}}>
 							<button onClick={() => setDialog(null)}>Close</button>
-							{!dialog.booked && dialog.email == user.email &&
-								<button onClick={() => bookDevice(dialog.device_id, dialog.slot_id)}>Unbook</button>
+							{dialog.booked && dialog.email === user.email &&
+								<button onClick={() => bookDevice(dialog.device_id, dialog.slot_id, true)}>
+									Unbook
+								</button>
 							}
 							{!dialog.booked &&
-								<button onClick={() => bookDevice(dialog.device_id, dialog.slot_id)}>Book</button>
+								<button onClick={() => bookDevice(dialog.device_id, dialog.slot_id)}>
+									Book
+								</button>
 							}
 						</div>
 					</div>
@@ -188,26 +218,53 @@ export default function Home() {
 											{equipment_item.slots[0] != null && equipment_item.slots.map(slot => {
 												return <td key={slot.id}>
 													{(() => {
-														var test = equipment_item.bookings.find(booking => {
-															if (!booking)
+														var booking = equipment_item.bookings.find(b => {
+															if (!b)
 																return false;
-															return booking.device_id === device.id && booking.slot_id === slot.id;
+															return b.device_id === device.id && b.slot_id === slot.id;
 														})
 														var temp_date = new Date();
 														temp_date.setHours(0, 0, 0, 0);
-														if (test) {
-															return <div>{test.email}</div>
+														if (booking) {
+															return <div
+																style={{
+																	display: "flex",
+																}}>
+																<button
+																	className="slot-red"
+																	onClick={() => {
+																		setDialog({
+																			equipment_name: equipment_item.equipment,
+																			device_name: device.name,
+																			start_time: getTimeString(slot.start_time),
+																			end_time: getTimeString(slot.end_time),
+																			device_id: device.id,
+																			slot_id: slot.id,
+																			booked: true,
+																			email: booking.email,
+																		})
+																	}}
+																/>
+															</div>
 														} else if (date < temp_date) { 
 															return <div className="slot-grey"></div>
 														} else {
-															return <div>
-																<div
+															return <div
+																style={{
+																	display: "flex",
+																}}>
+																<button
 																	className="slot-green"
 																	onClick={() => {
-																		bookDevice(
-																			device.id,
-																			slot.id
-																		);
+																		setDialog({
+																			equipment_name: equipment_item.equipment,
+																			device_name: device.name,
+																			start_time: getTimeString(slot.start_time),
+																			end_time: getTimeString(slot.end_time),
+																			device_id: device.id,
+																			slot_id: slot.id,
+																			booked: false,
+																		})
 																	}}
 																/>
 															</div>

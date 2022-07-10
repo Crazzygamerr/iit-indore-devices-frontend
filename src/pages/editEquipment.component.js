@@ -188,6 +188,7 @@ const EditEquipment = () => {
 				<input
 					type='text'
 					name='name'
+					maxLength={30}
 					value={equipment.equipment_name}
 					onChange={e => {
 						setEquipment({ ...equipment, equipment_name: e.target.value });
