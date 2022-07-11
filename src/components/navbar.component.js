@@ -31,6 +31,7 @@ export default function MyNavbar() {
 						</Nav>
 						<Nav className="">
 							<NavDropdown title={user.email} id="basic-nav-dropdown">
+								<NavDropdown.Item href="/reset-password">Reset Password</NavDropdown.Item>
 								<NavDropdown.Item onClick={() => { supabase.auth.signOut() }}>Sign Out</NavDropdown.Item>
 							</NavDropdown>
 						</Nav>

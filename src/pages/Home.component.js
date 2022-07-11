@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
 import { useAuth } from "../Auth";
+import { supabase } from "../supabaseClient";
 
 import { CircularProgress } from "@mui/material";
 import TextField from '@mui/material/TextField';
@@ -8,7 +8,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
-import { getTimeString, getDateString } from "../components/utils";
+import { getDateString, getTimeString } from "../components/utils";
 import "./home.css";
 
 /* 
@@ -19,24 +19,27 @@ import "./home.css";
 // no booking for past date
 // email sign in error handling
 // unbook slot
-My bookings
+// My bookings
+// forgot password
+Add confirmation dialogs
 sort filter search
-forgot password
 pagination
  */
 
 /* 
+To be discussed:
 Added name length limit
-
+OAuth
+Download data format
  */
 export default function Home() {
 	const [equipment, setEquipment] = useState([]);
 	const [date, setDate] = useState(new Date());
 	const [search, setSearch] = useState("");
 	const [dialog, setDialog] = useState(null);
-	
+
 	const { user } = useAuth();
-	
+
 	async function handleBooking(device_id, slot_id, isUnbook) {
 		const { data, error } = await supabase.rpc((isUnbook) ? "unbook_device" : "bookdevice", {
 			b_date: getDateString(date),
@@ -44,7 +47,7 @@ export default function Home() {
 			d_id: device_id,
 		});
 		setDialog(null);
-		
+
 		if (error) {
 			console.error(error);
 		} else if (data.id == null) {
@@ -71,7 +74,7 @@ export default function Home() {
 			setEquipment([...temp_equipment]);
 		}
 	}
-	
+
 	useEffect(() => {
 		const temp_equipment = [];
 		async function getAllByEquipment() {
@@ -81,7 +84,7 @@ export default function Home() {
 					temp_equipment.push(...response.data);
 				})
 				.catch(error => console.log(error));
-			
+
 			await supabase.from("bookings")
 				.select()
 				.eq("booking_date", getDateString(date, true))
@@ -119,7 +122,7 @@ export default function Home() {
 								</p>
 							}
 						</p>
-						<div className="centeredDiv" style={{justifyContent: "space-between"}}>
+						<div className="centered-div" style={{ justifyContent: "space-between" }}>
 							<button onClick={() => setDialog(null)}>Close</button>
 							{dialog.booked && dialog.email === user.email &&
 								<button onClick={() => handleBooking(dialog.device_id, dialog.slot_id, true)}>
@@ -140,13 +143,13 @@ export default function Home() {
 				padding: "10px",
 			}}>
 				<input
-						type="text"
-						placeholder="Search"
-						className="search-input"
-						onChange={(e) => {
-							setSearch(e.target.value);
-						}}
-					/>
+					type="text"
+					placeholder="Search"
+					className="search-input"
+					onChange={(e) => {
+						setSearch(e.target.value);
+					}}
+				/>
 			</div>
 			<div style={{
 				display: "flex",
@@ -168,7 +171,7 @@ export default function Home() {
 				</LocalizationProvider>
 			</div>
 			{equipment.length === 0 &&
-				<div className="centeredDiv">
+				<div className="centered-div">
 					<CircularProgress />
 				</div>
 			}
@@ -180,13 +183,13 @@ export default function Home() {
 			{equipment.length !== 0 &&
 				equipment.map(equipment_item => {
 					if (!(equipment_item.equipment.toLowerCase().includes(search.toLowerCase())
-						|| equipment_item.devices.some(device => device.name.toLowerCase().includes(search.toLowerCase())))) 
+						|| equipment_item.devices.some(device => device.name.toLowerCase().includes(search.toLowerCase()))))
 						return null;
-					
+
 					return <div
 						key={equipment_item.equipment_id}
 						className="card-style"
-						style={{overflow: "auto"}}
+						style={{ overflow: "auto" }}
 					>
 						<div style={{ marginBottom: "1%" }}>
 							<h5>{equipment_item.equipment}</h5>
@@ -212,8 +215,8 @@ export default function Home() {
 							<tbody>
 								{equipment_item.devices[0] != null &&
 									equipment_item.devices.map(device => {
-										if(!device.name.toLowerCase().includes(search.toLowerCase())) return null;
-										
+										if (!device.name.toLowerCase().includes(search.toLowerCase())) return null;
+
 										return <tr key={device.id}>
 											<td>{device.name}</td>
 											{equipment_item.slots[0] != null && equipment_item.slots.map(slot => {
@@ -224,11 +227,11 @@ export default function Home() {
 																return false;
 															return b.device_id === device.id && b.slot_id === slot.id;
 														})
-														
+
 														// var temp_date = new Date();
 														// temp_date.setHours(0, 0, 0, 0);
 														const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), slot.end_time.split(":")[0], slot.end_time.split(":")[1], slot.end_time.split(":")[2]);
-														
+
 														if (booking) {
 															return <div
 																style={{
@@ -250,7 +253,7 @@ export default function Home() {
 																	}}
 																/>
 															</div>
-														} else if (d < new Date()) { 
+														} else if (d < new Date()) {
 															return <div className="slot-grey"></div>
 														} else {
 															return <div

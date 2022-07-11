@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../Auth';
 import { getDateString, getTimeString } from '../components/utils';
+import { supabase } from '../supabaseClient';
 
 export default function Bookings() {
 	const { user } = useAuth();
 	const [upcomingBookings, setUpcomingBookings] = useState([]);
 	const [pastBookings, setPastBookings] = useState([]);
-		
+
 	useEffect(() => {
 		supabase.from('bookings')
 			.select(`
@@ -33,7 +33,7 @@ export default function Bookings() {
 				const past = [];
 				response.data.forEach(booking => {
 					const d = new Date(booking.booking_date + " " + booking.slot.end_time);
-					
+
 					if (d > new Date()) {
 						upcoming.push(booking);
 					} else {
@@ -45,30 +45,30 @@ export default function Bookings() {
 				// console.log(past, upcoming);
 			}).catch(error => console.log(error));
 	}, [user]);
-	
+
 	return (
-		<div style={{padding: '10px'}}>
+		<div style={{ padding: '10px' }}>
 			<h3>Bookings</h3>
 			<div>
 				<h5>Upcoming</h5>
-				{upcomingBookings.length === 0 && 
-					<div className='centeredDiv'>
+				{upcomingBookings.length === 0 &&
+					<div className='centered-div'>
 						<p>No upcoming bookings</p>
 					</div>
 				}
-				{upcomingBookings.length !== 0 && 
+				{upcomingBookings.length !== 0 &&
 					<BookingTable
 						bookings={upcomingBookings}
 						isUpcoming={true}
 						setUpcomingBookings={setUpcomingBookings}
-				/>
+					/>
 				}
 			</div>
 			<br />
 			<div>
 				<h5>Past Bookings</h5>
 				{pastBookings.length === 0 &&
-					<div className='centeredDiv'>
+					<div className='centered-div'>
 						<p>No past bookings</p>
 					</div>
 				}
@@ -81,7 +81,7 @@ export default function Bookings() {
 }
 
 // define a component that renders a table of devices
-function BookingTable({bookings, isUpcoming, setUpcomingBookings}) {
+function BookingTable({ bookings, isUpcoming, setUpcomingBookings }) {
 	return (
 		<table>
 			<thead>

@@ -32,7 +32,7 @@ export default function EquipmentList() {
 		>
 			<h3>Equipment</h3>
 			{loading &&
-				<div className='centeredDiv'>
+				<div className='centered-div'>
 					<CircularProgress />
 				</div>
 			}

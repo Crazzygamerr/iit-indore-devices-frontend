@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import { CircularProgress, IconButton } from '@mui/material';
-import { getTimeString, getDateString } from '../components/utils';
+import { getDateString, getTimeString } from '../components/utils';
 
 const EditDevice = () => {
 	const [device, setDevice] = useState({ name: "" });
@@ -34,7 +34,7 @@ const EditDevice = () => {
 				.catch(function (error) {
 					console.log(error);
 				});
-			
+
 			supabase.from("bookings")
 				.select(`
 				id,
@@ -91,7 +91,7 @@ const EditDevice = () => {
 			<div>
 				<h4>Equipment</h4>
 				{loading &&
-					<div className='centeredDiv'>
+					<div className='centered-div'>
 						<CircularProgress />
 					</div>
 				}
@@ -142,7 +142,7 @@ const EditDevice = () => {
 				<h4>Bookings</h4>
 			}
 			{loading &&
-				<div className='centeredDiv'>
+				<div className='centered-div'>
 					<CircularProgress />
 				</div>
 			}

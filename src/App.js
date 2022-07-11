@@ -10,10 +10,10 @@ import Home from './pages/home.component';
 import EditEquipment from "./pages/editEquipment.component";
 import Equipments from "./pages/equipments.component";
 
-import NotFound from './pages/NotFound.component';
-import SignUp from './pages/SignUp.component';
-import ForgotPassword from "./pages/forgotPassword.component";
 import Bookings from "./pages/bookings.component";
+import NotFound from './pages/NotFound.component';
+import ResetPassword from "./pages/resetPassword.component";
+import SignUp from './pages/SignUp.component';
 
 import './styles.css';
 
@@ -26,7 +26,7 @@ function App() {
 					<Routes>
 						<Route path="/signin" element={<SignUp />} />
 						<Route path="/signup" element={<SignUp />} />
-						{/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
+						<Route path="/reset-password" element={<ResetPassword />} />
 
 						<Route path="/" element={<PrivateRoute />}>
 							<Route path="/" element={<Home />} />

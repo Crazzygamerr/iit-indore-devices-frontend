@@ -1,18 +1,18 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
-import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
-import { IconButton, CircularProgress } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import { CircularProgress, IconButton } from "@mui/material";
 
 const FitStyle = {
 	whiteSpace: 'nowrap',
-  maxWidth: '1%'
+	maxWidth: '1%'
 };
-	
+
 function removeDevice(id) {
 	supabase.from("devices")
 		.delete()
@@ -27,9 +27,9 @@ function removeDevice(id) {
 
 const Devices = () => {
 	const navigate = useNavigate();
-	
+
 	const [devices, setDevices] = useState([]);
-	
+
 	useEffect(() => {
 
 		supabase.from("devices")
@@ -44,15 +44,15 @@ const Devices = () => {
 			.catch(function (error) {
 				console.log(error);
 			});
-		
+
 	}, []);
-	
+
 	return (
 		<div style={{
 			padding: "1%",
 		}}>
 			<h3>Device List</h3>
-			{devices.length === 0 && <div className='centeredDiv'>
+			{devices.length === 0 && <div className='centered-div'>
 				<CircularProgress />
 			</div>}
 			<div>
@@ -62,7 +62,7 @@ const Devices = () => {
 				<div style={{
 					overflowX: 'auto',
 				}}>
-					<table style={{width: "fit-content"}}>
+					<table style={{ width: "fit-content" }}>
 						<thead>
 							<tr>
 								<th>Device Name</th>

@@ -1,14 +1,14 @@
-import { Children, useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { CircularProgress, IconButton, TextField } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { Children, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Spacer } from '../components/spacer.component';
 import { getTimeString } from '../components/utils';
+import { supabase } from '../supabaseClient';
 
 // import './editDevice.css';
 
@@ -201,7 +201,7 @@ const EditEquipment = () => {
 			}}>
 				<h4>Slots</h4>
 				{loading &&
-					<div className='centeredDiv'>
+					<div className='centered-div'>
 						<CircularProgress />
 					</div>
 				}
