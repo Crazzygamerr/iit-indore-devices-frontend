@@ -12,7 +12,7 @@ export default function ResetPassword() {
 	async function handleSubmit(e) {
 		e.preventDefault();
 		
-		const { response, error } = await supabase.auth.update({
+		const { data, error } = await supabase.auth.update({
 			password: password.current.value,
 		});
 		

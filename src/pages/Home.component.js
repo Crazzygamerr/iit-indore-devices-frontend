@@ -176,8 +176,10 @@ export default function Home() {
 				</div>
 			}
 			{/* <button onClick={() => {
-				supabase.rpc("get_all").then(response => {
-					console.log(JSON.stringify(response.data, null, 2));
+				supabase.rpc("does_email_exist", {
+					email_param: "xaxem99271@leupus.com"
+				}).then(response => {
+					console.log(response);
 				});
 			}}>Call</button> */}
 			{equipment.length !== 0 &&

@@ -30,15 +30,33 @@ export default function Signup() {
 	const [errorToast, setErrorToast] = useState({
 		title: '',
 		description: '',
-		isNotError: false,
+		isError: true,
 	});
 	const [showForgotDialog, setShowForgotDialog] = useState(false);
+	
+	async function checkIfUserExists(email) {
+		const { data, error } = await supabase.rpc('does_email_exist', {
+			email_param: email,
+		});
+		
+		return data;
+	}
 	
 	async function forgotPassword(e) {
 		e.preventDefault();
 		const email = forgotEmailRef.current.value;
 		
-		const { response, error } = await supabase.auth.signIn({
+		if (!(await checkIfUserExists(email))) {
+			setErrorToast({
+				title: 'Error',
+				description: 'Email id does not exist.',
+				isError: true,
+			});
+			setShowToast(true);
+			return;
+		}
+		
+		const { data, error } = await supabase.auth.signIn({
 			email: email,
 		});
 		
@@ -46,14 +64,14 @@ export default function Signup() {
 			setErrorToast({
 				title: 'Error',
 				description: error.message,
-				isNotError: false,
+				isError: true,
 			});
 			setShowToast(true);
 		} else {
 			setErrorToast({
 				title: 'Success',
 				description: 'Check your email for a login link.',
-				isNotError: true,
+				isError: false,
 			});
 			setShowToast(true);
 			setShowForgotDialog(false);
@@ -68,28 +86,41 @@ export default function Signup() {
 		
 		let resError = null;
 		if (location.pathname === '/signup') {
-			const { response, error, user, session } = await supabase.auth.signUp({ email, password });
+			
+			if (await checkIfUserExists(email)) {
+				setErrorToast({
+					title: 'Error',
+					description: 'Email id already exists.',
+					isError: true,
+				});
+				setShowToast(true);
+				return;
+			}
+			
+			const { error, user, session } = await supabase.auth.signUp({ email, password });
 			
 			if (user && !session) {
 				resError = {
 					description: 'You have successfully signed up. Please check your email to confirm your account.',
-					isNotError: true
+					isError: false
 				};
 			} else if (error || !user || !session) { 
 				resError = {
 					title: 'Error',
 					description: error.message || 'Something went wrong. Please try again later.',
+					isError: true
 				};
 			} else {
 				navigate("/");
 			}
 		} else {
-			const { response, error, user, session } = await supabase.auth.signIn({ email, password });
+			const { error, user, session } = await supabase.auth.signIn({ email, password });
 			
 			if (error || !user || !session) { 
 				resError = {
 					title: 'Error',
 					description: error.message || 'Something went wrong. Please try again later.',
+					isError: true
 				};
 			} else {
 				navigate("/");
@@ -99,7 +130,7 @@ export default function Signup() {
 			setErrorToast({
 				title: resError.title,
 				description: resError.description,
-				isNotError: resError.isNotError
+				isError: resError.isError
 			});
 			setShowToast(true);
 		}
@@ -130,7 +161,7 @@ export default function Signup() {
 				className={`
 				notification
 				${showToast ? "notification--active" : ""}
-				${(errorToast && errorToast.isNotError) ? "notification--green" : ""}
+				${(errorToast && !errorToast.isError) ? "notification--green" : ""}
 				`}>
 				<p className="notification-title">{(errorToast != null) ? errorToast.title : ""}</p>
 				<p className="notification-message">
@@ -198,10 +229,6 @@ export default function Signup() {
 								<Link
 									className='forgot-password-link'
 									to="" onClick={() => {
-										// supabase.auth.api.resetPasswordForEmail(
-										// 	emailRef.current.value,
-										// 	{ redirectTo: 'https://localhost:3000/forgot-password' }
-										// )
 										setShowForgotDialog(true);
 									}}>
 									Forgot Password?
