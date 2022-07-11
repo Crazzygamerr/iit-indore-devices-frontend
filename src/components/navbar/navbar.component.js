@@ -1,8 +1,8 @@
 import React from 'react';
-import { useAuth } from "../Auth";
+import { useAuth } from "../../Utils/Auth";
 import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { Container } from "react-bootstrap";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../../Utils/supabaseClient";
 import 'bootstrap/dist/css/bootstrap.min.css';
 // import './navbar.css';
 

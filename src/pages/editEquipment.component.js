@@ -7,8 +7,8 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { Children, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Spacer } from '../components/spacer.component';
-import { getTimeString } from '../components/utils';
-import { supabase } from '../supabaseClient';
+import { getTimeString } from '../Utils/utilities';
+import { supabase } from '../Utils/supabaseClient';
 
 // import './editDevice.css';
 

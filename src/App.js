@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { AuthProvider } from './Auth';
-import MyNavbar from './components/navbar.component';
+import { AuthProvider } from './Utils/Auth';
+import MyNavbar from './components/navbar/navbar.component';
 import { AdminRoute, PrivateRoute } from './components/PrivateRoute.component';
 
 import Devices from "./pages/Devices.component";

@@ -1,3 +1,4 @@
+import { supabase } from "./supabaseClient";
 
 export function getTimeString(date) {
 	return new Date('1970-01-01T' + date + 'Z')
@@ -12,4 +13,12 @@ export function getDateString(date, isUSformat = false) {
 		.toLocaleDateString(isUSformat ? 'en-US' : 'en-GB',
 			{ day: 'numeric', month: 'numeric', year: 'numeric' }
 		);
+}
+
+export async function checkIfEmailExists(email) {
+	const { data, error } = await supabase.rpc('does_email_exist', {
+		email_param: email,
+	});
+
+	return data;
 }

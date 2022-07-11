@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../Auth';
-import { getDateString, getTimeString } from '../components/utils';
-import { supabase } from '../supabaseClient';
+import { useAuth } from '../Utils/Auth';
+import { getDateString, getTimeString } from '../Utils/utilities';
+import { supabase } from '../Utils/supabaseClient';
 
 export default function Bookings() {
 	const { user } = useAuth();

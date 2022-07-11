@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../Utils/supabaseClient';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { CircularProgress, IconButton } from '@mui/material';
-import { getTimeString } from '../components/utils';
+import { getTimeString } from '../Utils/utilities';
 
 export default function EquipmentList() {
 	const [equipment, setEquipment] = useState([]);

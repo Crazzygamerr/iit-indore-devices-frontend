@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../Auth";
-import { supabase } from "../supabaseClient";
+import { useAuth } from "../Utils/Auth";
+import { supabase } from "../Utils/supabaseClient";
 
 import { CircularProgress } from "@mui/material";
 import TextField from '@mui/material/TextField';
@@ -8,7 +8,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
-import { getDateString, getTimeString } from "../components/utils";
+import { getDateString, getTimeString } from "../Utils/utilities";
 import "./home.css";
 
 /* 

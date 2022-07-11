@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../Utils/supabaseClient';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import { CircularProgress, IconButton } from '@mui/material';
-import { getDateString, getTimeString } from '../components/utils';
+import { getDateString, getTimeString } from '../Utils/utilities';
 
 const EditDevice = () => {
 	const [device, setDevice] = useState({ name: "" });
