@@ -10,6 +10,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import { getDateString, getTimeString } from "../Utils/utilities";
 import "./home.css";
+import Toast from "../components/toast/toast.component";
 
 /* 
 // remove add devices from nav
@@ -37,6 +38,11 @@ export default function Home() {
 	const [date, setDate] = useState(new Date());
 	const [search, setSearch] = useState("");
 	const [dialog, setDialog] = useState(null);
+	const [toastDetails, setToastDetails] = useState({
+		title: '',
+		description: '',
+		isError: true,
+	});
 
 	const { user } = useAuth();
 
@@ -49,12 +55,27 @@ export default function Home() {
 		setDialog(null);
 
 		if (error) {
-			console.error(error);
+			// console.error(error);
+			setToastDetails({
+				title: 'Error',
+				description: error.message,
+				isError: true,
+			});
 		} else if (data.id == null) {
 			if (isUnbook) {
-				console.log("Unable to unbook device");
+				// console.log("Unable to unbook device");
+				setToastDetails({
+					title: 'Error',
+					description: "Unable to unbook device",
+					isError: true,
+				});
 			} else {
-				console.error("Unable to book slot");
+				// console.error("Unable to book slot");
+				setToastDetails({
+					title: 'Error',
+					description: "Unable to book slot",
+					isError: true,
+				});
 			}
 		} else {
 			let temp_equipment = equipment;
@@ -83,7 +104,14 @@ export default function Home() {
 					response.data.forEach(element => element.bookings = []);
 					temp_equipment.push(...response.data);
 				})
-				.catch(error => console.log(error));
+				.catch(error => {
+					// console.error(error);
+					setToastDetails({
+						title: 'Error',
+						description: error.message,
+						isError: true,
+					});
+				});
 
 			await supabase.from("bookings")
 				.select()
@@ -100,7 +128,14 @@ export default function Home() {
 						}
 					});
 					setEquipment(temp_equipment);
-				}).catch(error => console.log(error));
+				}).catch(error => {
+					// console.log(error);
+					setToastDetails({
+						title: 'Error',
+						description: error.message,
+						isError: true,
+					});
+				});
 		}
 
 		getAllByEquipment();
@@ -108,6 +143,9 @@ export default function Home() {
 
 	return (
 		<div style={{ padding: "10px" }}>
+			
+			<Toast toastDetails={toastDetails} />
+			
 			{dialog &&
 				<div className="dialog-backdrop">
 					<div className="dialog-container">
@@ -122,7 +160,10 @@ export default function Home() {
 								</p>
 							}
 						</p>
-						<div className="centered-div" style={{ justifyContent: "space-between" }}>
+						<div className="centered-div" style={{
+							flexDirection: 'row',
+							justifyContent: "space-between"
+						}}>
 							<button onClick={() => setDialog(null)}>Close</button>
 							{dialog.booked && dialog.email === user.email &&
 								<button onClick={() => handleBooking(dialog.device_id, dialog.slot_id, true)}>

@@ -2,17 +2,17 @@ import React, { useState, useEffect } from "react";
 import './toast.css';
 
 export default function Toast({
-	errorToast
+	toastDetails
 }) {
 	
 	const [showToast, setShowToast] = useState(false);
 	
 	useEffect(() => {
-		if (errorToast.title !== '') {
+		if (toastDetails.title !== '') {
 			setShowToast(true);
 			
 			const interval = setInterval(() => {
-				if (errorToast) {
+				if (toastDetails) {
 					setShowToast(false);
 				}
 			}, 4000);
@@ -21,18 +21,18 @@ export default function Toast({
 				clearInterval(interval);
 			}
 		}		
-	}, [errorToast]);
+	}, [toastDetails]);
 	
 	return (
 		<div
 			className={`
 			notification
 			${showToast ? "notification--active" : ""}
-			${(errorToast && !errorToast.isError) ? "notification--green" : ""}
+			${(toastDetails && !toastDetails.isError) ? "notification--green" : ""}
 			`}>
-			<p className="notification-title">{(errorToast != null) ? errorToast.title : ""}</p>
+			<p className="notification-title">{(toastDetails != null) ? toastDetails.title : ""}</p>
 			<p className="notification-message">
-				{(errorToast != null) ? errorToast.description : ""}
+				{(toastDetails != null) ? toastDetails.description : ""}
 			</p>
 		</div>
 	);

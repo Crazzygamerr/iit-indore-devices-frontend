@@ -5,7 +5,7 @@ import { AdminRoute, PrivateRoute } from './components/PrivateRoute.component';
 
 import Devices from "./pages/Devices.component";
 import EditDevice from "./pages/EditDevice.component";
-import Home from './pages/home.component';
+import Home from './pages/Home.component';
 
 import EditEquipment from "./pages/editEquipment.component";
 import Equipments from "./pages/equipments.component";

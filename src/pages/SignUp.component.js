@@ -16,7 +16,7 @@ export default function Signup() {
 	const location = useLocation();
 	const navigate = useNavigate();
 
-	const [errorToast, setErrorToast] = useState({
+	const [toastDetails, setToastDetails] = useState({
 		title: '',
 		description: '',
 		isError: true,
@@ -28,7 +28,7 @@ export default function Signup() {
 		const email = forgotEmailRef.current.value;
 
 		if (!(await checkIfEmailExists(email))) {
-			setErrorToast({
+			setToastDetails({
 				title: 'Error',
 				description: 'Email id does not exist.',
 				isError: true,
@@ -41,13 +41,13 @@ export default function Signup() {
 		});
 
 		if (error) {
-			setErrorToast({
+			setToastDetails({
 				title: 'Error',
 				description: error.message,
 				isError: true,
 			});
 		} else {
-			setErrorToast({
+			setToastDetails({
 				title: 'Success',
 				description: 'Check your email for a login link.',
 				isError: false,
@@ -66,7 +66,7 @@ export default function Signup() {
 		if (location.pathname === '/signup') {
 
 			if (await checkIfEmailExists(email)) {
-				setErrorToast({
+				setToastDetails({
 					title: 'Error',
 					description: 'Email id already exists.',
 					isError: true,
@@ -104,7 +104,7 @@ export default function Signup() {
 			}
 		}
 		if (resError) {
-			setErrorToast({
+			setToastDetails({
 				title: resError.title,
 				description: resError.description,
 				isError: resError.isError
@@ -121,7 +121,7 @@ export default function Signup() {
 	return (
 		<div className='centered-div'>
 			
-			<Toast errorToast={errorToast} />
+			<Toast toastDetails={toastDetails} />
 
 			{showForgotDialog &&
 				<div className="dialog-backdrop">
