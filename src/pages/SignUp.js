@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../Utils/Auth';
-import { Spacer } from '../components/spacer.component';
-import Toast from '../components/toast/toast.component';
+import { Spacer } from '../components/spacer';
+import Toast from '../components/toast/toast';
 import { checkIfEmailExists } from '../Utils/utilities';
 import { supabase } from '../Utils/supabaseClient';
 import './signup.css';

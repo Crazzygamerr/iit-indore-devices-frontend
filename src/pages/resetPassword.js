@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { useAuth } from '../Utils/Auth';
-import { Spacer } from '../components/spacer.component';
+import { Spacer } from '../components/spacer';
 import { supabase } from '../Utils/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 

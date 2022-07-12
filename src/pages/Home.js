@@ -10,7 +10,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import { getDateString, getTimeString } from "../Utils/utilities";
 import "./home.css";
-import Toast from "../components/toast/toast.component";
+import Toast from "../components/toast/toast";
 
 /* 
 // remove add devices from nav

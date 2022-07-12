@@ -6,7 +6,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { Children, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Spacer } from '../components/spacer.component';
+import { Spacer } from '../components/spacer';
 import { getTimeString } from '../Utils/utilities';
 import { supabase } from '../Utils/supabaseClient';
 

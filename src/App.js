@@ -1,19 +1,19 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from './Utils/Auth';
-import MyNavbar from './components/navbar/navbar.component';
-import { AdminRoute, PrivateRoute } from './components/PrivateRoute.component';
+import MyNavbar from './components/navbar/navbar';
+import { AdminRoute, PrivateRoute } from './components/PrivateRoute';
 
-import Devices from "./pages/Devices.component";
-import EditDevice from "./pages/EditDevice.component";
-import Home from './pages/Home.component';
+import Devices from "./pages/Devices";
+import EditDevice from "./pages/EditDevice";
+import Home from './pages/Home';
 
-import EditEquipment from "./pages/editEquipment.component";
-import Equipments from "./pages/equipments.component";
+import EditEquipment from "./pages/editEquipment";
+import Equipments from "./pages/equipments";
 
-import Bookings from "./pages/bookings.component";
-import NotFound from './pages/NotFound.component';
-import ResetPassword from "./pages/resetPassword.component";
-import SignUp from './pages/SignUp.component';
+import Bookings from "./pages/bookings";
+import NotFound from './pages/NotFound';
+import ResetPassword from "./pages/resetPassword";
+import SignUp from './pages/SignUp';
 
 import './styles.css';
 
