@@ -1,13 +1,16 @@
 import { supabase } from "./supabaseClient";
 
-export function getTimeString(date) {
+export function getTimeString(date: string): String {
 	return new Date('1970-01-01T' + date + 'Z')
 		.toLocaleTimeString('en-US',
 			{ timeZone: 'UTC', hour12: true, hour: 'numeric', minute: 'numeric' }
 		);
 }
 
-export function getDateString(date, isUSformat = false) {
+export function getDateString(
+	date: string,
+	isUSformat: boolean = false
+): String {
 	// Supabase/postgres date equates only to the US format
 	return new Date(date)
 		.toLocaleDateString(isUSformat ? 'en-US' : 'en-GB',
@@ -15,10 +18,10 @@ export function getDateString(date, isUSformat = false) {
 		);
 }
 
-export async function checkIfEmailExists(email) {
+export async function checkIfEmailExists(email: string):Promise<boolean> {
 	const { data, error } = await supabase.rpc('does_email_exist', {
 		email_param: email,
 	});
 
-	return data;
+	return (data as any) as boolean;
 }

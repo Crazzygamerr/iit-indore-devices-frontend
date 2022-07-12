@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ResetPassword() {
 	const password = useRef();
-	const { user } = useAuth();
 	const navigate = useNavigate();
 	
 	async function handleSubmit(e) {
