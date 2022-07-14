@@ -22,6 +22,13 @@ export function getDateString(
 	);
 }
 
+export function matchSearch(
+	text: string,
+	search: string
+): boolean {
+	return text.toLowerCase().includes(search.toLowerCase());
+}
+
 export async function checkIfEmailExists(email: string):Promise<boolean> {
 	const { data, error } = await supabase.rpc('does_email_exist', {
 		email_param: email,

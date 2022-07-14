@@ -210,9 +210,7 @@ const EditEquipment = () => {
 					<div>
 						<button onClick={() => {
 							setDialogId(-1);
-						}}>
-							Add Slot
-						</button>
+						}}> + Add Slot</button>
 						<table className='table'>
 							<thead>
 								<tr>

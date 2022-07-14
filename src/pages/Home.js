@@ -21,9 +21,9 @@ import "./home.css";
 // unbook slot
 // My bookings
 // forgot password
+// pagination
 Add confirmation dialogs
 sort filter search
-pagination
  */
 
 /* 

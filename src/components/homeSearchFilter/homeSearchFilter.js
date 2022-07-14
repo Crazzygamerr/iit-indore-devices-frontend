@@ -17,10 +17,11 @@ export default function HomeSearchFilter({
 	return (
 		<div
 			className="HomeSearchFilter__mainDiv">
-			<div>
-				Sort By: 
-			</div>
-			<div>
+			<div style={{
+				whiteSpace: 'nowrap',
+				float: 'left',
+			}}>
+				{"Sort By: "}
 				<button
 					className={`joined-button-left
 						${!searchByEquipment ? "joined-button--inactive" : ""}
@@ -37,17 +38,21 @@ export default function HomeSearchFilter({
 					}}>Devices</button>
 			</div>
 			
-			<LocalizationProvider dateAdapter={AdapterDateFns}>
-				<DatePicker
-					value={date}
-					label="Date"
-					inputFormat="dd/MM/yyyy"
-					onChange={(newValue) => {
-						setDate(newValue);
-					}}
-					renderInput={(params) => <TextField size="small" {...params} />}
-				/>
-			</LocalizationProvider>
+			<div style={{
+				float: 'left',
+			}}>
+				<LocalizationProvider dateAdapter={AdapterDateFns}>
+					<DatePicker
+						value={date}
+						label="Date"
+						inputFormat="dd/MM/yyyy"
+						onChange={(newValue) => {
+							setDate(newValue);
+						}}
+						renderInput={(params) => <TextField sx={{width: "175px",}} size="small" {...params} />}
+					/>
+				</LocalizationProvider>
+			</div>
 		</div>
 	);
 	

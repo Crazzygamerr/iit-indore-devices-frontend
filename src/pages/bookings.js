@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../Utils/Auth';
 import { getDateString, getTimeString } from '../Utils/utilities';
 import { supabase } from '../Utils/supabaseClient';
+import ShowMoreWrapper from '../components/showMoreWrapper/showMoreWrapper';
 
 export default function Bookings() {
 	const { user } = useAuth();
 	const [upcomingBookings, setUpcomingBookings] = useState([]);
+	const [upcomingLength, setUpcomingLength] = useState(10);
 	const [pastBookings, setPastBookings] = useState([]);
+	const [pastLength, setPastLength] = useState(10);
 
 	useEffect(() => {
 		supabase.from('bookings')
@@ -57,11 +60,17 @@ export default function Bookings() {
 					</div>
 				}
 				{upcomingBookings.length !== 0 &&
-					<BookingTable
-						bookings={upcomingBookings}
-						isUpcoming={true}
-						setUpcomingBookings={setUpcomingBookings}
-					/>
+					<ShowMoreWrapper
+						length={upcomingLength}
+						setLength={setUpcomingLength}
+						list_length={upcomingBookings.length}>
+						<BookingTable
+							bookings={upcomingBookings}
+							length={upcomingLength}
+							isUpcoming={true}
+							setUpcomingBookings={setUpcomingBookings}
+						/>
+					</ShowMoreWrapper>
 				}
 			</div>
 			<br />
@@ -73,7 +82,15 @@ export default function Bookings() {
 					</div>
 				}
 				{pastBookings.length !== 0 &&
-					<BookingTable bookings={pastBookings} />
+					<ShowMoreWrapper
+						length={pastLength}
+						setLength={setPastLength}
+						list_length={pastBookings.length}>
+						<BookingTable
+							bookings={pastBookings}
+							length={pastLength}
+						/>
+					</ShowMoreWrapper>
 				}
 			</ div>
 		</div>
@@ -81,7 +98,12 @@ export default function Bookings() {
 }
 
 // define a component that renders a table of devices
-function BookingTable({ bookings, isUpcoming, setUpcomingBookings }) {
+function BookingTable({
+	bookings,
+	length,
+	isUpcoming,
+	setUpcomingBookings
+}) {
 	return (
 		<table>
 			<thead>
@@ -93,8 +115,11 @@ function BookingTable({ bookings, isUpcoming, setUpcomingBookings }) {
 				</tr>
 			</thead>
 			<tbody>
-				{bookings.map(booking => (
-					<tr key={booking.id}>
+				{bookings.map((booking, index) => {
+					
+					if (index >= length) return null;
+					
+					return <tr key={booking.id}>
 						<td>{booking.device.name}</td>
 						<td>{booking.device.equipment.name}</td>
 						<td>{getDateString(booking.booking_date)}</td>
@@ -112,7 +137,7 @@ function BookingTable({ bookings, isUpcoming, setUpcomingBookings }) {
 							</td>
 						}
 					</tr>
-				))}
+				})}
 			</tbody>
 		</table>
 	);

@@ -21,8 +21,8 @@ export default function MyNavbar() {
 						<Nav className="me-auto">
 							{user.isAdmin &&
 								<Nav>
-									<Nav.Link href="/devices">Device List</Nav.Link>
-									<Nav.Link href="/equipments">Equipment List</Nav.Link>
+									<Nav.Link href="/devices">Devices</Nav.Link>
+									<Nav.Link href="/equipments">Equipments</Nav.Link>
 								</Nav>
 							}
 							<Nav>
@@ -40,21 +40,4 @@ export default function MyNavbar() {
 			</Container>
 		</Navbar>
 	);
-	
-	/* return (
-		<nav className="navbar">
-			<a href="/" className="brand-logo">IIT Indore Devices</a>
-			<ul className="navbar-links">
-				{user && user.isAdmin &&
-					<li><a href="/addDevice">Add Device</a></li>
-				}
-				{user ? (
-					<li><a href="/signout">Sign Out</a></li>
-				) : (
-					<li><a href="/signin">Sign In</a></li>
-				)}
-			</ul>
-		</nav>
-	); */
-
 }

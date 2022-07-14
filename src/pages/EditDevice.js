@@ -4,13 +4,16 @@ import { supabase } from '../Utils/supabaseClient';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import { CircularProgress, IconButton } from '@mui/material';
-import { getDateString, getTimeString } from '../Utils/utilities';
+import { getDateString, getTimeString, matchSearch } from '../Utils/utilities';
+import ShowMoreWrapper from '../components/showMoreWrapper/showMoreWrapper';
 
 const EditDevice = () => {
 	const [device, setDevice] = useState({ name: "" });
 	const [equipment, setEquipment] = useState([]);
 	const [bookings, setBookings] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [search, setSearch] = useState("");
+	const [length, setLength] = useState(10);
 
 	const { id } = useParams();
 	let navigate = useNavigate();
@@ -46,7 +49,7 @@ const EditDevice = () => {
 					end_time
 				)`)
 				.eq("device_id", id)
-				.order("booking_date")
+				.order("booking_date", {ascending: false})
 				.then(response => {
 					console.log(response);
 					setBookings(response.data);
@@ -148,40 +151,73 @@ const EditDevice = () => {
 				</div>
 			}
 			{!loading && id &&
-				<table>
-					<thead>
-						<tr>
-							<th>User</th>
-							<th>Date</th>
-							<th>Slot</th>
-						</tr>
-					</thead>
-					<tbody>
-						{bookings.length > 0 && bookings.map((booking, index) => (
-							<tr key={index}>
-								<td>{booking.email}</td>
-								<td>{getDateString(booking.booking_date)}</td>
-								<td>
-									<span className="time-style">
-										{getTimeString(booking.slot.start_time) + " - " + getTimeString(booking.slot.end_time)}
-									</span>
-								</td>
-								<td>
-									<IconButton onClick={() => {
-										supabase.from("bookings")
-											.delete()
-											.eq("id", booking.id)
-											.then(response => {
-												setBookings(bookings.filter(b => b.id != booking.id));
-											}).catch(error => console.log(error));
-									}}>
-										<DeleteIcon />
-									</IconButton>
-								</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
+				<div>
+					No bookings yet!
+				</div>
+			}
+			{!loading && id && bookings.length > 0 &&
+				<div>
+					<input
+						type="text"
+						value={search}
+						onChange={e => setSearch(e.target.value)}
+						placeholder="Search"
+						style={{
+							maxWidth: '500px',
+						}}
+					/>
+					<ShowMoreWrapper
+						length={length}
+						setLength={setLength}
+						list_length={bookings.length}>
+						<table>
+							<thead>
+								<tr>
+									<th>User</th>
+									<th>Date</th>
+									<th>Slot</th>
+								</tr>
+							</thead>
+							<tbody>
+								{bookings.length > 0 && bookings.map((booking, index) => {
+									
+									if (index >= length) return null;
+									if (!(
+										matchSearch(booking.email, search)
+										|| matchSearch(getDateString(booking.booking_date), search)
+										|| matchSearch(
+											getTimeString(booking.slot.start_time)
+											+ " - "
+											+ getTimeString(booking.slot.end_time), search)
+									))
+										return null;
+						
+									return <tr key={index}>
+										<td>{booking.email}</td>
+										<td>{getDateString(booking.booking_date)}</td>
+										<td>
+											<span className="time-style">
+												{getTimeString(booking.slot.start_time) + " - " + getTimeString(booking.slot.end_time)}
+											</span>
+										</td>
+										<td>
+											<IconButton onClick={() => {
+												supabase.from("bookings")
+													.delete()
+													.eq("id", booking.id)
+													.then(response => {
+														setBookings(bookings.filter(b => b.id != booking.id));
+													}).catch(error => console.log(error));
+											}}>
+												<DeleteIcon />
+											</IconButton>
+										</td>
+									</tr>
+								})}
+							</tbody>
+						</table>
+					</ShowMoreWrapper>
+				</div>
 			}
 			<div style={{
 				marginTop: '20px',
