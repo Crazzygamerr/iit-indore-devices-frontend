@@ -8,7 +8,7 @@ export default function Toast({
 	const [showToast, setShowToast] = useState(false);
 	
 	useEffect(() => {
-		if (toastDetails.title !== '') {
+		if (toastDetails.description !== '') {
 			setShowToast(true);
 			
 			const interval = setInterval(() => {
@@ -30,7 +30,7 @@ export default function Toast({
 			${showToast ? "notification--active" : ""}
 			${(toastDetails && !toastDetails.isError) ? "notification--green" : ""}
 			`}>
-			<p className="notification-title">{(toastDetails != null) ? toastDetails.title : ""}</p>
+			<p className="notification-title">{(toastDetails != null) ? ((toastDetails.isError) ? "Error" : "Success") : ""}</p>
 			<p className="notification-message">
 				{(toastDetails != null) ? toastDetails.description : ""}
 			</p>

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../Utils/Auth';
 import { Spacer } from '../components/spacer';
 import Toast from '../components/toast/toast';
-import { checkIfEmailExists } from '../Utils/utilities';
+import { useAuth } from '../Utils/Auth';
 import { supabase } from '../Utils/supabaseClient';
+import { checkIfEmailExists } from '../Utils/utilities';
 import './signup.css';
 
 export default function Signup() {
@@ -28,11 +28,7 @@ export default function Signup() {
 		const email = forgotEmailRef.current.value;
 
 		if (!(await checkIfEmailExists(email))) {
-			setToastDetails({
-				title: 'Error',
-				description: 'Email id does not exist.',
-				isError: true,
-			});
+			setToastDetails({description: 'Email id does not exist.', isError: true});
 			return;
 		}
 
@@ -41,17 +37,9 @@ export default function Signup() {
 		});
 
 		if (error) {
-			setToastDetails({
-				title: 'Error',
-				description: error.message,
-				isError: true,
-			});
+			setToastDetails({description: error.message, isError: true});
 		} else {
-			setToastDetails({
-				title: 'Success',
-				description: 'Check your email for a login link.',
-				isError: false,
-			});
+			setToastDetails({description: 'Check your email for a login link.', isError: false});
 			setShowForgotDialog(false);
 		}
 	}
@@ -66,11 +54,7 @@ export default function Signup() {
 		if (location.pathname === '/signup') {
 
 			if (await checkIfEmailExists(email)) {
-				setToastDetails({
-					title: 'Error',
-					description: 'Email id already exists.',
-					isError: true,
-				});
+				setToastDetails({description: 'Email id already exists.', isError: true});
 				return;
 			}
 
@@ -83,7 +67,6 @@ export default function Signup() {
 				};
 			} else if (error || !user || !session) {
 				resError = {
-					title: 'Error',
 					description: error.message || 'Something went wrong. Please try again later.',
 					isError: true
 				};
@@ -95,7 +78,6 @@ export default function Signup() {
 
 			if (error || !user || !session) {
 				resError = {
-					title: 'Error',
 					description: error.message || 'Something went wrong. Please try again later.',
 					isError: true
 				};
@@ -104,11 +86,7 @@ export default function Signup() {
 			}
 		}
 		if (resError) {
-			setToastDetails({
-				title: resError.title,
-				description: resError.description,
-				isError: resError.isError
-			});
+			setToastDetails({description: resError.description, isError: resError.isError});
 		}
 	}
 
@@ -120,7 +98,7 @@ export default function Signup() {
 
 	return (
 		<div className='centered-div'>
-			
+
 			<Toast toastDetails={toastDetails} />
 
 			{showForgotDialog &&

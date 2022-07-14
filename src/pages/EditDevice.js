@@ -80,6 +80,7 @@ const EditDevice = () => {
 					type='text'
 					name='name'
 					value={device.name}
+					required
 					maxLength={30}
 					onChange={e => {
 						let newDevice = { ...device };

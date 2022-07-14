@@ -9,13 +9,17 @@ export function getTimeString(date: string): String {
 
 export function getDateString(
 	date: string,
-	isUSformat: boolean = false
+	isUSformat: boolean = false,
+	addDays = 0 
 ): String {
 	// Supabase/postgres date equates only to the US format
-	return new Date(date)
-		.toLocaleDateString(isUSformat ? 'en-US' : 'en-GB',
-			{ day: 'numeric', month: 'numeric', year: 'numeric' }
-		);
+	const temp_date = new Date(date);
+	temp_date.setDate(temp_date.getDate() + addDays);
+	
+	return temp_date.toLocaleDateString(
+		isUSformat ? 'en-US' : 'en-GB',
+		{ day: 'numeric', month: 'numeric', year: 'numeric' }
+	);
 }
 
 export async function checkIfEmailExists(email: string):Promise<boolean> {
