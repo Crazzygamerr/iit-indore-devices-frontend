@@ -1,14 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../Utils/Auth";
 import { supabase } from "../Utils/supabaseClient";
 
 import { CircularProgress } from "@mui/material";
 
-import DeviceByEqipmentTable from "../components/deviceByEquipment";
-import DeviceTable from "../components/deviceTable";
+import EqipmentTable from "../components/equipmentTable";
 import HomeSearchFilter from "../components/homeSearchFilter/homeSearchFilter";
 import Toast from "../components/toast/toast";
-import { getDateString } from "../Utils/utilities";
+import { getDateString, TableContext } from "../Utils/utilities";
 import "./home.css";
 
 /* 
@@ -28,7 +27,7 @@ sort filter search
 
 /* 
 To be discussed:
-Added name length limit
+Added name length limit - 30 characters
 OAuth
 Download data format
  */
@@ -37,10 +36,17 @@ export default function Home() {
 	const [date, setDate] = useState(new Date());
 	const [search, setSearch] = useState("");
 	const [dialog, setDialog] = useState(null);
-	const [toastDetails, setToastDetails] = useState({description: '', isError: true});
+	const [toastDetails, setToastDetails] = useState({ description: '', isError: true });
 	const [searchByEquipment, setSearchByEquipment] = useState(true);
 
 	const { user } = useAuth();
+	
+	const context = useMemo(() => ({
+		equipment,
+		date,
+		search,
+		setDialog,
+	}), [equipment, date, search, setDialog]);
 
 	async function handleBooking(device_id, slot_id, isUnbook) {
 		const { data, error } = await supabase.rpc((isUnbook) ? "unbook_device" : "bookdevice", {
@@ -51,12 +57,12 @@ export default function Home() {
 		setDialog(null);
 
 		if (error) {
-			setToastDetails({description: error.message, isError: true});
+			setToastDetails({ description: error.message, isError: true });
 		} else if (data.id == null) {
 			if (isUnbook) {
-				setToastDetails({description: "Unable to unbook device", isError: true});
+				setToastDetails({ description: "Unable to unbook device", isError: true });
 			} else {
-				setToastDetails({description: "Unable to book slot", isError: true});
+				setToastDetails({ description: "Unable to book slot", isError: true });
 			}
 		} else {
 			let temp_equipment = equipment;
@@ -79,14 +85,13 @@ export default function Home() {
 
 	const getBookings = useCallback(
 		async function get_b(
-			temp_equipment,
-			days = 1,
+			temp_equipment
 		) {
 			await supabase.from("bookings")
 				.select()
 				// .eq("booking_date", getDateString(date, true))
 				.gte("booking_date", getDateString(date, true))
-				.lt("booking_date", getDateString(date, true, days))
+				.lt("booking_date", getDateString(date, true, 5))
 				.then(response => {
 					response.data.forEach(booking => {
 						const index = temp_equipment.findIndex(
@@ -99,9 +104,10 @@ export default function Home() {
 						}
 					});
 					setEquipment(temp_equipment);
+					console.log(temp_equipment);
 				}).catch(error => {
 					// console.log(error);
-					setToastDetails({description: error.message, isError: true});
+					setToastDetails({ description: error.message, isError: true });
 				});
 		}, [date]);
 
@@ -115,7 +121,7 @@ export default function Home() {
 				})
 				.catch(error => {
 					// console.error(error);
-					setToastDetails({description: error.message, isError: true});
+					setToastDetails({ description: error.message, isError: true });
 				});
 
 			await getBookings(temp_equipment);
@@ -187,22 +193,18 @@ export default function Home() {
 				</div>
 			}
 			{/* <button onClick={() => {
-				supabase.rpc("does_email_exist", {
-					email_param: "xaxem99271@leupus.com"
+				supabase.rpc("get_all_by_device", {
+					b_date: getDateString(date, true)
 				}).then(response => {
 					console.log(response);
 				});
 			}}>Call</button> */}
 
-			{searchByEquipment ?
-				<DeviceByEqipmentTable
-					equipment={equipment}
-					date={date}
-					search={search}
-					setDialog={setDialog}
-				/> :
-				<DeviceTable />
-			}
+			<TableContext.Provider value={context}>
+				<EqipmentTable
+					searchByEquipment={searchByEquipment}
+				/>
+			</TableContext.Provider>
 
 		</div>
 	);

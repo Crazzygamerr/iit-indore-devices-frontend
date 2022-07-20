@@ -1,4 +1,5 @@
 import { supabase } from "./supabaseClient";
+import { createContext } from "react";
 
 export function getTimeString(date: string): String {
 	return new Date('1970-01-01T' + date + 'Z')
@@ -7,15 +8,20 @@ export function getTimeString(date: string): String {
 		);
 }
 
+export function addDaysToDate(date: string, days: number): Date {
+	const temp_date = new Date(date);
+	temp_date.setDate(temp_date.getDate() + days);
+	return temp_date;
+}
+
 export function getDateString(
 	date: string,
 	isUSformat: boolean = false,
 	addDays = 0 
 ): String {
-	// Supabase/postgres date equates only to the US format
-	const temp_date = new Date(date);
-	temp_date.setDate(temp_date.getDate() + addDays);
 	
+	const temp_date = addDaysToDate(date, addDays);
+	// Supabase/postgres date equates only to the US format
 	return temp_date.toLocaleDateString(
 		isUSformat ? 'en-US' : 'en-GB',
 		{ day: 'numeric', month: 'numeric', year: 'numeric' }
@@ -36,3 +42,6 @@ export async function checkIfEmailExists(email: string):Promise<boolean> {
 
 	return (data as any) as boolean;
 }
+
+// create context for the user
+export const TableContext = createContext({});

@@ -1,14 +1,16 @@
-import React from "react";
-import { getDateString, getTimeString } from "../Utils/utilities";
+import React, { useContext } from "react";
+import { getDateString, getTimeString, TableContext } from "../Utils/utilities";
 
 export default function SlotButton({
-	setDialog,
 	equipment_item,
 	device,
 	slot,
-	date,
-	
+	date
 }) {
+	
+	const {
+		setDialog,
+	} = useContext(TableContext);
 	
 	var booking = equipment_item.bookings.find(b => {
 		if (!b)

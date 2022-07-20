@@ -60,17 +60,21 @@ export default function Bookings() {
 					</div>
 				}
 				{upcomingBookings.length !== 0 &&
-					<ShowMoreWrapper
-						length={upcomingLength}
-						setLength={setUpcomingLength}
-						list_length={upcomingBookings.length}>
-						<BookingTable
-							bookings={upcomingBookings}
+					<div style={{
+						overflowX: 'auto',
+					}}>
+						<ShowMoreWrapper
 							length={upcomingLength}
-							isUpcoming={true}
-							setUpcomingBookings={setUpcomingBookings}
-						/>
-					</ShowMoreWrapper>
+							setLength={setUpcomingLength}
+							list_length={upcomingBookings.length}>
+							<BookingTable
+								bookings={upcomingBookings}
+								length={upcomingLength}
+								isUpcoming={true}
+								setUpcomingBookings={setUpcomingBookings}
+							/>
+						</ShowMoreWrapper>
+					</div>
 				}
 			</div>
 			<br />
@@ -82,15 +86,19 @@ export default function Bookings() {
 					</div>
 				}
 				{pastBookings.length !== 0 &&
-					<ShowMoreWrapper
-						length={pastLength}
-						setLength={setPastLength}
-						list_length={pastBookings.length}>
-						<BookingTable
-							bookings={pastBookings}
+					<div style={{
+						overflowX: 'auto',
+					}}>
+						<ShowMoreWrapper
 							length={pastLength}
-						/>
-					</ShowMoreWrapper>
+							setLength={setPastLength}
+							list_length={pastBookings.length}>
+							<BookingTable
+								bookings={pastBookings}
+								length={pastLength}
+							/>
+						</ShowMoreWrapper>
+					</div>
 				}
 			</ div>
 		</div>
@@ -116,9 +124,9 @@ function BookingTable({
 			</thead>
 			<tbody>
 				{bookings.map((booking, index) => {
-					
+			
 					if (index >= length) return null;
-					
+			
 					return <tr key={booking.id}>
 						<td>{booking.device.name}</td>
 						<td>{booking.device.equipment.name}</td>
