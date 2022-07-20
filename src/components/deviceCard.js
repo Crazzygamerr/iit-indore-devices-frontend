@@ -1,27 +1,26 @@
 import React, { useContext } from "react";
-import { addDaysToDate, getDateString, getTimeString, matchSearch } from "../Utils/utilities";
+import { addDaysToDate, getDateString, getTimeString, matchSearch, TableContext } from "../Utils/utilities";
 import SlotButton from "./slotButton";
-import { TableContext } from "../Utils/utilities";
 
 export default function DeviceCard({
 	equipment_item,
 	device,
 }) {
-	
+
 	const {
 		search,
 		date,
 	} = useContext(TableContext);
-	
-	if (!(matchSearch(equipment_item.equipment, search)
+
+	if (!(matchSearch(equipment_item.equipment_name, search)
 		|| matchSearch(device.name, search)))
 		return null;
-	
+
 	return <div
 		className="card-style">
 		<div style={{ marginBottom: "1%" }}>
 			<h5>{device.name}</h5>
-			<p>Equipment: {equipment_item.equipment}</p>
+			<p>Equipment: {equipment_item.equipment_name}</p>
 		</div>
 		<table>
 			<thead>
@@ -62,5 +61,5 @@ export default function DeviceCard({
 			</tbody>
 		</table>
 	</div>
-	
+
 }

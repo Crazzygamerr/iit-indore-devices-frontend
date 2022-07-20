@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useAuth } from "../Utils/Auth";
-import { supabase } from "../Utils/supabaseClient";
+import { supabase } from "../../Utils/supabaseClient";
 
 import { CircularProgress } from "@mui/material";
 
-import EqipmentTable from "../components/equipmentTable";
-import HomeSearchFilter from "../components/homeSearchFilter/homeSearchFilter";
-import Toast from "../components/toast/toast";
-import { getDateString, TableContext } from "../Utils/utilities";
+import EqipmentTable from "../../components/equipmentTable";
+import HomeSearchFilter from "../../components/homeSearchFilter/homeSearchFilter";
+import Toast from "../../components/toast/toast";
+import { getDateString, TableContext } from "../../Utils/utilities";
 import "./home.css";
+import BookingDialog from "../../components/bookingDialog";
 
 /* 
 // remove add devices from nav
@@ -21,7 +21,7 @@ import "./home.css";
 // My bookings
 // forgot password
 // pagination
-Add confirmation dialogs
+// Add confirmation dialogs
 sort filter search
  */
 
@@ -30,6 +30,7 @@ To be discussed:
 Added name length limit - 30 characters
 OAuth
 Download data format
+Device Equipment change behaviour - delete bookings?
  */
 export default function Home() {
 	const [equipment, setEquipment] = useState([]);
@@ -38,8 +39,6 @@ export default function Home() {
 	const [dialog, setDialog] = useState(null);
 	const [toastDetails, setToastDetails] = useState({ description: '', isError: true });
 	const [searchByEquipment, setSearchByEquipment] = useState(true);
-
-	const { user } = useAuth();
 	
 	const context = useMemo(() => ({
 		equipment,
@@ -55,7 +54,7 @@ export default function Home() {
 			d_id: device_id,
 		});
 		setDialog(null);
-
+		
 		if (error) {
 			setToastDetails({ description: error.message, isError: true });
 		} else if (data.id == null) {
@@ -104,7 +103,6 @@ export default function Home() {
 						}
 					});
 					setEquipment(temp_equipment);
-					console.log(temp_equipment);
 				}).catch(error => {
 					// console.log(error);
 					setToastDetails({ description: error.message, isError: true });
@@ -136,36 +134,13 @@ export default function Home() {
 			<Toast toastDetails={toastDetails} />
 
 			{dialog &&
-				<div className="dialog-backdrop">
-					<div className="dialog-container">
-						<h5>Slot Info</h5>
-						<p>
-							<b>Equipment name:</b> {dialog.equipment_name} <br />
-							<b>Device name:</b> {dialog.device_name} <br />
-							<b>Date:</b> {getDateString(dialog.booking_date)} <br />
-							<b>Slot:</b> {dialog.start_time} - {dialog.end_time} <br />
-							{dialog.booked && <b>Booked by: </b>}
-							{dialog.booked && dialog.email}
-						</p>
-						<div className="centered-div" style={{
-							flexDirection: 'row',
-							justifyContent: "space-between"
-						}}>
-							<button onClick={() => setDialog(null)}>Close</button>
-							{dialog.booked && dialog.email === user.email && dialog.canUnbook &&
-								<button onClick={() => handleBooking(dialog.device_id, dialog.slot_id, true)}>
-									Unbook
-								</button>
-							}
-							{!dialog.booked &&
-								<button onClick={() => handleBooking(dialog.device_id, dialog.slot_id)}>
-									Book
-								</button>
-							}
-						</div>
-					</div>
-				</div>
+				<BookingDialog
+					dialog={dialog}
+					handleBooking={handleBooking}
+					setDialog={setDialog}
+				/>
 			}
+			
 			<h3>Home</h3>
 			<div style={{
 				padding: "10px",

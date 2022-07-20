@@ -9,6 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Spacer } from '../components/spacer';
 import { getTimeString } from '../Utils/utilities';
 import { supabase } from '../Utils/supabaseClient';
+import ConfirmDialog from '../components/confirmDialog';
 
 // import './editDevice.css';
 
@@ -27,9 +28,22 @@ const EditEquipment = () => {
 	const [endTime, setEndTime] = useState(Date.now() + 3600000);
 	const [dialogId, setDialogId] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const [removeId, setRemoveId] = useState(null);
 
 	const { id } = useParams();
 	let navigate = useNavigate();
+	
+	function deleteSlot(slot_id) {
+		supabase.from("slots")
+			.delete().eq("id", slot_id)
+			.then(res => {
+				setEquipment({
+					...equipment,
+					slots: equipment.slots.filter(s => s.id !== slot_id)
+				});
+				setRemoveId(null);
+			}).catch(err => console.log(err));
+	}
 
 	async function saveDevice() {
 		const { data, error } = await supabase
@@ -77,7 +91,6 @@ const EditEquipment = () => {
 					end_time: endTimeString,
 					equipment_id: equipment.equipment_id,
 				});
-			console.log(data);
 			if (error) {
 				console.log(error);
 				return;
@@ -182,6 +195,16 @@ const EditEquipment = () => {
 					</div>
 				</div>
 			}
+			
+			{removeId &&
+				<ConfirmDialog
+					title={`Are you sure you want to remove the slot?`}
+					message="All data, bookings will be lost."
+					setRemoveId={setRemoveId}
+					handleConfirm={() => deleteSlot(removeId)}
+				/>
+			}
+			
 			<h3>{(!equipment) ? "Add Equipment" : "Edit Equipment"}</h3>
 			<div className="card-style">
 				<label>Equipment Name: </label>
@@ -243,15 +266,8 @@ const EditEquipment = () => {
 											<td>
 												<IconButton onClick={() => {
 													if (id) {
-														supabase.from("slots")
-															.delete().eq("id", slot.id)
-															.then(res => {
-																setEquipment({
-																	...equipment,
-																	slots: equipment.slots.filter(s => s.id !== slot.id)
-																});
-															}).catch(err => console.log(err));
-													} else {
+														setRemoveId(slot.id);
+													} else {				
 														setEquipment({
 															...equipment,
 															slots: equipment.slots.filter((s, i) => i !== index)
@@ -269,10 +285,16 @@ const EditEquipment = () => {
 				}
 			</div>
 			<div style={{
+				maxWidth: '300px',
 				marginTop: '20px',
+				display: 'flex',
+				justifyContent: 'space-between',
 			}}>
+				<button type="submit" onClick={() => navigate('/equipments')}>
+					Cancel
+				</button>
 				<button onClick={saveDevice}>
-					{(!id) ? "Add Device" : "Save changes"}
+					{(!id) ? "Add Equipment" : "Save changes"}
 				</button>
 			</div>
 		</div>

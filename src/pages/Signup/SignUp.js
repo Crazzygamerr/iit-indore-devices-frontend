@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Spacer } from '../components/spacer';
-import Toast from '../components/toast/toast';
-import { useAuth } from '../Utils/Auth';
-import { supabase } from '../Utils/supabaseClient';
-import { checkIfEmailExists } from '../Utils/utilities';
+import { Spacer } from '../../components/spacer';
+import Toast from '../../components/toast/toast';
+import { useAuth } from '../../Utils/Auth';
+import { supabase } from '../../Utils/supabaseClient';
+import { checkIfEmailExists } from '../../Utils/utilities';
 import './signup.css';
 
 export default function Signup() {
@@ -109,7 +109,7 @@ export default function Signup() {
 							maxWidth: '300px',
 						}}
 					>
-						<h3>Forgot Password?</h3>
+						<h5>Forgot Password?</h5>
 						<p>Enter your email id to recieve a link to get back into your account</p>
 						<form onSubmit={forgotPassword}>
 							<input

@@ -2,27 +2,26 @@ import React, { useContext } from "react";
 import { getTimeString, matchSearch, TableContext } from "../Utils/utilities";
 import SlotButton from "./slotButton";
 
-export default function EquipmentCard({ 
+export default function EquipmentCard({
 	devicesPerEquipment,
 	equipment_item,
 	equipment_index,
 	length,
 }) {
-	
+
 	const {
 		search,
 		date,
-		setDialog,
 	} = useContext(TableContext);
-	
+
 	if ((devicesPerEquipment[equipment_index - 1] || 0) >= length) return null;
-	if (!(matchSearch(equipment_item.equipment, search)
+	if (!(matchSearch(equipment_item.equipment_name, search)
 		|| equipment_item.devices.some(device => matchSearch(device.name, search))))
 		return null;
 	return <div
 		className="card-style">
 		<div style={{ marginBottom: "1%" }}>
-			<h5>{equipment_item.equipment}</h5>
+			<h5>{equipment_item.equipment_name}</h5>
 		</div>
 		<table>
 			<thead>
@@ -46,7 +45,7 @@ export default function EquipmentCard({
 				{equipment_item.devices[0] != null &&
 					equipment_item.devices.map((device, device_index) => {
 						if ((devicesPerEquipment[equipment_index - 1] || 0) + device_index >= length) return null;
-						if (!(matchSearch(device.name, search) || matchSearch(equipment_item.equipment, search))) return null;
+						if (!(matchSearch(device.name, search) || matchSearch(equipment_item.equipment_name, search))) return null;
 						return <tr key={device.id}>
 							<td>{device.name}</td>
 							{equipment_item.slots[0] != null && equipment_item.slots.map(slot => {
@@ -66,5 +65,5 @@ export default function EquipmentCard({
 			</tbody>
 		</table>
 	</div>
-	
+
 }

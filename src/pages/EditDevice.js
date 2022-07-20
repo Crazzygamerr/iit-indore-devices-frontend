@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { CircularProgress, IconButton } from '@mui/material';
 import { getDateString, getTimeString, matchSearch } from '../Utils/utilities';
 import ShowMoreWrapper from '../components/showMoreWrapper/showMoreWrapper';
+import ConfirmDialog from '../components/confirmDialog';
 
 const EditDevice = () => {
 	const [device, setDevice] = useState({ name: "" });
@@ -14,11 +15,29 @@ const EditDevice = () => {
 	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState("");
 	const [length, setLength] = useState(10);
+	const [removeId, setRemoveId] = useState(null);
 
 	const { id } = useParams();
 	let navigate = useNavigate();
+	
+	function changeEquipment(id) {
+		let newDevice = { ...device };
+		newDevice.equipment_id = id;
+		setDevice(newDevice);
+	}
 
+	function removeBooking(id) {
+		supabase.from("bookings")
+			.delete()
+			.eq("id", id)
+			.then(response => {
+				setBookings(bookings.filter(b => b.id != id));
+				setRemoveId(null);
+			}).catch(error => console.log(error));
+	}
+	
 	async function saveDevice() {
+		delete device.old_equipment_id;
 		await supabase.from("devices")
 			.upsert(device)
 			.then(res => {
@@ -26,13 +45,12 @@ const EditDevice = () => {
 			})
 			.catch(err => console.log(err));
 	}
-
+	
 	useEffect(() => {
 		if (id) {
 			supabase.from("devices").select().eq("id", id)
 				.then(response => {
-					// setName(response.data[0].name);
-					setDevice(response.data[0]);
+					setDevice({ ...response.data[0], old_equipment_id: response.data[0].equipment_id });
 				})
 				.catch(function (error) {
 					console.log(error);
@@ -51,7 +69,6 @@ const EditDevice = () => {
 				.eq("device_id", id)
 				.order("booking_date", {ascending: false})
 				.then(response => {
-					console.log(response);
 					setBookings(response.data);
 				}).catch(error => console.log(error));
 		}
@@ -72,6 +89,23 @@ const EditDevice = () => {
 		<div style={{
 			padding: '1%',
 		}}>
+			{removeId && 
+				<ConfirmDialog
+					title={(removeId >= 0) 
+						? "Are you sure you want to remove the booking?"
+						: "Are you sure you want to change the equipment?"}
+					message={(removeId >= 0) ? "This action cannot be undone." : "------"}
+					setRemoveId={setRemoveId}
+					confirmText={(removeId >= 0) ? "Delete" : "Change"}
+					handleConfirm={() => {
+						if (removeId >= 0) {
+							removeBooking(removeId)
+						} else {
+							saveDevice();
+						}
+					}}
+				/>
+			}
 			<h3>{(!id) ? "Add Device" : "Edit Device"}</h3>
 			<div
 				className="card-style"
@@ -110,18 +144,18 @@ const EditDevice = () => {
 						</thead>
 						<tbody>
 							{equipment.map(equipment => (
-								<tr key={equipment.equipment_id}>
+								<tr
+									key={equipment.equipment_id}
+									style={{cursor: 'pointer'}}
+									onClick={() => changeEquipment(equipment.equipment_id)}>
 									<td>
 										<input
 											type="radio"
 											name="equipment"
 											checked={device.equipment_id == equipment.equipment_id}
 											value={equipment.equipment_id}
-											onChange={e => {
-												let newDevice = { ...device };
-												newDevice.equipment_id = e.target.value;
-												setDevice(newDevice);
-											}} />
+											onChange={() => { }}
+										/>
 									</td>
 									<td>{equipment.equipment_name}</td>
 									<td>
@@ -140,6 +174,25 @@ const EditDevice = () => {
 				}
 			</div>
 			<div style={{
+				maxWidth: '300px',
+				marginTop: '20px',
+				display: 'flex',
+				justifyContent: 'space-between',
+			}}>
+				<button type="submit" onClick={() => navigate('/devices')}>
+					Cancel
+				</button>
+				<button type="submit" onClick={() => {
+					if (device.old_equipment_id != device.equipment_id) {
+						setRemoveId(-1);
+					} else {
+						saveDevice();
+					}
+				}}>
+					{(!id) ? "Add Device" : "Save changes"}
+				</button>
+			</div>
+			<div style={{
 				marginTop: '20px',
 			}}></div>
 			{id &&
@@ -150,7 +203,7 @@ const EditDevice = () => {
 					<CircularProgress />
 				</div>
 			}
-			{!loading && id &&
+			{!loading && id && !(bookings.length > 0) &&
 				<div>
 					No bookings yet!
 				</div>
@@ -202,12 +255,7 @@ const EditDevice = () => {
 										</td>
 										<td>
 											<IconButton onClick={() => {
-												supabase.from("bookings")
-													.delete()
-													.eq("id", booking.id)
-													.then(response => {
-														setBookings(bookings.filter(b => b.id != booking.id));
-													}).catch(error => console.log(error));
+												setRemoveId(booking.id);
 											}}>
 												<DeleteIcon />
 											</IconButton>
@@ -219,12 +267,6 @@ const EditDevice = () => {
 					</ShowMoreWrapper>
 				</div>
 			}
-			<div style={{
-				marginTop: '20px',
-			}}></div>
-			<button type="submit" variant='contained' onClick={saveDevice}>
-				{(!id) ? "Add Device" : "Save changes"}
-			</button>
 		</div>
 	);
 }

@@ -7,11 +7,11 @@ export default function SlotButton({
 	slot,
 	date
 }) {
-	
+
 	const {
 		setDialog,
 	} = useContext(TableContext);
-	
+
 	var booking = equipment_item.bookings.find(b => {
 		if (!b)
 			return false;
@@ -19,13 +19,13 @@ export default function SlotButton({
 			&& b.slot_id === slot.id
 			&& getDateString(b.booking_date) === getDateString(date);
 	})
-	
-	const s_date_time = new Date(date.getFullYear(), date.getMonth(), date.getDate(), slot.end_time.split(":")[0], slot.end_time.split(":")[1], slot.end_time.split(":")[2]);
-	
+
+	const s_date_time = new Date(date.getFullYear(), date.getMonth(), date.getDate(), slot.start_time.split(":")[0], slot.start_time.split(":")[1], slot.start_time.split(":")[2]);
+
 	if (booking) {
 		const b_date = new Date(booking.booking_date);
 		const b_date_time = new Date(b_date.getFullYear(), b_date.getMonth(), b_date.getDate(), slot.start_time.split(":")[0], slot.start_time.split(":")[1], slot.start_time.split(":")[2]);
-		
+
 		return <div
 			style={{
 				display: "flex",
@@ -34,7 +34,7 @@ export default function SlotButton({
 				className="slot-red"
 				onClick={() => {
 					setDialog({
-						equipment_name: equipment_item.equipment,
+						equipment_name: equipment_item.equipment_name,
 						device_name: device.name,
 						start_time: getTimeString(slot.start_time),
 						end_time: getTimeString(slot.end_time),
@@ -59,7 +59,7 @@ export default function SlotButton({
 				className="slot-green"
 				onClick={() => {
 					setDialog({
-						equipment_name: equipment_item.equipment,
+						equipment_name: equipment_item.equipment_name,
 						device_name: device.name,
 						start_time: getTimeString(slot.start_time),
 						end_time: getTimeString(slot.end_time),
@@ -72,5 +72,5 @@ export default function SlotButton({
 			/>
 		</div>
 	}
-	
+
 }

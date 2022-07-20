@@ -7,18 +7,32 @@ import EditIcon from '@mui/icons-material/Edit';
 import { CircularProgress, IconButton } from '@mui/material';
 import { getTimeString } from '../Utils/utilities';
 import ShowMoreWrapper from '../components/showMoreWrapper/showMoreWrapper';
+import ConfirmDialog from '../components/confirmDialog';
 
 export default function EquipmentList() {
 	const [equipment, setEquipment] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [length, setLength] = useState(10);
+	const [removeId, setRemoveId] = useState(null);
 
 	const navigate = useNavigate();
+	
+	function removeEquipment(id) {
+		supabase
+			.from("equipment")
+			.delete()
+			.eq("id", id)
+			.then(response => {
+				setEquipment(equipment.filter(equip => equip.equipment_id !== id));
+				setRemoveId(null);
+			}).catch(error => console.log(error))
+	}
 
 	useEffect(() => {
 		supabase.rpc("get_slots_by_equipment")
 			.then(response => {
 				setEquipment(response.data);
+				console.log(response.data);
 				setLoading(false);
 			})
 			.catch(error => console.log(error));
@@ -30,8 +44,15 @@ export default function EquipmentList() {
 			style={{
 				padding: '1%',
 				overflowX: 'auto',
-			}}
-		>
+			}}>
+			{removeId &&
+				<ConfirmDialog
+					title={`Are you sure you want to remove '${equipment.find(eq => eq.equipment_id === removeId).equipment_name}'?`}
+					message="All data, devices & bookings will be lost."
+					setRemoveId={setRemoveId}
+					handleConfirm={() => removeEquipment(removeId)}
+				/>
+			}
 			<h3>Equipment</h3>
 			{loading &&
 				<div className='centered-div'>
@@ -80,14 +101,7 @@ export default function EquipmentList() {
 										<td>
 											<IconButton
 												onClick={() => {
-													supabase
-														.from("equipment")
-														.delete()
-														.eq("id", equipment_item.equipment_id)
-														.then(response => {
-															console.log(response);
-															window.location.reload();
-														}).catch(error => console.log(error))
+													setRemoveId(equipment_item.equipment_id);
 												}}>
 												<DeleteIcon />
 											</IconButton>

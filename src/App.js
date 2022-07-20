@@ -5,7 +5,7 @@ import { AdminRoute, PrivateRoute } from './components/PrivateRoute';
 
 import Devices from "./pages/Devices";
 import EditDevice from "./pages/EditDevice";
-import Home from './pages/Home';
+import Home from './pages/Home/Home';
 
 import EditEquipment from "./pages/editEquipment";
 import Equipments from "./pages/equipments";
@@ -13,7 +13,7 @@ import Equipments from "./pages/equipments";
 import Bookings from "./pages/bookings";
 import NotFound from './pages/NotFound';
 import ResetPassword from "./pages/resetPassword";
-import SignUp from './pages/SignUp';
+import SignUp from './pages/Signup/SignUp';
 
 import './styles.css';
 
