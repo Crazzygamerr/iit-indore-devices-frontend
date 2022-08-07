@@ -39,8 +39,7 @@ const Devices = () => {
 		supabase.from("devices")
 			.select(`
 				id,
-				name,
-				equipment: equipment_id (name)
+				name
 				`)
 			.then(response => {
 				setDevices(response.data);
@@ -82,7 +81,6 @@ const Devices = () => {
 							<thead>
 								<tr>
 									<th>Device Name</th>
-									<th>Equipment</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -93,7 +91,6 @@ const Devices = () => {
 									return (
 										<tr key={currentDevice.id}>
 											<td>{currentDevice.name}</td>
-											<td>{currentDevice.equipment.name}</td>
 											<td style={FitStyle}>
 												<IconButton onClick={() => navigate("/editDevice/" + currentDevice.id)}>
 													<EditIcon />

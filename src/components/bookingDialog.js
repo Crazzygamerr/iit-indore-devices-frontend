@@ -14,7 +14,6 @@ export default function BookingDialog({
 		<div className="dialog-container">
 			<h5>Slot Info</h5>
 			<p>
-				<b>Equipment name:</b> {dialog.equipment_name} <br />
 				<b>Device name:</b> {dialog.device_name} <br />
 				<b>Date:</b> {getDateString(dialog.booking_date)} <br />
 				<b>Slot:</b> {dialog.start_time} - {dialog.end_time} <br />

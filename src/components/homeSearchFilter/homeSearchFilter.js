@@ -1,19 +1,19 @@
-import React from "react";
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import React from "react";
 
 import './homeSearchFilter.css';
 
 export default function HomeSearchFilter({
 	date,
 	setDate,
-	searchByEquipment,
-	setSearchByEquipment,
+	searchForToday,
+	setSearchForToday,
 }) {
-	
-	
+
+
 	return (
 		<div
 			className="HomeSearchFilter__mainDiv">
@@ -21,23 +21,23 @@ export default function HomeSearchFilter({
 				whiteSpace: 'nowrap',
 				float: 'left',
 			}}>
-				{"Sort By: "}
+				{"Slots for: "}
 				<button
 					className={`joined-button-left
-						${!searchByEquipment ? "joined-button--inactive" : ""}
+						${!searchForToday ? "joined-button--inactive" : ""}
 					`}
 					onClick={() => {
-						setSearchByEquipment(true);
-					}}>Equipment</button>
+						setSearchForToday(true);
+					}}>Today</button>
 				<button
 					className={`joined-button-right
-						${searchByEquipment ? "joined-button--inactive" : ""}
+						${searchForToday ? "joined-button--inactive" : ""}
 					`}
 					onClick={() => {
-						setSearchByEquipment(false);
-					}}>Devices</button>
+						setSearchForToday(false);
+					}}>Next 5 days</button>
 			</div>
-			
+
 			<div style={{
 				float: 'left',
 			}}>
@@ -49,11 +49,11 @@ export default function HomeSearchFilter({
 						onChange={(newValue) => {
 							setDate(newValue);
 						}}
-						renderInput={(params) => <TextField sx={{width: "175px",}} size="small" {...params} />}
+						renderInput={(params) => <TextField sx={{ width: "175px", }} size="small" {...params} />}
 					/>
 				</LocalizationProvider>
 			</div>
 		</div>
 	);
-	
+
 }

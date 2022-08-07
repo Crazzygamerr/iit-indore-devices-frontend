@@ -22,10 +22,23 @@ export function getDateString(
 	
 	const temp_date = addDaysToDate(date, addDays);
 	// Supabase/postgres date equates only to the US format
-	return temp_date.toLocaleDateString(
+	var date_string = temp_date.toLocaleDateString(
 		isUSformat ? 'en-US' : 'en-GB',
 		{ day: 'numeric', month: 'numeric', year: 'numeric' }
 	);
+	
+	if (isUSformat) {
+		date_string = date_string.replace(/\//g, '-');
+		if (date_string.split('-')[1].length === 1) {
+			date_string = date_string.replace(/-/, '-0');
+		}
+		if (date_string.split('-')[0].length === 1) {
+			date_string = "0" + date_string;
+		}
+		date_string = date_string.split('-')[2] + '-' + date_string.split('-')[0] + '-' + date_string.split('-')[1];
+	}
+	
+	return date_string;
 }
 
 export function matchSearch(

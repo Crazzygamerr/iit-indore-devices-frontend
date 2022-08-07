@@ -3,7 +3,7 @@ import { supabase } from "../../Utils/supabaseClient";
 
 import { CircularProgress } from "@mui/material";
 
-import EqipmentTable from "../../components/equipmentTable";
+import DeviceTable from "../../components/deviceTable";
 import HomeSearchFilter from "../../components/homeSearchFilter/homeSearchFilter";
 import Toast from "../../components/toast/toast";
 import { getDateString, TableContext } from "../../Utils/utilities";
@@ -23,29 +23,32 @@ import BookingDialog from "../../components/bookingDialog";
 // pagination
 // Add confirmation dialogs
 sort filter search
+slot time validation
+no need for device
+one slot booking per equipment
+Remarks column
  */
 
 /* 
 To be discussed:
-Added name length limit - 30 characters
-OAuth
-Download data format
+Download data format - send example
 Device Equipment change behaviour - delete bookings?
  */
 export default function Home() {
-	const [equipment, setEquipment] = useState([]);
+	const [devices, setDevices] = useState([]);
 	const [date, setDate] = useState(new Date());
 	const [search, setSearch] = useState("");
 	const [dialog, setDialog] = useState(null);
 	const [toastDetails, setToastDetails] = useState({ description: '', isError: true });
-	const [searchByEquipment, setSearchByEquipment] = useState(true);
+	const [searchForToday, setSearchForToday] = useState(true);
 	
 	const context = useMemo(() => ({
-		equipment,
+		devices,
 		date,
 		search,
 		setDialog,
-	}), [equipment, date, search, setDialog]);
+		searchForToday
+	}), [devices, date, search, setDialog, searchForToday]);
 
 	async function handleBooking(device_id, slot_id, isUnbook) {
 		const { data, error } = await supabase.rpc((isUnbook) ? "unbook_device" : "bookdevice", {
@@ -64,69 +67,43 @@ export default function Home() {
 				setToastDetails({ description: "Unable to book slot", isError: true });
 			}
 		} else {
-			let temp_equipment = equipment;
-			const index = temp_equipment.findIndex(
-				eq => eq.devices.some(
-					device => device.id == data.device_id
-				));
+			let temp_devices = devices;
+			const index = temp_devices.findIndex(d => d.id === data.device_id);
 			if (index !== -1) {
 				if (isUnbook) {
-					temp_equipment[index].bookings = temp_equipment[index].bookings.filter(
+					temp_devices[index].bookings = temp_devices[index].bookings.filter(
 						booking => booking.id != data.id
 					);
 				} else {
-					temp_equipment[index].bookings.push(data);
+					temp_devices[index].bookings.push(data);
 				}
 			}
-			setEquipment([...temp_equipment]);
+			setDevices([...temp_devices]);
 		}
 	}
-
-	const getBookings = useCallback(
-		async function get_b(
-			temp_equipment
-		) {
-			await supabase.from("bookings")
-				.select()
-				// .eq("booking_date", getDateString(date, true))
-				.gte("booking_date", getDateString(date, true))
-				.lt("booking_date", getDateString(date, true, 5))
+	
+	const getAllByDevice = useCallback(
+		async function getAllByDevice() {
+			supabase.rpc(
+				"get_all_by_device",
+				{
+					b_date: getDateString(date, true),
+					days: (searchForToday) ? 1 : 5,
+				}	
+			)
 				.then(response => {
-					response.data.forEach(booking => {
-						const index = temp_equipment.findIndex(
-							eq => eq.devices.some(
-								device => device.id === booking.device_id
-							)
-						);
-						if (index !== -1) {
-							temp_equipment[index].bookings.push(booking);
-						}
-					});
-					setEquipment(temp_equipment);
-				}).catch(error => {
-					// console.log(error);
-					setToastDetails({ description: error.message, isError: true });
-				});
-		}, [date]);
-
-	useEffect(() => {
-		const temp_equipment = [];
-		async function getAllByEquipment() {
-			supabase.rpc("get_all_by_equipment")
-				.then(response => {
-					response.data.forEach(element => element.bookings = []);
-					temp_equipment.push(...response.data);
+					setDevices(response.data);
+					console.log(JSON.stringify(response.data, null, 2));
 				})
 				.catch(error => {
 					// console.error(error);
 					setToastDetails({ description: error.message, isError: true });
 				});
+		}, [date, searchForToday]);
 
-			await getBookings(temp_equipment);
-		}
-
-		getAllByEquipment();
-	}, [date, getBookings]);
+	useEffect(() => {
+		getAllByDevice();
+	}, [date, getAllByDevice]);
 
 	return (
 		<div style={{ padding: "10px" }}>
@@ -141,7 +118,7 @@ export default function Home() {
 				/>
 			}
 			
-			<h3>Home</h3>
+			<h3>Home </h3>
 			<div style={{
 				padding: "10px",
 			}}>
@@ -158,11 +135,11 @@ export default function Home() {
 			<HomeSearchFilter
 				date={date}
 				setDate={setDate}
-				searchByEquipment={searchByEquipment}
-				setSearchByEquipment={setSearchByEquipment}
+				searchForToday={searchForToday}
+				setSearchForToday={setSearchForToday}
 			/>
 
-			{equipment.length === 0 &&
+			{devices.length === 0 &&
 				<div className="centered-div">
 					<CircularProgress />
 				</div>
@@ -176,11 +153,8 @@ export default function Home() {
 			}}>Call</button> */}
 
 			<TableContext.Provider value={context}>
-				<EqipmentTable
-					searchByEquipment={searchByEquipment}
-				/>
+				<DeviceTable />
 			</TableContext.Provider>
-
 		</div>
 	);
 }

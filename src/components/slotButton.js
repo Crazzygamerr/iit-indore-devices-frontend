@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { getDateString, getTimeString, TableContext } from "../Utils/utilities";
 
 export default function SlotButton({
-	equipment_item,
 	device,
 	slot,
 	date
@@ -12,11 +11,11 @@ export default function SlotButton({
 		setDialog,
 	} = useContext(TableContext);
 
-	var booking = equipment_item.bookings.find(b => {
+	var booking = null;
+	booking = device.bookings.find(b => {
 		if (!b)
 			return false;
-		return b.device_id === device.id
-			&& b.slot_id === slot.id
+		return b.slot_id === slot.id
 			&& getDateString(b.booking_date) === getDateString(date);
 	})
 
@@ -34,7 +33,6 @@ export default function SlotButton({
 				className="slot-red"
 				onClick={() => {
 					setDialog({
-						equipment_name: equipment_item.equipment_name,
 						device_name: device.name,
 						start_time: getTimeString(slot.start_time),
 						end_time: getTimeString(slot.end_time),
@@ -59,7 +57,6 @@ export default function SlotButton({
 				className="slot-green"
 				onClick={() => {
 					setDialog({
-						equipment_name: equipment_item.equipment_name,
 						device_name: device.name,
 						start_time: getTimeString(slot.start_time),
 						end_time: getTimeString(slot.end_time),

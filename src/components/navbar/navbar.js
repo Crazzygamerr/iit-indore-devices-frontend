@@ -22,7 +22,6 @@ export default function MyNavbar() {
 							{user.isAdmin &&
 								<Nav>
 									<Nav.Link href="/devices">Devices</Nav.Link>
-									<Nav.Link href="/equipments">Equipments</Nav.Link>
 								</Nav>
 							}
 							<Nav>

@@ -18,11 +18,7 @@ export default function Bookings() {
 				booking_date,
 				device: devices(
 					id,
-					name,
-					equipment: equipment(
-						id,
-						name
-					)
+					name
 				),
 				slot: slots(
 					id,
@@ -34,6 +30,7 @@ export default function Bookings() {
 			.then(response => {
 				const upcoming = [];
 				const past = [];
+				console.log(response);
 				response.data.forEach(booking => {
 					const d = new Date(booking.booking_date + " " + booking.slot.end_time);
 
@@ -117,7 +114,6 @@ function BookingTable({
 			<thead>
 				<tr>
 					<th>Device</th>
-					<th>Equipment</th>
 					<th>Slot</th>
 					<th>Date</th>
 				</tr>
@@ -129,7 +125,6 @@ function BookingTable({
 			
 					return <tr key={booking.id}>
 						<td>{booking.device.name}</td>
-						<td>{booking.device.equipment.name}</td>
 						<td>{getDateString(booking.booking_date)}</td>
 						<td>{getTimeString(booking.slot.start_time)} - {getTimeString(booking.slot.end_time)}</td>
 						{isUpcoming &&

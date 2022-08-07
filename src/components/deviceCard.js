@@ -3,30 +3,28 @@ import { addDaysToDate, getDateString, getTimeString, matchSearch, TableContext 
 import SlotButton from "./slotButton";
 
 export default function DeviceCard({
-	equipment_item,
 	device,
+	length = 1,
 }) {
-
+	
 	const {
 		search,
 		date,
 	} = useContext(TableContext);
 
-	if (!(matchSearch(equipment_item.equipment_name, search)
-		|| matchSearch(device.name, search)))
+	if (!matchSearch(device.device, search))
 		return null;
 
 	return <div
 		className="card-style">
 		<div style={{ marginBottom: "1%" }}>
-			<h5>{device.name}</h5>
-			<p>Equipment: {equipment_item.equipment_name}</p>
+			<h5>{device.device}</h5>
 		</div>
 		<table>
 			<thead>
 				<tr>
 					<th>Date</th>
-					{equipment_item.slots[0] != null && equipment_item.slots.map(slot => {
+					{device.slots[0] != null && device.slots.map(slot => {
 						return <th
 							key={slot.id}
 							style={{
@@ -42,13 +40,12 @@ export default function DeviceCard({
 			</thead>
 			<tbody>
 				{device != null &&
-					[0, 1, 2, 3, 4].map(row => {
+					[...Array(length).keys()].map(row => {
 						return <tr key={row}>
 							<td>{getDateString(date, false, row)}</td>
-							{equipment_item.slots[0] != null && equipment_item.slots.map(slot => {
+							{device.slots[0] != null && device.slots.map(slot => {
 								return <td key={slot.id}>
 									<SlotButton
-										equipment_item={equipment_item}
 										device={device}
 										slot={slot}
 										date={addDaysToDate(date, row)}

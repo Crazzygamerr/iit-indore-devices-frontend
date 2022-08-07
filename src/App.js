@@ -7,9 +7,6 @@ import Devices from "./pages/Devices";
 import EditDevice from "./pages/EditDevice";
 import Home from './pages/Home/Home';
 
-import EditEquipment from "./pages/editEquipment";
-import Equipments from "./pages/equipments";
-
 import Bookings from "./pages/bookings";
 import NotFound from './pages/NotFound';
 import ResetPassword from "./pages/resetPassword";
@@ -39,9 +36,6 @@ function App() {
 								<Route path="/addDevice" element={<EditDevice />} />
 								<Route path="/editDevice/:id" element={<EditDevice />} />
 
-								<Route path="/equipments" element={<Equipments />} />
-								<Route path="/addEquipment" element={<EditEquipment />} />
-								<Route path="/editEquipment/:id" element={<EditEquipment />} />
 							</Route>
 						</Route>
 						<Route path="*" element={<NotFound />} />
