@@ -11,8 +11,6 @@ import { getTimeString } from '../Utils/utilities';
 import { supabase } from '../Utils/supabaseClient';
 import ConfirmDialog from '../components/confirmDialog';
 
-// import './editDevice.css';
-
 const divStyle = {
 	padding: '1%',
 	width: '100%',
@@ -27,8 +25,8 @@ const EditEquipment = () => {
 	const [startTime, setStartTime] = useState(Date.now());
 	const [endTime, setEndTime] = useState(Date.now() + 3600000);
 	const [dialogId, setDialogId] = useState(null);
-	const [loading, setLoading] = useState(true);
 	const [removeId, setRemoveId] = useState(null);
+	const [loading, setLoading] = useState(true);
 
 	const { id } = useParams();
 	let navigate = useNavigate();

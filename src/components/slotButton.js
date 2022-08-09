@@ -12,12 +12,14 @@ export default function SlotButton({
 	} = useContext(TableContext);
 
 	var booking = null;
-	booking = device.bookings.find(b => {
-		if (!b)
-			return false;
-		return b.slot_id === slot.id
-			&& getDateString(b.booking_date) === getDateString(date);
-	})
+	if (device.bookings) {
+		booking = device.bookings.find(b => {
+			if (!b)
+				return false;
+			return b.slot_id === slot.id
+				&& getDateString(b.booking_date) === getDateString(date);
+		})
+	}
 
 	const s_date_time = new Date(date.getFullYear(), date.getMonth(), date.getDate(), slot.start_time.split(":")[0], slot.start_time.split(":")[1], slot.start_time.split(":")[2]);
 
@@ -33,7 +35,7 @@ export default function SlotButton({
 				className="slot-red"
 				onClick={() => {
 					setDialog({
-						device_name: device.name,
+						device_name: device.device,
 						start_time: getTimeString(slot.start_time),
 						end_time: getTimeString(slot.end_time),
 						booking_date: date,
@@ -57,7 +59,7 @@ export default function SlotButton({
 				className="slot-green"
 				onClick={() => {
 					setDialog({
-						device_name: device.name,
+						device_name: device.device,
 						start_time: getTimeString(slot.start_time),
 						end_time: getTimeString(slot.end_time),
 						booking_date: date,

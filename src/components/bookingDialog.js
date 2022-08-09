@@ -26,12 +26,12 @@ export default function BookingDialog({
 			}}>
 				<button onClick={() => setDialog(null)}>Close</button>
 				{dialog.booked && dialog.email === user.email && dialog.canUnbook &&
-					<button onClick={() => handleBooking(dialog.device_id, dialog.slot_id, true)}>
+					<button onClick={() => handleBooking(dialog.device_id, dialog.slot_id, dialog.booking_date, true)}>
 						Unbook
 					</button>
 				}
 				{!dialog.booked &&
-					<button onClick={() => handleBooking(dialog.device_id, dialog.slot_id)}>
+					<button onClick={() => handleBooking(dialog.device_id, dialog.slot_id, dialog.booking_date)}>
 						Book
 					</button>
 				}

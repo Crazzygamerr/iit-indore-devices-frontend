@@ -48,8 +48,8 @@ input[type="text"] {
 }
 
 .dialog-backdrop {
-	position: absolute;
-	z-index: 1;
+	position: fixed;
+	z-index: 5;
 	top: 0;
 	left: 0;
 	width: 100%;

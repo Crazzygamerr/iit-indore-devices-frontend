@@ -21,7 +21,7 @@ export default function DeviceTable() {
 					{devices.length !== 0 &&
 						devices.map((device_item, device_index) => {
 							return <div key={device_item.id}>
-									{(device_index >= length / 5)
+									{(device_index >= (searchForToday ? length : length/5))
 										? <></>
 										: <DeviceCard
 												device={device_item}

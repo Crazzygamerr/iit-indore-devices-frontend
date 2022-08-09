@@ -50,14 +50,14 @@ export default function Home() {
 		searchForToday
 	}), [devices, date, search, setDialog, searchForToday]);
 
-	async function handleBooking(device_id, slot_id, isUnbook) {
+	async function handleBooking(device_id, slot_id, b_date, isUnbook) {
 		const { data, error } = await supabase.rpc((isUnbook) ? "unbook_device" : "bookdevice", {
-			b_date: getDateString(date, true),
+			b_date: getDateString(b_date, true),
 			s_id: slot_id,
 			d_id: device_id,
 		});
 		setDialog(null);
-		
+		// console.log(data);
 		if (error) {
 			setToastDetails({ description: error.message, isError: true });
 		} else if (data.id == null) {
@@ -71,10 +71,15 @@ export default function Home() {
 			const index = temp_devices.findIndex(d => d.id === data.device_id);
 			if (index !== -1) {
 				if (isUnbook) {
-					temp_devices[index].bookings = temp_devices[index].bookings.filter(
-						booking => booking.id != data.id
-					);
+					if (temp_devices[index].bookings) {
+						temp_devices[index].bookings = temp_devices[index].bookings.filter(
+							booking => booking.id != data.id
+						);
+					}
 				} else {
+					if (!temp_devices[index].bookings) {
+						temp_devices[index].bookings = [];
+					}
 					temp_devices[index].bookings.push(data);
 				}
 			}
@@ -93,7 +98,7 @@ export default function Home() {
 			)
 				.then(response => {
 					setDevices(response.data);
-					console.log(JSON.stringify(response.data, null, 2));
+					// console.log(JSON.stringify(response, null, 2));
 				})
 				.catch(error => {
 					// console.error(error);
