@@ -30,7 +30,7 @@ export default function BookingDialog({
 						Unbook
 					</button>
 				}
-				{!dialog.booked &&
+				{!(dialog.booked || dialog.deviceBooked) &&
 					<button onClick={() => handleBooking(dialog.device_id, dialog.slot_id, dialog.booking_date)}>
 						Book
 					</button>

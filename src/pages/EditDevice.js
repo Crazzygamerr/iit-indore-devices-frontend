@@ -16,7 +16,8 @@ import Toast from '../components/toast/toast';
 
 const EditDevice = () => {
 	const [device, setDevice] = useState({
-		name: ""
+		name: "",
+		remarks: "",
 	});
 	const [slots, setSlots] = useState([]);
 	const [bookings, setBookings] = useState([]);
@@ -71,6 +72,7 @@ const EditDevice = () => {
 			.upsert({
 				id: id,
 				name: device.name,
+				remarks: device.remarks,
 			});
 
 		if (error) {
@@ -121,7 +123,8 @@ const EditDevice = () => {
 				.then(response => {
 					setDevice({
 						id: response.data.id,
-						name: response.data.device,
+						name: response.data.device ?? "",
+						remarks: response.data.remarks ?? "",
 					});
 					setSlots(response.data.slots);
 					
@@ -237,6 +240,21 @@ const EditDevice = () => {
 						newDevice.name = e.target.value;
 						setDevice(newDevice);
 					}} />
+				<Spacer height='20px' />
+				<label>Remarks: </label>
+				<TextField
+					label=' '
+					value={device.remarks || ''}
+					fullWidth={true}
+					multiline={true}
+					rows={5}
+					onChange={e => {
+						let newDevice = { ...device };
+						newDevice.remarks = e.target.value;
+						setDevice(newDevice);
+					}}
+				/>
+					
 			</div>
 			<br />
 			<div>

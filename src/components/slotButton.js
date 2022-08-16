@@ -66,6 +66,7 @@ export default function SlotButton({
 						device_id: device.id,
 						slot_id: slot.id,
 						booked: false,
+						deviceBooked: device.isBooked,
 					})
 				}}
 			/>

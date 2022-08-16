@@ -22,17 +22,18 @@ import BookingDialog from "../../components/bookingDialog";
 // forgot password
 // pagination
 // Add confirmation dialogs
+// no need for device
+// one slot booking per equipment
+// Remarks column
 sort filter search
 slot time validation
-no need for device
-one slot booking per equipment
-Remarks column
  */
 
 /* 
 To be discussed:
 Download data format - send example
 Device Equipment change behaviour - delete bookings?
+Disable booking for device
  */
 export default function Home() {
 	const [devices, setDevices] = useState([]);
@@ -83,28 +84,46 @@ export default function Home() {
 					temp_devices[index].bookings.push(data);
 				}
 			}
-			setDevices([...temp_devices]);
+			// setDevices([...temp_devices]);
+			getDeviceBooked([...temp_devices]);
 		}
 	}
 	
-	const getAllByDevice = useCallback(
-		async function getAllByDevice() {
-			supabase.rpc(
-				"get_all_by_device",
-				{
-					b_date: getDateString(date, true),
-					days: (searchForToday) ? 1 : 5,
-				}	
-			)
+	const getDeviceBooked = useCallback(
+		async function getDeviceBooked(temp) {
+			supabase.rpc("get_booked_devices")
 				.then(response => {
-					setDevices(response.data);
-					// console.log(JSON.stringify(response, null, 2));
+					temp = temp.map(device => {
+						device.isBooked = response.data.indexOf(device.id) !== -1;
+						return device;
+					})
+					setDevices(temp);
+					console.log(JSON.stringify(temp, null, 2));
 				})
 				.catch(error => {
 					// console.error(error);
 					setToastDetails({ description: error.message, isError: true });
 				});
-		}, [date, searchForToday]);
+		}, [setDevices]);
+	
+	const getAllByDevice = useCallback(
+		async function getAllByDevice() {
+			var temp = [];
+			await supabase.rpc(
+				"get_all_by_device",
+				{
+					b_date: getDateString(date, true),
+					days: (searchForToday) ? 1 : 5,
+				}	
+			).then(response => {
+					temp = response.data;
+				})
+				.catch(error => {
+					// console.error(error);
+					setToastDetails({ description: error.message, isError: true });
+				});
+			getDeviceBooked(temp);
+		}, [date, searchForToday, getDeviceBooked]);
 
 	useEffect(() => {
 		getAllByDevice();
@@ -150,11 +169,7 @@ export default function Home() {
 				</div>
 			}
 			{/* <button onClick={() => {
-				supabase.rpc("get_all_by_device", {
-					b_date: getDateString(date, true)
-				}).then(response => {
-					console.log(response);
-				});
+				console.log(JSON.stringify(devices, null, 2));
 			}}>Call</button> */}
 
 			<TableContext.Provider value={context}>

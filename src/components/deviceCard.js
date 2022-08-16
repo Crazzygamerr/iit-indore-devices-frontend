@@ -12,13 +12,20 @@ export default function DeviceCard({
 		date,
 	} = useContext(TableContext);
 
-	if (!matchSearch(device.device, search))
+	if (!matchSearch(device.device, search)
+		 && !matchSearch(device.remarks ?? "", search))
 		return null;
 
 	return <div
 		className="card-style">
 		<div style={{ marginBottom: "1%" }}>
 			<h5>{device.device}</h5>
+			<p style={{
+				width: "100%",
+				height: "1.5em",
+				overflow: "hidden",
+			}}
+			>{device.remarks}</p>
 		</div>
 		<table>
 			<thead>

@@ -37,10 +37,7 @@ const Devices = () => {
 	useEffect(() => {
 
 		supabase.from("devices")
-			.select(`
-				id,
-				name
-				`)
+			.select()
 			.then(response => {
 				setDevices(response.data);
 			})
@@ -53,6 +50,8 @@ const Devices = () => {
 	return (
 		<div style={{
 			padding: "1%",
+			maxWidth: '100%',
+			overflowX: 'auto',
 		}}>
 			{removeId &&
 				<ConfirmDialog
@@ -74,13 +73,12 @@ const Devices = () => {
 					length={length}
 					setLength={setLength}
 					list_length={devices.length}>
-					<div style={{
-						overflowX: 'auto',
-					}}>
+					<div>
 						<table>
 							<thead>
 								<tr>
 									<th>Device Name</th>
+									<th>Remark</th>
 								</tr>
 							</thead>
 							<tbody>
