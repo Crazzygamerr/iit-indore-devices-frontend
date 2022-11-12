@@ -20,18 +20,20 @@ export default function DeviceCard({
 		className="card-style">
 		<div style={{ marginBottom: "1%" }}>
 			<h5>{device.device}</h5>
-			<p style={{
-				width: "100%",
-				height: "1.5em",
-				overflow: "hidden",
-			}}
-			>{device.remarks}</p>
+			{device.remarks &&
+				<p style={{
+					width: "100%",
+					height: "1.5em",
+					overflow: "hidden",
+				}}
+				>{device.remarks}</p>
+			}
 		</div>
 		<table>
 			<thead>
 				<tr>
 					<th>Date</th>
-					{device.slots[0] != null && device.slots.map(slot => {
+					{device.slots && device.slots[0] != null && device.slots.map(slot => {
 						return <th
 							key={slot.id}
 							style={{
@@ -50,7 +52,7 @@ export default function DeviceCard({
 					[...Array(length).keys()].map(row => {
 						return <tr key={row}>
 							<td>{getDateString(date, false, row)}</td>
-							{device.slots[0] != null && device.slots.map(slot => {
+							{device.slots && device.slots[0] != null && device.slots.map(slot => {
 								return <td key={slot.id}>
 									<SlotButton
 										device={device}
