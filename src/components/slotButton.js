@@ -46,10 +46,14 @@ export default function SlotButton({
 						canUnbook: (b_date_time > new Date()),
 					})
 				}}
-			/>
+			>
+				<p>{getTimeString(slot.start_time)} - {getTimeString(slot.end_time)}</p>	
+			</button>
 		</div>
 	} else if (s_date_time < new Date()) {
-		return <div className="slot-grey"></div>
+		return <div className="slot-grey">
+			<p>{getTimeString(slot.start_time)} - {getTimeString(slot.end_time)}</p>
+		</div>
 	} else {
 		return <div
 			style={{
@@ -69,7 +73,9 @@ export default function SlotButton({
 						deviceBooked: device.isBooked,
 					})
 				}}
-			/>
+			>
+				<p>{getTimeString(slot.start_time)} - {getTimeString(slot.end_time)}</p>
+			</button>
 		</div>
 	}
 

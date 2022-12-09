@@ -3,16 +3,18 @@ import { supabase } from "../../Utils/supabaseClient";
 
 import { CircularProgress } from "@mui/material";
 
-import DeviceTable from "../../components/deviceTable";
+// import DeviceTable from "../../components/deviceTable";
 // import HomeSearchFilter from "../../components/homeSearchFilter/homeSearchFilter";
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import Toast from "../../components/toast/toast";
-import { getDateString, TableContext } from "../../Utils/utilities";
-import "./home.css";
+import "./home.scss";
 import BookingDialog from "../../components/bookingDialog";
+import { addDaysToDate, getDateString, getTimeString, matchSearch, TableContext } from "../../Utils/utilities";
+import ShowMoreWrapper from "../../components/showMoreWrapper/showMoreWrapper";
+import SlotButton from "../../components/slotButton";
 
 /* 
 // remove add devices from nav
@@ -155,7 +157,6 @@ export default function Home() {
 				}}
 			> Test </button> */}
 			
-			<h3>Home </h3>
 			<div style={{ padding: "10px" }}>
 				<input
 					type="text"
@@ -203,7 +204,49 @@ export default function Home() {
 			}
 
 			<TableContext.Provider value={context}>
-				<DeviceTable />
+				<div style={{
+					overflowX: 'auto',
+				}}>
+					<ShowMoreWrapper
+						list={devices}
+						initial_length={10}
+						builder={(device, device_index) => {
+							if (!matchSearch(device.device, search)
+								&& !matchSearch(device.remarks ?? "", search))
+								return null;
+
+							return <div className="card-style device-card" key={device.id}>
+								<div className="device-desc">
+									<h4>{device.device}</h4>
+									{device.remarks &&
+										<p style={{
+											width: "100%",
+											height: "100%",
+											overflow: "hidden",
+										}}
+										>{device.remarks}</p>
+									}
+								</div>
+								{/* vertical line */}
+								<div style={{
+									borderLeft: "1px solid #e0e0e0",
+								}}></div>
+								<div className="device-slots">
+									{device != null &&
+											device.slots && device.slots[0] != null && device.slots.map(slot => {
+												return <SlotButton
+														key={slot.id}
+														device={device}
+														slot={slot}
+														date={addDaysToDate(date, 0)}
+													/>
+											})
+										}
+								</div>
+							</div>
+						}}
+					/>
+				</div>
 			</TableContext.Provider>
 		</div>
 	);

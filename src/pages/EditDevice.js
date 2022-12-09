@@ -23,7 +23,6 @@ const EditDevice = () => {
 	const [bookings, setBookings] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState("");
-	const [length, setLength] = useState(10);
 	const [bookingRemoveId, setBookingRemoveId] = useState(null);
 	const [startTime, setStartTime] = useState(Date.now());
 	const [endTime, setEndTime] = useState(Date.now() + 3600000);
@@ -365,51 +364,40 @@ const EditDevice = () => {
 						}}
 					/>
 					<ShowMoreWrapper
-						length={length}
-						setLength={(t) => setLength(l => l + t)}
-						list_length={bookings.length}>
-						<table>
-							<thead>
-								<tr>
-									<th>User</th>
-									<th>Date</th>
-									<th>Slot</th>
-								</tr>
-							</thead>
-							<tbody>
-								{bookings.length > 0 && bookings.map((booking, index) => {
-									
-									if (index >= length) return null;
-									if (!(
-										matchSearch(booking.email, search)
-										|| matchSearch(getDateString(booking.booking_date), search)
-										|| matchSearch(
-											getTimeString(booking.slot.start_time)
-											+ " - "
-											+ getTimeString(booking.slot.end_time), search)
-									))
-										return null;
+						isTable={true}
+						columns={['User', 'Date', 'Slot']}
+						list={bookings}
+						initial_length={10}
+						builder={(booking, index) => {
+							if (index >= length) return null;
+							if (!(
+								matchSearch(booking.email, search)
+								|| matchSearch(getDateString(booking.booking_date), search)
+								|| matchSearch(
+									getTimeString(booking.slot.start_time)
+									+ " - "
+									+ getTimeString(booking.slot.end_time), search)
+							))
+								return null;
 						
-									return <tr key={index}>
-										<td>{booking.email}</td>
-										<td>{getDateString(booking.booking_date)}</td>
-										<td>
-											<span className="time-style">
-												{getTimeString(booking.slot.start_time) + " - " + getTimeString(booking.slot.end_time)}
-											</span>
-										</td>
-										<td>
-											<IconButton onClick={() => {
-												setBookingRemoveId(booking.id);
-											}}>
-												<DeleteIcon />
-											</IconButton>
-										</td>
-									</tr>
-								})}
-							</tbody>
-						</table>
-					</ShowMoreWrapper>
+							return <tr key={index}>
+								<td>{booking.email}</td>
+								<td>{getDateString(booking.booking_date)}</td>
+								<td>
+									<span className="time-style">
+										{getTimeString(booking.slot.start_time) + " - " + getTimeString(booking.slot.end_time)}
+									</span>
+								</td>
+								<td>
+									<IconButton onClick={() => {
+										setBookingRemoveId(booking.id);
+									}}>
+										<DeleteIcon />
+									</IconButton>
+								</td>
+							</tr>
+						}}
+					/>
 				</div>
 			}
 		</div>
