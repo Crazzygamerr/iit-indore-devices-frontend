@@ -100,7 +100,7 @@ export default function Home() {
 						return device;
 					})
 					setDevices(temp);
-					console.log(JSON.stringify(temp, null, 2));
+					// console.log(JSON.stringify(temp, null, 2));
 				})
 				.catch(error => {
 					// console.error(error);
@@ -143,6 +143,15 @@ export default function Home() {
 					setDialog={setDialog}
 				/>
 			}
+			
+			<button
+				onClick={() => {
+					supabase.rpc("get_is_admin")
+						.then(response => {
+							console.log(JSON.stringify(response, null, 2));
+						})
+				}}
+			> Test </button>
 			
 			<h3>Home </h3>
 			<div style={{

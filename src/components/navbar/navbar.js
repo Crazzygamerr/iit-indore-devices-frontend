@@ -12,7 +12,7 @@ export default function MyNavbar() {
 	return (
 		<Navbar collapseOnSelect bg="dark" variant="dark" expand="md">
 			<Container fluid>
-				<Navbar.Brand href="/">IIT Indore Devices</Navbar.Brand>
+				<Navbar.Brand href="/">Slot Booking</Navbar.Brand>
 				{user &&
 					<Navbar.Toggle aria-controls="basic-navbar-nav" />
 				}
