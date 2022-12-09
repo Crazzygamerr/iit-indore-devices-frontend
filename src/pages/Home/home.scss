@@ -1,4 +1,11 @@
 
+@mixin make-flex($dir: column, $align: center, $just: center) {
+  display: flex;
+  flex-direction: $dir;
+  align-items: $align;
+  justify-content: $just;
+}
+
 .HomeSearchFilter__mainDiv {
 	display: flex;
 	flex-direction: row;
@@ -40,25 +47,53 @@
 	}
 }
 
-.slot-grey, .slot-red, .slot-green {
+.slotButton {
 	width: fit-content;
 	height: 35px;
+	padding: 5px 10px;
 	border-radius: 5px;
+	@include make-flex(row);
+	gap: 10px;
+	
 	font-size: 14px;
-	padding: 5px;
 	white-space: nowrap;
-	/* color: #fff; */
+	background-color: transparent;
+	color: #000;
+	
+	div {
+		width: 10px;
+    height: 10px;
+    border-radius: 10px;
+	}
+	
+	p {
+		margin: 0;
+	}
+	
+	&--grey {
+		border: 1px solid #696868;	
+		background-color: #dbd9d9;
+		
+		div {
+			background-color: #696868;
+		}
+	}
+	
+	&--red {
+		border: 1px solid #FF0000;
+		
+		div {
+			background-color: #FF0000;
+		}
+	}
+	
+	&--green {
+		border: 1px solid rgb(17, 184, 17);
+		
+		div {
+			background-color: rgb(17, 184, 17);
+		}
+	}
 }
 
-.slot-grey {
-	background-color: #969696;	
-}
-
-.slot-red {
-	background-color: #FF0000;
-}
-
-.slot-green {
-	background-color: rgb(17, 184, 17);
-}
 

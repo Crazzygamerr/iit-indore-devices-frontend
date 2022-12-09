@@ -49,15 +49,13 @@ export default function Home() {
 	const [search, setSearch] = useState("");
 	const [dialog, setDialog] = useState(null);
 	const [toastDetails, setToastDetails] = useState({ description: '', isError: true });
-	const [searchForToday, setSearchForToday] = useState(true);
 	
 	const context = useMemo(() => ({
 		devices,
 		date,
 		search,
 		setDialog,
-		searchForToday
-	}), [devices, date, search, setDialog, searchForToday]);
+	}), [devices, date, search, setDialog]);
 
 	async function handleBooking(device_id, slot_id, b_date, isUnbook) {
 		const { data, error } = await supabase.rpc((isUnbook) ? "unbook_device" : "bookdevice", {
@@ -70,11 +68,7 @@ export default function Home() {
 		if (error) {
 			setToastDetails({ description: error.message, isError: true });
 		} else if (data.id == null) {
-			if (isUnbook) {
-				setToastDetails({ description: "Unable to unbook device", isError: true });
-			} else {
-				setToastDetails({ description: "Unable to book slot", isError: true });
-			}
+			setToastDetails({ description: `Unable to ${isUnbook ? 'unbook device' : 'book slot'}`, isError: true });
 		} else {
 			let temp_devices = devices;
 			const index = temp_devices.findIndex(d => d.id === data.device_id);
@@ -92,27 +86,10 @@ export default function Home() {
 					temp_devices[index].bookings.push(data);
 				}
 			}
-			// setDevices([...temp_devices]);
-			getDeviceBooked([...temp_devices]);
+			setDevices([...temp_devices]);
+			// getDeviceBooked([...temp_devices]);
 		}
 	}
-	
-	const getDeviceBooked = useCallback(
-		async function getDeviceBooked(temp) {
-			supabase.rpc("get_booked_devices")
-				.then(response => {
-					temp = temp.map(device => {
-						device.isBooked = response.data.indexOf(device.id) !== -1;
-						return device;
-					})
-					setDevices(temp);
-					// console.log(JSON.stringify(temp, null, 2));
-				})
-				.catch(error => {
-					// console.error(error);
-					setToastDetails({ description: error.message, isError: true });
-				});
-		}, [setDevices]);
 	
 	const getAllByDevice = useCallback(
 		async function getAllByDevice() {
@@ -121,7 +98,7 @@ export default function Home() {
 				"get_all_by_device",
 				{
 					b_date: getDateString(date, true),
-					days: (searchForToday) ? 1 : 5,
+					days: 1,
 				}	
 			).then(response => {
 					temp = response.data;
@@ -130,8 +107,9 @@ export default function Home() {
 					// console.error(error);
 					setToastDetails({ description: error.message, isError: true });
 				});
-			getDeviceBooked(temp);
-		}, [date, searchForToday, getDeviceBooked]);
+			// getDeviceBooked(temp);
+			setDevices(temp);
+		}, [date]);
 
 	useEffect(() => {
 		getAllByDevice();
@@ -147,15 +125,15 @@ export default function Home() {
 					setDialog={setDialog}
 				/>
 			}
-{/* 			
+			
 			<button
 				onClick={() => {
-					supabase.rpc("get_is_admin")
+					supabase.rpc("get_booked_devices")
 						.then(response => {
 							console.log(JSON.stringify(response, null, 2));
 						})
 				}}
-			> Test </button> */}
+			> Test </button>
 			
 			<div style={{ padding: "10px" }}>
 				<input
@@ -169,7 +147,7 @@ export default function Home() {
 			</div>
 
 			<div className="HomeSearchFilter__mainDiv">
-				<div style={{ whiteSpace: 'nowrap' }}>
+				{/* <div style={{ whiteSpace: 'nowrap' }}>
 					{"Slots for: "}
 					<button
 						className={`joined-button-left ${!searchForToday ? "joined-button--inactive" : ""}`}
@@ -181,7 +159,7 @@ export default function Home() {
 						onClick={() => {
 							setSearchForToday(false);
 						}}>Next 5 days</button>
-				</div>
+				</div> */}
 				<div>
 					<LocalizationProvider dateAdapter={AdapterDateFns}>
 						<DatePicker

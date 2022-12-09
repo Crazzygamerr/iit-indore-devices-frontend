@@ -369,7 +369,6 @@ const EditDevice = () => {
 						list={bookings}
 						initial_length={10}
 						builder={(booking, index) => {
-							if (index >= length) return null;
 							if (!(
 								matchSearch(booking.email, search)
 								|| matchSearch(getDateString(booking.booking_date), search)
