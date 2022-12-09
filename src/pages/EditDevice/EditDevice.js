@@ -13,6 +13,7 @@ import { getDateString, getTimeString, matchSearch } from '../../Utils/utilities
 import ShowMoreWrapper from '../../components/showMoreWrapper/showMoreWrapper';
 import ConfirmDialog from '../../components/confirmDialog';
 import Toast from '../../components/toast/toast';
+import './EditDevice.scss';
 
 const EditDevice = () => {
 	const [device, setDevice] = useState({
@@ -149,9 +150,7 @@ const EditDevice = () => {
 	}, [id]);
 
 	return (
-		<div style={{
-			padding: '1%',
-		}}>
+		<div className='editDevice'>
 			
 			<Toast toastDetails={toastDetails} />
 			
@@ -221,12 +220,8 @@ const EditDevice = () => {
 					}}
 				/>
 			}
-			<h3>{(!id) ? "Add Device" : "Edit Device"}</h3>
-			<div
-				className="card-style"
-				style={{
-					maxWidth: '300px',
-				}}>
+			{/* <h3>{(!id) ? "Add Device" : "Edit Device"}</h3> */}
+			<div className="card-style editDevice__card">
 				<label>Device Name: </label>
 				<input
 					type='text'
@@ -245,160 +240,154 @@ const EditDevice = () => {
 					label=' '
 					value={device.remarks || ''}
 					fullWidth={true}
-					multiline={true}
-					rows={5}
 					onChange={e => {
 						let newDevice = { ...device };
 						newDevice.remarks = e.target.value;
 						setDevice(newDevice);
 					}}
 				/>
-					
+				<Spacer height='20px' />
+				{!loading &&
+					<div className='editDevice__saveButtonDiv'>
+						<button type="submit" onClick={() => navigate('/devices')}>
+							Cancel
+						</button>
+						<button type="submit" onClick={() => {
+							saveDevice();
+						}}>
+							{(!id) ? "Add Device" : "Save changes"}
+						</button>
+					</div>
+				}
 			</div>
-			<br />
-			<div>
-				<h4>Slots</h4>
+			<div className='card-style editDevice__card'>
+				<div>
+					<h4>Slots</h4>
+					{loading &&
+						<div className='centered-div'>
+							<CircularProgress />
+						</div>
+					}
+					{!loading &&
+						<div>
+							{!id &&
+								<button onClick={() => {
+									setDialogId(-1);
+								}}> + Add Slot</button>
+							}
+							<table className='table'>
+								<thead>
+									<tr>
+										<th>No.</th>
+										<th>Start time</th>
+										<th>End time</th>
+									</tr>
+								</thead>
+								<tbody>
+									{slots && Children.toArray(
+										slots.map((slot, index) => (
+											<tr key={slot.id}>
+												<td>{index + 1}</td>
+												<td>{getTimeString(slot.start_time)}</td>
+												<td>{getTimeString(slot.end_time)}</td>
+												{!id &&
+													<td>
+														<IconButton onClick={() => {
+															let startTime = new Date();
+															startTime.setHours(slot.start_time.split(':')[0]);
+															startTime.setMinutes(slot.start_time.split(':')[1]);
+															let endTime = new Date();
+															endTime.setHours(slot.end_time.split(':')[0]);
+															endTime.setMinutes(slot.end_time.split(':')[1]);
+
+															setStartTime(startTime);
+															setEndTime(endTime);
+															setDialogId(slot.id);
+														}}>
+															<EditIcon />
+														</IconButton>
+													</td>
+												}
+												{!id &&
+													<td>
+														<IconButton onClick={() => {
+															setSlots(slots.filter((s, i) => i !== index));
+														}}>
+															<DeleteIcon />
+														</IconButton>
+													</td>
+												}
+											</tr>
+										)))}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+			</div>
+			<Spacer height={20} />
+			<div className='card-style editDevice__card'>
+				{id &&
+					<h4>Bookings</h4>
+				}
 				{loading &&
 					<div className='centered-div'>
 						<CircularProgress />
 					</div>
 				}
-				{!loading &&
-					<div style={{
-						width: 'fit-content'
-					}}>
-						{!id &&
-							<button onClick={() => {
-								setDialogId(-1);
-							}}> + Add Slot</button>
-						}
-						<table className='table'>
-							<thead>
-								<tr>
-									<th>Start time</th>
-									<th>End time</th>
-								</tr>
-							</thead>
-							<tbody>
-								{slots && Children.toArray(
-									slots.map((slot, index) => (
-										<tr key={slot.id}>
-											<td>{getTimeString(slot.start_time)}</td>
-											<td>{getTimeString(slot.end_time)}</td>
-											{!id &&
-												<td>
-													<IconButton onClick={() => {
-														let startTime = new Date();
-														startTime.setHours(slot.start_time.split(':')[0]);
-														startTime.setMinutes(slot.start_time.split(':')[1]);
-														let endTime = new Date();
-														endTime.setHours(slot.end_time.split(':')[0]);
-														endTime.setMinutes(slot.end_time.split(':')[1]);
-
-														setStartTime(startTime);
-														setEndTime(endTime);
-														setDialogId(slot.id);
-													}}>
-														<EditIcon />
-													</IconButton>
-												</td>
-											}
-											{!id &&
-												<td>
-													<IconButton onClick={() => {
-														setSlots(slots.filter((s, i) => i !== index));
-													}}>
-														<DeleteIcon />
-													</IconButton>
-												</td>
-											}
-										</tr>
-									)))}
-							</tbody>
-						</table>
+				{!loading && id && !(bookings.length > 0) &&
+					<div>
+						No bookings yet!
 					</div>
 				}
-			</div>
-			{!loading &&
-				<div style={{
-					maxWidth: '300px',
-					marginTop: '20px',
-					display: 'flex',
-					justifyContent: 'space-between',
-				}}>
-					<button type="submit" onClick={() => navigate('/devices')}>
-						Cancel
-					</button>
-					<button type="submit" onClick={() => {
-						saveDevice();
-					}}>
-						{(!id) ? "Add Device" : "Save changes"}
-					</button>
+				{!loading && id && bookings.length > 0 &&
+					<div>
+						<input
+							type="text"
+							value={search}
+							onChange={e => setSearch(e.target.value)}
+							placeholder="Search"
+							style={{
+								maxWidth: '500px',
+							}}
+						/>
+						<ShowMoreWrapper
+							isTable={true}
+							columns={['User', 'Date', 'Slot']}
+							list={bookings}
+							initial_length={10}
+							builder={(booking, index) => {
+								if (!(
+									matchSearch(booking.email, search)
+									|| matchSearch(getDateString(booking.booking_date), search)
+									|| matchSearch(
+										getTimeString(booking.slot.start_time)
+										+ " - "
+										+ getTimeString(booking.slot.end_time), search)
+								))
+									return null;
+							
+								return <tr key={index}>
+									<td>{booking.email}</td>
+									<td>{getDateString(booking.booking_date)}</td>
+									<td>
+										<span className="time-style">
+											{getTimeString(booking.slot.start_time) + " - " + getTimeString(booking.slot.end_time)}
+										</span>
+									</td>
+									<td>
+										<IconButton onClick={() => {
+											setBookingRemoveId(booking.id);
+										}}>
+											<DeleteIcon />
+										</IconButton>
+									</td>
+								</tr>
+							}}
+						/>
+					</div>
+					}
 				</div>
-			}
-			<div style={{
-				marginTop: '20px',
-			}}></div>
-			{id &&
-				<h4>Bookings</h4>
-			}
-			{loading &&
-				<div className='centered-div'>
-					<CircularProgress />
-				</div>
-			}
-			{!loading && id && !(bookings.length > 0) &&
-				<div>
-					No bookings yet!
-				</div>
-			}
-			{!loading && id && bookings.length > 0 &&
-				<div>
-					<input
-						type="text"
-						value={search}
-						onChange={e => setSearch(e.target.value)}
-						placeholder="Search"
-						style={{
-							maxWidth: '500px',
-						}}
-					/>
-					<ShowMoreWrapper
-						isTable={true}
-						columns={['User', 'Date', 'Slot']}
-						list={bookings}
-						initial_length={10}
-						builder={(booking, index) => {
-							if (!(
-								matchSearch(booking.email, search)
-								|| matchSearch(getDateString(booking.booking_date), search)
-								|| matchSearch(
-									getTimeString(booking.slot.start_time)
-									+ " - "
-									+ getTimeString(booking.slot.end_time), search)
-							))
-								return null;
-						
-							return <tr key={index}>
-								<td>{booking.email}</td>
-								<td>{getDateString(booking.booking_date)}</td>
-								<td>
-									<span className="time-style">
-										{getTimeString(booking.slot.start_time) + " - " + getTimeString(booking.slot.end_time)}
-									</span>
-								</td>
-								<td>
-									<IconButton onClick={() => {
-										setBookingRemoveId(booking.id);
-									}}>
-										<DeleteIcon />
-									</IconButton>
-								</td>
-							</tr>
-						}}
-					/>
-				</div>
-			}
 		</div>
 	);
 }

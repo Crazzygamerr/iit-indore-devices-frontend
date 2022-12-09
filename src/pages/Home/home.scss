@@ -1,10 +1,4 @@
-
-@mixin make-flex($dir: column, $align: center, $just: center) {
-  display: flex;
-  flex-direction: $dir;
-  align-items: $align;
-  justify-content: $just;
-}
+@import '../../Utils/mixins.scss';
 
 .HomeSearchFilter__mainDiv {
 	display: flex;

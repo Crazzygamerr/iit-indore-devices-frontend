@@ -1,0 +1,20 @@
+@import '../../Utils/mixins.scss';
+
+.editDevice {
+	padding: 10px;
+	@include make-flex(column, center, center);
+	
+	&__card {
+		width: 600px;
+	}
+	
+	&__saveButtonDiv {
+		@include make-flex(row, center, space-between);
+		
+		button:nth-child(1) {
+			background-color: white;
+			color: black;
+			border: 1px solid #d0d7de;
+		}
+	}
+}
