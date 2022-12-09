@@ -18,7 +18,6 @@ const Devices = () => {
 	const navigate = useNavigate();
 
 	const [devices, setDevices] = useState([]);
-	const [length, setLength] = useState(10);
 	const [removeId, setRemoveId] = useState(null);
 	
 	function removeDevice(id) {
@@ -70,42 +69,28 @@ const Devices = () => {
 			</div>
 			{devices.length !== 0 &&
 				<ShowMoreWrapper
-					length={length}
-					setLength={setLength}
-					list_length={devices.length}>
-					<div>
-						<table>
-							<thead>
-								<tr>
-									<th>Device Name</th>
-									<th>Remark</th>
-								</tr>
-							</thead>
-							<tbody>
-								{devices.map((currentDevice, index) => {
-					
-									if (index >= length) return null;
-					
-									return (
-										<tr key={currentDevice.id}>
-											<td>{currentDevice.name}</td>
-											<td style={FitStyle}>
-												<IconButton onClick={() => navigate("/editDevice/" + currentDevice.id)}>
-													<EditIcon />
-												</IconButton>
-											</td>
-											<td style={FitStyle}>
-												<IconButton aria-label="delete" onClick={() => setRemoveId(currentDevice.id)}>
-													<DeleteIcon />
-												</IconButton>
-											</td>
-										</tr>
-									)
-								})}
-							</tbody>
-						</table>
-					</div>
-				</ShowMoreWrapper>
+					isTable={true}
+					columns={['Device Name', 'Remark']}
+					list={devices}
+					initial_length={10}
+					builder={(currentDevice, index) => {
+						return (
+							<tr key={currentDevice.id}>
+								<td>{currentDevice.name}</td>
+								<td style={FitStyle}>
+									<IconButton onClick={() => navigate("/editDevice/" + currentDevice.id)}>
+										<EditIcon />
+									</IconButton>
+								</td>
+								<td style={FitStyle}>
+									<IconButton aria-label="delete" onClick={() => setRemoveId(currentDevice.id)}>
+										<DeleteIcon />
+									</IconButton>
+								</td>
+							</tr>
+						)
+					}}
+				/>
 			}
 		</div>
 	);

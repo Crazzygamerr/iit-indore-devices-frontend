@@ -7,9 +7,7 @@ import ShowMoreWrapper from '../components/showMoreWrapper/showMoreWrapper';
 export default function Bookings() {
 	const { user } = useAuth();
 	const [upcomingBookings, setUpcomingBookings] = useState([]);
-	const [upcomingLength, setUpcomingLength] = useState(10);
 	const [pastBookings, setPastBookings] = useState([]);
-	const [pastLength, setPastLength] = useState(10);
 
 	useEffect(() => {
 		supabase.from('bookings')
@@ -60,17 +58,11 @@ export default function Bookings() {
 					<div style={{
 						overflowX: 'auto',
 					}}>
-						<ShowMoreWrapper
-							length={upcomingLength}
-							setLength={setUpcomingLength}
-							list_length={upcomingBookings.length}>
-							<BookingTable
-								bookings={upcomingBookings}
-								length={upcomingLength}
-								isUpcoming={true}
-								setUpcomingBookings={setUpcomingBookings}
-							/>
-						</ShowMoreWrapper>
+						<BookingTable
+							bookings={upcomingBookings}
+							isUpcoming={true}
+							setUpcomingBookings={setUpcomingBookings}
+						/>
 					</div>
 				}
 			</div>
@@ -86,15 +78,9 @@ export default function Bookings() {
 					<div style={{
 						overflowX: 'auto',
 					}}>
-						<ShowMoreWrapper
-							length={pastLength}
-							setLength={setPastLength}
-							list_length={pastBookings.length}>
-							<BookingTable
-								bookings={pastBookings}
-								length={pastLength}
-							/>
-						</ShowMoreWrapper>
+						<BookingTable
+							bookings={pastBookings}
+						/>
 					</div>
 				}
 			</ div>
@@ -105,43 +91,34 @@ export default function Bookings() {
 // define a component that renders a table of devices
 function BookingTable({
 	bookings,
-	length,
 	isUpcoming,
-	setUpcomingBookings
+	setUpcomingBookings,
 }) {
 	return (
-		<table>
-			<thead>
-				<tr>
-					<th>Device</th>
-					<th>Slot</th>
-					<th>Date</th>
+		<ShowMoreWrapper
+			isTable={true}
+			columns={['Device', 'Slot', 'Date']}
+			list={bookings}
+			initial_length={10}
+			builder={(booking, length) => {
+				return <tr key={booking.id}>
+					<td>{booking.device.name}</td>
+					<td>{getDateString(booking.booking_date)}</td>
+					<td>{getTimeString(booking.slot.start_time)} - {getTimeString(booking.slot.end_time)}</td>
+					{isUpcoming &&
+						<td>
+							<button onClick={() => {
+								supabase.from('bookings')
+									.delete()
+									.eq('id', booking.id)
+									.then(response => {
+										setUpcomingBookings(bookings.filter(b => b.id !== booking.id));
+									}).catch(error => console.log(error));
+							}}>Cancel</button>
+						</td>
+					}
 				</tr>
-			</thead>
-			<tbody>
-				{bookings.map((booking, index) => {
-			
-					if (index >= length) return null;
-			
-					return <tr key={booking.id}>
-						<td>{booking.device.name}</td>
-						<td>{getDateString(booking.booking_date)}</td>
-						<td>{getTimeString(booking.slot.start_time)} - {getTimeString(booking.slot.end_time)}</td>
-						{isUpcoming &&
-							<td>
-								<button onClick={() => {
-									supabase.from('bookings')
-										.delete()
-										.eq('id', booking.id)
-										.then(response => {
-											setUpcomingBookings(bookings.filter(b => b.id !== booking.id));
-										}).catch(error => console.log(error));
-								}}>Cancel</button>
-							</td>
-						}
-					</tr>
-				})}
-			</tbody>
-		</table>
+			}}
+		/>
 	);
 }
