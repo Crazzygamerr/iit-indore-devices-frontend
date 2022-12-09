@@ -4,7 +4,7 @@ import MyNavbar from './components/navbar/navbar';
 import { AdminRoute, PrivateRoute } from './components/PrivateRoute';
 
 import Devices from "./pages/Devices";
-import EditDevice from "./pages/EditDevice";
+import EditDevice from "./pages/EditDevice/EditDevice";
 import Home from './pages/Home/Home';
 
 import Bookings from "./pages/bookings";

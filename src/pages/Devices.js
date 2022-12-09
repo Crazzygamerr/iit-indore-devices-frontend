@@ -70,7 +70,7 @@ const Devices = () => {
 			{devices.length !== 0 &&
 				<ShowMoreWrapper
 					isTable={true}
-					columns={['Device Name', 'Remark']}
+					columns={['Device Name']}
 					list={devices}
 					initial_length={10}
 					builder={(currentDevice, index) => {

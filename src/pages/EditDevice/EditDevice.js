@@ -1,6 +1,6 @@
 import { Children, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../Utils/supabaseClient';
+import { supabase } from '../../Utils/supabaseClient';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -8,11 +8,11 @@ import { CircularProgress, IconButton, TextField } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { Spacer } from '../components/spacer';
-import { getDateString, getTimeString, matchSearch } from '../Utils/utilities';
-import ShowMoreWrapper from '../components/showMoreWrapper/showMoreWrapper';
-import ConfirmDialog from '../components/confirmDialog';
-import Toast from '../components/toast/toast';
+import { Spacer } from '../../components/spacer';
+import { getDateString, getTimeString, matchSearch } from '../../Utils/utilities';
+import ShowMoreWrapper from '../../components/showMoreWrapper/showMoreWrapper';
+import ConfirmDialog from '../../components/confirmDialog';
+import Toast from '../../components/toast/toast';
 
 const EditDevice = () => {
 	const [device, setDevice] = useState({
