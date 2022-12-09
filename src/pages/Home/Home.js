@@ -27,6 +27,8 @@ import BookingDialog from "../../components/bookingDialog";
 // Remarks column
 sort filter search
 slot time validation
+Allowed users for each device
+Queue of students for each device
  */
 
 /* 
