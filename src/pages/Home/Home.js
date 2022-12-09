@@ -4,7 +4,11 @@ import { supabase } from "../../Utils/supabaseClient";
 import { CircularProgress } from "@mui/material";
 
 import DeviceTable from "../../components/deviceTable";
-import HomeSearchFilter from "../../components/homeSearchFilter/homeSearchFilter";
+// import HomeSearchFilter from "../../components/homeSearchFilter/homeSearchFilter";
+import TextField from '@mui/material/TextField';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import Toast from "../../components/toast/toast";
 import { getDateString, TableContext } from "../../Utils/utilities";
 import "./home.css";
@@ -133,9 +137,7 @@ export default function Home() {
 
 	return (
 		<div style={{ padding: "10px" }}>
-
 			<Toast toastDetails={toastDetails} />
-
 			{dialog &&
 				<BookingDialog
 					dialog={dialog}
@@ -143,7 +145,7 @@ export default function Home() {
 					setDialog={setDialog}
 				/>
 			}
-			
+{/* 			
 			<button
 				onClick={() => {
 					supabase.rpc("get_is_admin")
@@ -151,12 +153,10 @@ export default function Home() {
 							console.log(JSON.stringify(response, null, 2));
 						})
 				}}
-			> Test </button>
+			> Test </button> */}
 			
 			<h3>Home </h3>
-			<div style={{
-				padding: "10px",
-			}}>
+			<div style={{ padding: "10px" }}>
 				<input
 					type="text"
 					placeholder="Search"
@@ -167,21 +167,40 @@ export default function Home() {
 				/>
 			</div>
 
-			<HomeSearchFilter
-				date={date}
-				setDate={setDate}
-				searchForToday={searchForToday}
-				setSearchForToday={setSearchForToday}
-			/>
+			<div className="HomeSearchFilter__mainDiv">
+				<div style={{ whiteSpace: 'nowrap' }}>
+					{"Slots for: "}
+					<button
+						className={`joined-button-left ${!searchForToday ? "joined-button--inactive" : ""}`}
+						onClick={() => {
+							setSearchForToday(true);
+						}}>Today</button>
+					<button
+						className={`joined-button-right ${searchForToday ? "joined-button--inactive" : ""}`}
+						onClick={() => {
+							setSearchForToday(false);
+						}}>Next 5 days</button>
+				</div>
+				<div>
+					<LocalizationProvider dateAdapter={AdapterDateFns}>
+						<DatePicker
+							value={date}
+							label="Date"
+							inputFormat="dd/MM/yyyy"
+							onChange={(newValue) => {
+								setDate(newValue);
+							}}
+							renderInput={(params) => <TextField sx={{ width: "175px", }} size="small" {...params} />}
+						/>
+					</LocalizationProvider>
+				</div>
+			</div>
 
 			{devices.length === 0 &&
 				<div className="centered-div">
 					<CircularProgress />
 				</div>
 			}
-			{/* <button onClick={() => {
-				console.log(JSON.stringify(devices, null, 2));
-			}}>Call</button> */}
 
 			<TableContext.Provider value={context}>
 				<DeviceTable />
