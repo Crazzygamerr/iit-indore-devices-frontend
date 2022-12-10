@@ -96,7 +96,6 @@ function BookingTable({
 }) {
 	return (
 		<ShowMoreWrapper
-			isTable={true}
 			columns={['Device', 'Slot', 'Date']}
 			list={bookings}
 			initial_length={10}
@@ -104,7 +103,7 @@ function BookingTable({
 				return <tr key={booking.id}>
 					<td>{booking.device.name}</td>
 					<td>{getDateString(booking.booking_date)}</td>
-					<td>{getTimeString(booking.slot.start_time)} - {getTimeString(booking.slot.end_time)}</td>
+					<td>{getTimeString(booking.slot.start_time, booking.slot.end_time)}</td>
 					{isUpcoming &&
 						<td>
 							<button onClick={() => {

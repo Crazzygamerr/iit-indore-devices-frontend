@@ -1,11 +1,18 @@
 import { supabase } from "./supabaseClient";
 import { createContext } from "react";
 
-export function getTimeString(date: string): String {
-	return new Date('1970-01-01T' + date + 'Z')
+export function getTimeString(date: string, date2?: string): String {
+	var s = new Date('1970-01-01T' + date + 'Z')
 		.toLocaleTimeString('en-US',
 			{ timeZone: 'UTC', hour12: true, hour: 'numeric', minute: 'numeric' }
-		);
+	);
+	if (date2) {
+		s += ' - ' + new Date('1970-01-01T' + date2 + 'Z')
+			.toLocaleTimeString('en-US',
+				{ timeZone: 'UTC', hour12: true, hour: 'numeric', minute: 'numeric' }
+			);
+	}
+	return s;
 }
 
 export function addDaysToDate(date: string, days: number): Date {

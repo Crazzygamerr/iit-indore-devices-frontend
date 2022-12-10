@@ -4,7 +4,7 @@ import { supabase } from '../../Utils/supabaseClient';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { CircularProgress, IconButton, TextField } from '@mui/material';
+import { CircularProgress, IconButton, Switch, TextField } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -19,11 +19,11 @@ const EditDevice = () => {
 	const [device, setDevice] = useState({
 		name: "",
 		remarks: "",
+		hasQueue: false,
 	});
 	const [slots, setSlots] = useState([]);
 	const [bookings, setBookings] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [search, setSearch] = useState("");
 	const [bookingRemoveId, setBookingRemoveId] = useState(null);
 	const [startTime, setStartTime] = useState(Date.now());
 	const [endTime, setEndTime] = useState(Date.now() + 3600000);
@@ -48,20 +48,21 @@ const EditDevice = () => {
 	}
 	
 	async function saveDevice() {
-		if (!id) {
-			const { data, error } = await supabase
-				.from("devices")
-				.select()
-				.eq("name", device.name);
-			if (error) {
-				setToastDetails({ message: "An error occurred", isError: true });
-				return;
-			}
-			if (data.length > 0) {
-				setToastDetails({ message: "Device already exists", isError: true });
-				return;
-			}
-		}
+		//! Allow duplicate device names for now
+		// if (!id) {
+		// 	const { data, error } = await supabase
+		// 		.from("devices")
+		// 		.select()
+		// 		.eq("name", device.name);
+		// 	if (error) {
+		// 		setToastDetails({ message: "An error occurred", isError: true });
+		// 		return;
+		// 	}
+		// 	if (data.length > 0) {
+		// 		setToastDetails({ message: "Device already exists", isError: true });
+		// 		return;
+		// 	}
+		// }
 		if (!device.name) {
 			setToastDetails({ message: "Device name is required", isError: true });
 			return;
@@ -83,7 +84,7 @@ const EditDevice = () => {
 			return;
 		}
 		
-		if (!id) {
+		if (!id && !device.hasQueue) {
 			setSlots(slots.map(slot => {
 				slot.device_id = data[0].id;
 				if (!slot.id) {
@@ -125,6 +126,7 @@ const EditDevice = () => {
 						id: response.data.id,
 						name: response.data.device ?? "",
 						remarks: response.data.remarks ?? "",
+						hasQueue: response.data.has_queue ?? false,
 					});
 					setSlots(response.data.slots);
 					
@@ -148,7 +150,12 @@ const EditDevice = () => {
 		}
 
 	}, [id]);
-
+	
+	if (loading) {
+		return <div className='loadingDiv'>
+			<CircularProgress />
+		</div>;
+	}
 	return (
 		<div className='editDevice'>
 			
@@ -247,7 +254,7 @@ const EditDevice = () => {
 					}}
 				/>
 				<Spacer height='20px' />
-				{!loading &&
+				{id &&
 					<div className='editDevice__saveButtonDiv'>
 						<button type="submit" onClick={() => navigate('/devices')}>
 							Cancel
@@ -255,124 +262,125 @@ const EditDevice = () => {
 						<button type="submit" onClick={() => {
 							saveDevice();
 						}}>
-							{(!id) ? "Add Device" : "Save changes"}
+							Save changes
 						</button>
 					</div>
 				}
-			</div>
-			<div className='card-style editDevice__card'>
-				<div>
-					<h4>Slots</h4>
-					{loading &&
-						<div className='centered-div'>
-							<CircularProgress />
-						</div>
-					}
-					{!loading &&
-						<div>
-							{!id &&
-								<button onClick={() => {
-									setDialogId(-1);
-								}}> + Add Slot</button>
-							}
-							<table className='table'>
-								<thead>
-									<tr>
-										<th>No.</th>
-										<th>Start time</th>
-										<th>End time</th>
-									</tr>
-								</thead>
-								<tbody>
-									{slots && Children.toArray(
-										slots.map((slot, index) => (
-											<tr key={slot.id}>
-												<td>{index + 1}</td>
-												<td>{getTimeString(slot.start_time)}</td>
-												<td>{getTimeString(slot.end_time)}</td>
-												{!id &&
-													<td>
-														<IconButton onClick={() => {
-															let startTime = new Date();
-															startTime.setHours(slot.start_time.split(':')[0]);
-															startTime.setMinutes(slot.start_time.split(':')[1]);
-															let endTime = new Date();
-															endTime.setHours(slot.end_time.split(':')[0]);
-															endTime.setMinutes(slot.end_time.split(':')[1]);
-
-															setStartTime(startTime);
-															setEndTime(endTime);
-															setDialogId(slot.id);
-														}}>
-															<EditIcon />
-														</IconButton>
-													</td>
-												}
-												{!id &&
-													<td>
-														<IconButton onClick={() => {
-															setSlots(slots.filter((s, i) => i !== index));
-														}}>
-															<DeleteIcon />
-														</IconButton>
-													</td>
-												}
-											</tr>
-										)))}
-								</tbody>
-							</table>
-						</div>
-					}
-				</div>
-			</div>
-			<Spacer height={20} />
-			<div className='card-style editDevice__card'>
-				{id &&
-					<h4>Bookings</h4>
-				}
-				{loading &&
-					<div className='centered-div'>
-						<CircularProgress />
-					</div>
-				}
-				{!loading && id && !(bookings.length > 0) &&
-					<div>
-						No bookings yet!
-					</div>
-				}
-				{!loading && id && bookings.length > 0 &&
-					<div>
-						<input
-							type="text"
-							value={search}
-							onChange={e => setSearch(e.target.value)}
-							placeholder="Search"
-							style={{
-								maxWidth: '500px',
+				{!id &&
+					<div className='editDevice__queue'>
+						<Switch
+							checked={device.hasQueue}
+							onChange={() => {
+								let newDevice = { ...device };
+								newDevice.hasQueue = !device.hasQueue;
+								setDevice(newDevice);
 							}}
+							name="hasQueue"
+							inputProps={{ 'aria-label': 'secondary checkbox' }}
 						/>
+						<p>Device has a queue </p>
+					</div>
+				}
+			</div>
+			{!device.hasQueue &&
+				<div className='card-style editDevice__card'>
+					<h4>Slots</h4>
+					<div>
+						{!id &&
+							<button onClick={() => {
+								setDialogId(-1);
+							}}> + Add Slot</button>
+						}
+						<table className='table'>
+							<thead>
+								<tr>
+									<th>No.</th>
+									<th>Start time</th>
+									<th>End time</th>
+								</tr>
+							</thead>
+							<tbody>
+								{slots && Children.toArray(
+									slots.map((slot, index) => (
+										<tr key={slot.id}>
+											<td>{index + 1}</td>
+											<td>{getTimeString(slot.start_time)}</td>
+											<td>{getTimeString(slot.end_time)}</td>
+											{!id &&
+												<td>
+													<IconButton onClick={() => {
+														let startTime = new Date();
+														startTime.setHours(slot.start_time.split(':')[0]);
+														startTime.setMinutes(slot.start_time.split(':')[1]);
+														let endTime = new Date();
+														endTime.setHours(slot.end_time.split(':')[0]);
+														endTime.setMinutes(slot.end_time.split(':')[1]);
+
+														setStartTime(startTime);
+														setEndTime(endTime);
+														setDialogId(slot.id);
+													}}>
+														<EditIcon />
+													</IconButton>
+												</td>
+											}
+											{!id &&
+												<td>
+													<IconButton onClick={() => {
+														setSlots(slots.filter((s, i) => i !== index));
+													}}>
+														<DeleteIcon />
+													</IconButton>
+												</td>
+											}
+										</tr>
+									)))}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			}
+			{device.hasQueue && 
+				<div className='card-style editDevice__card'>
+					<h4>Allowed Users</h4>
+				</div>
+			}
+			{!id &&
+				<div className='card-style editDevice__card'>
+					<h4>Add Device?</h4>
+					<div className='editDevice__saveButtonDiv'>
+						<button type="submit" onClick={() => navigate('/devices')}>
+							Cancel
+						</button>
+						<button type="submit" onClick={() => {
+							saveDevice();
+						}}>
+							Confirm
+						</button>
+					</div>
+				</div>
+			}
+			{id &&
+				<div className='card-style editDevice__card'>
+					<h4>Bookings</h4>
+					{!(bookings.length > 0) &&
+						<div>
+							No bookings yet!
+						</div>
+					}
+					{bookings.length > 0 &&
 						<ShowMoreWrapper
-							isTable={true}
 							columns={['User', 'Date', 'Slot']}
 							list={bookings}
 							initial_length={10}
-							builder={(booking, index) => {
-								if (!(
-									matchSearch(booking.email, search)
-									|| matchSearch(getDateString(booking.booking_date), search)
-									|| matchSearch(
-										getTimeString(booking.slot.start_time)
-										+ " - "
-										+ getTimeString(booking.slot.end_time), search)
-								))
-									return null;
-							
+							condition={(booking) => [booking.email, getDateString(booking.booking_date), getTimeString(booking.slot.start_time, booking.slot.end_time)]}
+							builder={(booking, index) => {								
 								return <tr key={index}>
 									<td>{booking.email}</td>
 									<td>{getDateString(booking.booking_date)}</td>
 									<td>
 										<span className="time-style">
-											{getTimeString(booking.slot.start_time) + " - " + getTimeString(booking.slot.end_time)}
+											{getTimeString(booking.slot.start_time, booking.slot.end_time)}
 										</span>
 									</td>
 									<td>
@@ -385,9 +393,9 @@ const EditDevice = () => {
 								</tr>
 							}}
 						/>
-					</div>
-					}
+						}
 				</div>
+			}
 		</div>
 	);
 }

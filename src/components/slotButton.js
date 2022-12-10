@@ -44,12 +44,12 @@ export default function SlotButton({
 			}}
 		>
 			<div />
-			<p>{getTimeString(slot.start_time)} - {getTimeString(slot.end_time)}</p>	
+			<p>{getTimeString(slot.start_time, slot.end_time)}</p>	
 		</button>
 	} else if (s_date_time < new Date()) {
 		return <div className="slotButton slotButton--grey">
 			<div />
-			<p>{getTimeString(slot.start_time)} - {getTimeString(slot.end_time)}</p>
+			<p>{getTimeString(slot.start_time, slot.end_time)}</p>
 		</div>
 	} else {
 		return <button
@@ -67,7 +67,7 @@ export default function SlotButton({
 			}}
 		>
 			<div />
-			<p>{getTimeString(slot.start_time)} - {getTimeString(slot.end_time)}</p>
+			<p>{getTimeString(slot.start_time, slot.end_time)}</p>
 		</button>
 	}
 

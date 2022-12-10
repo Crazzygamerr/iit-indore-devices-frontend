@@ -69,7 +69,6 @@ const Devices = () => {
 			</div>
 			{devices.length !== 0 &&
 				<ShowMoreWrapper
-					isTable={true}
 					columns={['Device Name']}
 					list={devices}
 					initial_length={10}
