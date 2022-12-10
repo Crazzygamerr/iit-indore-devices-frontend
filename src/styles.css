@@ -70,17 +70,6 @@ input[type="text"] {
 	padding: 1%;
 }
 
-.time-style {
-	box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.4);
-	padding: 5px;
-	border-radius: 25px;
-	font-size: 0.75em;
-	margin-right: 4px;
-	margin-top: 8px;
-	float: left;
-	white-space: nowrap;
-}
-
 .github-grey-div {
 	width: 100%;
 	max-width: 300px;

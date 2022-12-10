@@ -5,29 +5,29 @@ import { supabase } from '../../Utils/supabaseClient';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { CircularProgress, IconButton, Switch, TextField } from '@mui/material';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { Spacer } from '../../components/spacer';
 import { getDateString, getTimeString, matchSearch } from '../../Utils/utilities';
 import ShowMoreWrapper from '../../components/showMoreWrapper/showMoreWrapper';
 import ConfirmDialog from '../../components/confirmDialog';
 import Toast from '../../components/toast/toast';
 import './EditDevice.scss';
+import SlotDialog from '../../components/slotDialog';
 
 const EditDevice = () => {
 	const [device, setDevice] = useState({
 		name: "",
 		remarks: "",
-		hasQueue: false,
+		has_queue: false,
+		for_all: true,
 	});
 	const [slots, setSlots] = useState([]);
 	const [bookings, setBookings] = useState([]);
+	const [emailList, setEmailList] = useState([]);
 	const [loading, setLoading] = useState(true);
+	
+	const [addUserDialog, setAddUserDialog] = useState(true);
 	const [bookingRemoveId, setBookingRemoveId] = useState(null);
-	const [startTime, setStartTime] = useState(Date.now());
-	const [endTime, setEndTime] = useState(Date.now() + 3600000);
-	const [dialogId, setDialogId] = useState(null);
+	const [slotDialog, setSlotDialog] = useState(null);
 	const [toastDetails, setToastDetails] = useState({
 		title: '',
 		description: '',
@@ -84,7 +84,7 @@ const EditDevice = () => {
 			return;
 		}
 		
-		if (!id && !device.hasQueue) {
+		if (!id && !device.has_queue) {
 			setSlots(slots.map(slot => {
 				slot.device_id = data[0].id;
 				if (!slot.id) {
@@ -104,15 +104,21 @@ const EditDevice = () => {
 		}
 	}
 	
-	async function addSlot(slot_id) {
+	async function addSlot(slot_id, startTime, endTime) {
 		const startTimeString = new Date(startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).substring(0, 5);
 		const endTimeString = new Date(endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).substring(0, 5);
-		setSlots([...slots, {
-			id: slot_id,
-			start_time: startTimeString,
-			end_time: endTimeString,
-			device_id: id,
-		}]);
+		if (slot_id === -1) {
+			setSlots([...slots, {
+				id: slots.length + 1,
+				start_time: startTimeString,
+				end_time: endTimeString,
+				device_id: id,
+			}]);
+		} else {
+			slots.find(slot => slot.id === slot_id).start_time = startTimeString
+			slots.find(slot => slot.id === slot_id).end_time = endTimeString
+			setSlots([...slots]);
+		}
 	}
 	
 	useEffect(() => {
@@ -122,12 +128,8 @@ const EditDevice = () => {
 					param_id: id,
 				})
 				.then(response => {
-					setDevice({
-						id: response.data.id,
-						name: response.data.device ?? "",
-						remarks: response.data.remarks ?? "",
-						hasQueue: response.data.has_queue ?? false,
-					});
+					console.log(response);
+					setDevice(response.data);
 					setSlots(response.data.slots);
 					
 					var temp = response.data.bookings;
@@ -160,61 +162,12 @@ const EditDevice = () => {
 		<div className='editDevice'>
 			
 			<Toast toastDetails={toastDetails} />
-			
-			{dialogId &&
-				<div className='dialog-backdrop'>
-					<div className="dialog-container">
-						<h5>Add slot</h5>
-						<LocalizationProvider dateAdapter={AdapterDateFns}>
-							<TimePicker
-								renderInput={(props) => <TextField {...props} />}
-								label="Start Time"
-								value={startTime}
-								onChange={(newValue) => {
-									setStartTime(newValue.getTime());
-								}}
-							/>
-						</LocalizationProvider>
-						<Spacer height='20px' />
-						<LocalizationProvider dateAdapter={AdapterDateFns}>
-							<TimePicker
-								renderInput={(props) => <TextField {...props} />}
-								label="End Time"
-								value={endTime}
-								onChange={(newValue) => {
-									setEndTime(newValue.getTime());
-								}}
-							/>
-						</LocalizationProvider>
-						<Spacer height='20px' />
-						<div style={{
-							display: 'flex',
-							justifyContent: 'end',
-						}}>
-							<div style={{
-								display: 'flex',
-								justifyContent: 'space-around',
-								width: '50%',
-							}}>
-								<button onClick={() => {
-									setDialogId(null);
-								}}>
-									Cancel
-								</button>
-								<button onClick={() => {
-									if (dialogId < 0) {
-										addSlot();
-									} else {
-										addSlot(dialogId);
-									}
-									setDialogId(null);
-								}}>
-									Add
-								</button>
-							</div>
-						</div>
-					</div>
-				</div>
+			{slotDialog &&
+				<SlotDialog
+					addSlot={addSlot}
+					slot={slotDialog}
+					setSlotDialogId={setSlotDialog}
+				/>
 			}
 			{bookingRemoveId && 
 				<ConfirmDialog
@@ -227,7 +180,8 @@ const EditDevice = () => {
 					}}
 				/>
 			}
-			{/* <h3>{(!id) ? "Add Device" : "Edit Device"}</h3> */}
+			
+			<h3>{(!id) ? "Add Device" : "Edit Device"}</h3>
 			<div className="card-style editDevice__card">
 				<label>Device Name: </label>
 				<input
@@ -253,26 +207,13 @@ const EditDevice = () => {
 						setDevice(newDevice);
 					}}
 				/>
-				<Spacer height='20px' />
-				{id &&
-					<div className='editDevice__saveButtonDiv'>
-						<button type="submit" onClick={() => navigate('/devices')}>
-							Cancel
-						</button>
-						<button type="submit" onClick={() => {
-							saveDevice();
-						}}>
-							Save changes
-						</button>
-					</div>
-				}
 				{!id &&
 					<div className='editDevice__queue'>
 						<Switch
-							checked={device.hasQueue}
+							checked={device.has_queue}
 							onChange={() => {
 								let newDevice = { ...device };
-								newDevice.hasQueue = !device.hasQueue;
+								newDevice.has_queue = !device.has_queue;
 								setDevice(newDevice);
 							}}
 							name="hasQueue"
@@ -282,13 +223,59 @@ const EditDevice = () => {
 					</div>
 				}
 			</div>
-			{!device.hasQueue &&
+			<div className='card-style editDevice__card'>
+				<h4>Allowed Users</h4>
+				<div className='editDevice__queue'>
+					<Switch
+						checked={device.for_all}
+						onChange={() => {
+							let newDevice = { ...device };
+							newDevice.for_all = !device.for_all;
+							setDevice(newDevice);
+						}}
+						name="hasQueue"
+						inputProps={{ 'aria-label': 'secondary checkbox' }}
+					/>
+					<p>Available for all </p>
+				</div>
+				{!device.for_all &&
+					<div>
+						<button
+							onClick={() => {
+								setSlotDialog({});
+							}}
+						>
+							Add User
+						</button>
+						<ShowMoreWrapper
+							columns={["No.", "Name", "Email"]}
+							list={emailList.filter(user => user.is_queue === false)}
+							initial_length={10}
+							builder={(user, index) => (
+								<tr key={user.id}>
+									<td>{index + 1}</td>
+									<td>{user.name}</td>
+									<td>{user.email}</td>
+									<td>
+										<IconButton onClick={() => {
+											setEmailList(emailList.where('id', '!=', user.id));
+										}}>
+											<DeleteIcon />
+										</IconButton>
+									</td>
+								</tr>
+							)}
+						/>
+					</div>
+				}
+			</div>
+			{!device.has_queue &&
 				<div className='card-style editDevice__card'>
 					<h4>Slots</h4>
 					<div>
 						{!id &&
 							<button onClick={() => {
-								setDialogId(-1);
+								setSlotDialog({});
 							}}> + Add Slot</button>
 						}
 						<table className='table'>
@@ -309,16 +296,7 @@ const EditDevice = () => {
 											{!id &&
 												<td>
 													<IconButton onClick={() => {
-														let startTime = new Date();
-														startTime.setHours(slot.start_time.split(':')[0]);
-														startTime.setMinutes(slot.start_time.split(':')[1]);
-														let endTime = new Date();
-														endTime.setHours(slot.end_time.split(':')[0]);
-														endTime.setMinutes(slot.end_time.split(':')[1]);
-
-														setStartTime(startTime);
-														setEndTime(endTime);
-														setDialogId(slot.id);
+														setSlotDialog(slot);
 													}}>
 														<EditIcon />
 													</IconButton>
@@ -337,26 +315,6 @@ const EditDevice = () => {
 									)))}
 							</tbody>
 						</table>
-					</div>
-				</div>
-			}
-			{device.hasQueue && 
-				<div className='card-style editDevice__card'>
-					<h4>Allowed Users</h4>
-				</div>
-			}
-			{!id &&
-				<div className='card-style editDevice__card'>
-					<h4>Add Device?</h4>
-					<div className='editDevice__saveButtonDiv'>
-						<button type="submit" onClick={() => navigate('/devices')}>
-							Cancel
-						</button>
-						<button type="submit" onClick={() => {
-							saveDevice();
-						}}>
-							Confirm
-						</button>
 					</div>
 				</div>
 			}
@@ -379,9 +337,7 @@ const EditDevice = () => {
 									<td>{booking.email}</td>
 									<td>{getDateString(booking.booking_date)}</td>
 									<td>
-										<span className="time-style">
-											{getTimeString(booking.slot.start_time, booking.slot.end_time)}
-										</span>
+										{getTimeString(booking.slot.start_time, booking.slot.end_time)}
 									</td>
 									<td>
 										<IconButton onClick={() => {
@@ -396,6 +352,19 @@ const EditDevice = () => {
 						}
 				</div>
 			}
+			<div className='card-style editDevice__card'>
+				<h4>{(id) ? "Save" : "Add" } Device?</h4>
+				<div className='editDevice__saveButtonDiv'>
+					<button type="submit" onClick={() => navigate('/devices')}>
+						Cancel
+					</button>
+					<button type="submit" onClick={() => {
+						saveDevice();
+					}}>
+						Confirm
+					</button>
+				</div>
+			</div>
 		</div>
 	);
 }
