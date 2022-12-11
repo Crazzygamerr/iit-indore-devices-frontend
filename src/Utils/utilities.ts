@@ -1,5 +1,4 @@
 import { supabase } from "./supabaseClient";
-import { createContext } from "react";
 
 export function getTimeString(date: string, date2?: string): String {
 	var s = new Date('1970-01-01T' + date + 'Z')
@@ -56,12 +55,9 @@ export function matchSearch(
 }
 
 export async function checkIfEmailExists(email: string):Promise<boolean> {
-	const { data, error } = await supabase.rpc('does_email_exist', {
+	const { data } = await supabase.rpc('does_email_exist', {
 		email_param: email,
 	});
 
 	return (data as any) as boolean;
 }
-
-// create context for the user
-// export const TableContext = createContext({});

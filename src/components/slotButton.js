@@ -1,4 +1,3 @@
-import React, { useContext } from "react";
 import { getDateString, getTimeString } from "../Utils/utilities";
 
 export default function SlotButton({

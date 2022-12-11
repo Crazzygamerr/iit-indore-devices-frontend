@@ -44,7 +44,7 @@ const EditDevice = () => {
 			.delete()
 			.eq("id", id)
 			.then(response => {
-				setBookings(bookings.filter(b => b.id != id));
+				setBookings(bookings.filter(b => b.id !== id));
 				setBookingRemoveId(null);
 			}).catch(error => console.log(error));
 	}

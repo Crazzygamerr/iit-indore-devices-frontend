@@ -1,10 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../Utils/supabaseClient";
-
 import { CircularProgress } from "@mui/material";
-
-// import DeviceTable from "../../components/deviceTable";
-// import HomeSearchFilter from "../../components/homeSearchFilter/homeSearchFilter";
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -12,7 +8,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import Toast from "../../components/toast/toast";
 import "./home.scss";
 import BookingDialog from "../../components/bookingDialog";
-import { addDaysToDate, getDateString, getTimeString, matchSearch} from "../../Utils/utilities";
+import { addDaysToDate, getDateString, matchSearch} from "../../Utils/utilities";
 import ShowMoreWrapper from "../../components/showMoreWrapper/showMoreWrapper";
 import SlotButton from "../../components/slotButton";
 
@@ -49,13 +45,6 @@ export default function Home() {
 	const [search, setSearch] = useState("");
 	const [dialog, setDialog] = useState(null);
 	const [toastDetails, setToastDetails] = useState({ description: '', isError: true });
-	
-	const context = useMemo(() => ({
-		devices,
-		date,
-		search,
-		setDialog,
-	}), [devices, date, search, setDialog]);
 
 	async function handleBooking(device_id, slot_id, b_date, isUnbook) {
 		const { data, error } = await supabase.rpc((isUnbook) ? "unbook_device" : "bookdevice", {
@@ -76,7 +65,7 @@ export default function Home() {
 				if (isUnbook) {
 					if (temp_devices[index].bookings) {
 						temp_devices[index].bookings = temp_devices[index].bookings.filter(
-							booking => booking.id != data.id
+							booking => booking.id !== data.id
 						);
 					}
 				} else {
