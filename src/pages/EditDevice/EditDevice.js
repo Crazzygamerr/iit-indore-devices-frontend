@@ -2,16 +2,17 @@ import { Children, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../Utils/supabaseClient';
 
+import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { CircularProgress, IconButton, Switch, TextField } from '@mui/material';
-import { Spacer } from '../../components/spacer';
-import { getDateString, getTimeString, matchSearch } from '../../Utils/utilities';
-import ShowMoreWrapper from '../../components/showMoreWrapper/showMoreWrapper';
 import ConfirmDialog from '../../components/confirmDialog';
-import Toast from '../../components/toast/toast';
-import './EditDevice.scss';
+import ShowMoreWrapper from '../../components/showMoreWrapper/showMoreWrapper';
 import SlotDialog from '../../components/slotDialog';
+import { Spacer } from '../../components/spacer';
+import Toast from '../../components/toast/toast';
+import { getDateString, getTimeString } from '../../Utils/utilities';
+import './EditDevice.scss';
 
 const EditDevice = () => {
 	const [device, setDevice] = useState({
@@ -22,10 +23,11 @@ const EditDevice = () => {
 	});
 	const [slots, setSlots] = useState([]);
 	const [bookings, setBookings] = useState([]);
+	const [users, setUsers] = useState([]);
 	const [emailList, setEmailList] = useState([]);
 	const [loading, setLoading] = useState(true);
-	
-	const [addUserDialog, setAddUserDialog] = useState(true);
+
+	const [userDialog, setUserDialog] = useState(false);
 	const [bookingRemoveId, setBookingRemoveId] = useState(null);
 	const [slotDialog, setSlotDialog] = useState(null);
 	const [toastDetails, setToastDetails] = useState({
@@ -46,7 +48,7 @@ const EditDevice = () => {
 				setBookingRemoveId(null);
 			}).catch(error => console.log(error));
 	}
-	
+
 	async function saveDevice() {
 		//! Allow duplicate device names for now
 		// if (!id) {
@@ -67,13 +69,15 @@ const EditDevice = () => {
 			setToastDetails({ message: "Device name is required", isError: true });
 			return;
 		}
-		
+
 		const { data, error } = await supabase
 			.from("devices")
 			.upsert({
 				id: id,
 				name: device.name,
 				remarks: device.remarks,
+				has_queue: device.has_queue,
+				for_all: device.for_all,
 			});
 
 		if (error) {
@@ -83,7 +87,7 @@ const EditDevice = () => {
 			});
 			return;
 		}
-		
+
 		if (!id && !device.has_queue) {
 			setSlots(slots.map(slot => {
 				slot.device_id = data[0].id;
@@ -95,15 +99,27 @@ const EditDevice = () => {
 
 			await supabase.from("slots")
 				.insert(slots)
+				.then(res => { })
+				.catch(err => console.log(err));
+
+			setEmailList(emailList.map(email => {
+				email.device_id = data[0].id;
+				delete email.id;
+				return email;
+			}));
+
+			await supabase.from("email_list")
+				.insert(emailList)
 				.then(res => {
 					navigate("/devices");
+					// console.log(res);
 				})
 				.catch(err => console.log(err));
 		} else {
 			navigate("/devices");
 		}
 	}
-	
+
 	async function addSlot(slot_id, startTime, endTime) {
 		const startTimeString = new Date(startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).substring(0, 5);
 		const endTimeString = new Date(endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).substring(0, 5);
@@ -120,39 +136,52 @@ const EditDevice = () => {
 			setSlots([...slots]);
 		}
 	}
-	
+
 	useEffect(() => {
-		if (id) {
-			supabase.rpc("get_device",
-				{
-					param_id: id,
-				})
-				.then(response => {
-					console.log(response);
-					setDevice(response.data);
-					setSlots(response.data.slots);
-					
-					var temp = response.data.bookings;
-					if (response.data.bookings) {
-						temp.forEach(booking => {
-							booking.slot = response.data.slots.find(slot => slot.id === booking.slot_id);
-						});
-						temp.sort((a, b) => {
-							return Date.parse(b.booking_date) - Date.parse(a.booking_date);
-						});
-					} else if (!response.data.bookings) {
-						temp = [];
-					}
+		async function fetchData() {
+			if (id) {
+				const { data: deviceRes, error: deviceErr } = await supabase
+					.from("slots_by_device_view")
+					.select("*")
+					.eq("id", id);
+				setDevice(deviceRes[0]);
+				setSlots(deviceRes[0].slots);
+
+				// Add slot for each booking
+				if (deviceRes[0].bookings) {
+					var temp = deviceRes[0].bookings;
+					temp.forEach(booking => {
+						booking.slot = deviceRes[0].slots.find(slot => slot.id === booking.slot_id);
+					});
+					temp.sort((a, b) => {
+						return Date.parse(b.booking_date) - Date.parse(a.booking_date);
+					});
 					setBookings(temp);
-					
-					setLoading(false);
-				}).catch(error => console.log(error));
-		} else {
-			setLoading(false);
+				}
+
+				const { data: emailRes, error: emailErr } = await supabase
+					.from("email_list")
+					.select("*")
+					.eq("device_id", id);
+				setEmailList(emailRes);
+
+				if (deviceErr || emailErr) {
+					console.log(deviceErr, emailErr);
+					return;
+				}
+			}
+			const { data: userRes, error: userErr } = await supabase.from("users").select("*");
+			setUsers(userRes);
+
+			if (userErr)
+				console.log(userErr);
+			else
+				setLoading(false);
 		}
 
+		fetchData();
 	}, [id]);
-	
+
 	if (loading) {
 		return <div className='loadingDiv'>
 			<CircularProgress />
@@ -160,7 +189,7 @@ const EditDevice = () => {
 	}
 	return (
 		<div className='editDevice'>
-			
+
 			<Toast toastDetails={toastDetails} />
 			{slotDialog &&
 				<SlotDialog
@@ -169,7 +198,7 @@ const EditDevice = () => {
 					setSlotDialogId={setSlotDialog}
 				/>
 			}
-			{bookingRemoveId && 
+			{bookingRemoveId &&
 				<ConfirmDialog
 					title={"Are you sure you want to remove the booking?"}
 					message={"This action cannot be undone."}
@@ -180,7 +209,47 @@ const EditDevice = () => {
 					}}
 				/>
 			}
-			
+			{userDialog &&
+				<div className='dialog-backdrop'>
+					<div className='dialog-container' style={{ minHeight: '300px' }}>
+						<h5>Add User</h5>
+						<ShowMoreWrapper
+							columns={[""]}
+							list={users.filter(user => emailList.find(listItem => listItem.email === user.email) === undefined)}
+							initial_length={5}
+							condition={(user) => [user.email]}
+							builder={(user, index) => (
+								<tr key={user.email}>
+									<td>{user.email}</td>
+									<td>
+										<IconButton
+											aria-label="add"
+											onClick={async () => {
+												var temp = {
+													email: user.email,
+													device_id: id,
+													is_queue: false,
+												};
+												setEmailList([...emailList, temp]);
+
+												if (id) await supabase.from("email_list").insert(temp);
+											}}
+										>
+											<AddIcon />
+										</IconButton>
+									</td>
+								</tr>
+							)}
+						/>
+						<button
+							onClick={() => {
+								setUserDialog(false);
+							}}
+						> Close </button>
+					</div>
+				</div>
+			}
+
 			<h3>{(!id) ? "Add Device" : "Edit Device"}</h3>
 			<div className="card-style editDevice__card">
 				<label>Device Name: </label>
@@ -207,6 +276,7 @@ const EditDevice = () => {
 						setDevice(newDevice);
 					}}
 				/>
+				<Spacer height='10px' />
 				{!id &&
 					<div className='editDevice__queue'>
 						<Switch
@@ -222,16 +292,31 @@ const EditDevice = () => {
 						<p>Device has a queue </p>
 					</div>
 				}
+				{id &&
+					<div className='editDevice__saveButtonDiv'>
+						<button type="submit" onClick={() => navigate('/devices')}>
+							Cancel
+						</button>
+						<button type="submit" onClick={() => {
+							saveDevice();
+						}}>
+							Confirm
+						</button>
+					</div>
+				}
 			</div>
 			<div className='card-style editDevice__card'>
-				<h4>Allowed Users</h4>
+				<h4>Access Control</h4>
 				<div className='editDevice__queue'>
 					<Switch
 						checked={device.for_all}
-						onChange={() => {
+						onChange={async() => {
 							let newDevice = { ...device };
 							newDevice.for_all = !device.for_all;
 							setDevice(newDevice);
+							if (id) {
+								await supabase.from("devices").update({ for_all: newDevice.for_all }).eq('id', id);
+							}
 						}}
 						name="hasQueue"
 						inputProps={{ 'aria-label': 'secondary checkbox' }}
@@ -240,25 +325,32 @@ const EditDevice = () => {
 				</div>
 				{!device.for_all &&
 					<div>
-						<button
-							onClick={() => {
-								setSlotDialog({});
-							}}
-						>
-							Add User
-						</button>
+						<h5>Users</h5>
+						<button onClick={() => {
+							setUserDialog(true);
+						}}> Add User</button>
+						<Spacer height='20px' />
 						<ShowMoreWrapper
-							columns={["No.", "Name", "Email"]}
-							list={emailList.filter(user => user.is_queue === false)}
+							columns={[""]}
+							list={emailList}
 							initial_length={10}
-							builder={(user, index) => (
-								<tr key={user.id}>
-									<td>{index + 1}</td>
-									<td>{user.name}</td>
-									<td>{user.email}</td>
+							condition={(listItem) => [listItem.email]}
+							builder={(listItem, index) => (
+								<tr key={listItem.email}>
+									<td>{listItem.email}</td>
 									<td>
 										<IconButton onClick={() => {
-											setEmailList(emailList.where('id', '!=', user.id));
+											setEmailList(emailList.filter(l => l.email !== listItem.email));
+											if (id) {
+												supabase.from('emailList')
+													.delete()
+													.eq('id', listItem.id)
+													.then(() => {
+													})
+													.catch(e =>
+														console.log(e)
+													);
+											}
 										}}>
 											<DeleteIcon />
 										</IconButton>
@@ -276,7 +368,7 @@ const EditDevice = () => {
 						{!id &&
 							<button onClick={() => {
 								setSlotDialog({});
-							}}> + Add Slot</button>
+							}}>Add Slot</button>
 						}
 						<table className='table'>
 							<thead>
@@ -332,8 +424,8 @@ const EditDevice = () => {
 							list={bookings}
 							initial_length={10}
 							condition={(booking) => [booking.email, getDateString(booking.booking_date), getTimeString(booking.slot.start_time, booking.slot.end_time)]}
-							builder={(booking, index) => {								
-								return <tr key={index}>
+							builder={(booking, index) => {
+								return <tr key={booking.id}>
 									<td>{booking.email}</td>
 									<td>{getDateString(booking.booking_date)}</td>
 									<td>
@@ -349,22 +441,24 @@ const EditDevice = () => {
 								</tr>
 							}}
 						/>
-						}
+					}
 				</div>
 			}
-			<div className='card-style editDevice__card'>
-				<h4>{(id) ? "Save" : "Add" } Device?</h4>
-				<div className='editDevice__saveButtonDiv'>
-					<button type="submit" onClick={() => navigate('/devices')}>
-						Cancel
-					</button>
-					<button type="submit" onClick={() => {
-						saveDevice();
-					}}>
-						Confirm
-					</button>
+			{!id &&
+				<div className='card-style editDevice__card'>
+					<h4>Add Device?</h4>
+					<div className='editDevice__saveButtonDiv'>
+						<button type="submit" onClick={() => navigate('/devices')}>
+							Cancel
+						</button>
+						<button type="submit" onClick={() => {
+							saveDevice();
+						}}>
+							Confirm
+						</button>
+					</div>
 				</div>
-			</div>
+			}
 		</div>
 	);
 }

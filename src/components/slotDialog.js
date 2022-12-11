@@ -67,7 +67,6 @@ export default function SlotDialog({
 							Cancel
 						</button>
 						<button onClick={() => {
-							console.log(slot);
 							if (!slot.id) {
 								addSlot(-1, startTime, endTime);
 							} else {

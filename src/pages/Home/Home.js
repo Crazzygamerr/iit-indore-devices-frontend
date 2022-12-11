@@ -64,7 +64,7 @@ export default function Home() {
 			d_id: device_id,
 		});
 		setDialog(null);
-		// console.log(data);
+		// console.log(data, error);
 		if (error) {
 			setToastDetails({ description: error.message, isError: true });
 		} else if (data.id == null) {
@@ -128,7 +128,7 @@ export default function Home() {
 			
 			<button
 				onClick={() => {
-					supabase.rpc("get_booked_devices")
+					supabase.from("users").select("*")
 						.then(response => {
 							console.log(JSON.stringify(response, null, 2));
 						})

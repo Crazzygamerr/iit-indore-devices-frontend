@@ -10,7 +10,10 @@ export function AuthProvider({ children }) {
 	const checkAndSetUser = async (session) => {
 		if (session) {
 			supabase
-				.from('users').then(response => {
+				.from('users')
+				.select('*')
+				.eq('user_id', session.user.id)
+				.then(response => {
 					setUser({ ...session.user, isAdmin: response.data[0].isAdmin });
 					setLoading(false);
 				})
@@ -40,10 +43,6 @@ export function AuthProvider({ children }) {
 		};
 	}, []);
 	
-	const value = {
-		user,
-	};
-		
 	return (
 		<AuthContext.Provider value={{ user }}>
 			{!loading && children}
