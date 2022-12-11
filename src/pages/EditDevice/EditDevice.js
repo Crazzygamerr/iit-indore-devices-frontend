@@ -88,20 +88,22 @@ const EditDevice = () => {
 			return;
 		}
 
-		if (!id && !device.has_queue) {
-			setSlots(slots.map(slot => {
-				slot.device_id = data[0].id;
-				if (!slot.id) {
-					delete slot.id;
-				}
-				return slot;
-			}));
+		if (!id) {
+			if (!device.has_queue) {
+				setSlots(slots.map(slot => {
+					slot.device_id = data[0].id;
+					if (!slot.id) {
+						delete slot.id;
+					}
+					return slot;
+				}));
 
-			await supabase.from("slots")
-				.insert(slots)
-				.then(res => { })
-				.catch(err => console.log(err));
-
+				await supabase.from("slots")
+					.insert(slots)
+					.then(res => { })
+					.catch(err => console.log(err));
+			}
+			
 			setEmailList(emailList.map(email => {
 				email.device_id = data[0].id;
 				delete email.id;
@@ -339,17 +341,12 @@ const EditDevice = () => {
 								<tr key={listItem.email}>
 									<td>{listItem.email}</td>
 									<td>
-										<IconButton onClick={() => {
+										<IconButton onClick={async () => {
 											setEmailList(emailList.filter(l => l.email !== listItem.email));
 											if (id) {
-												supabase.from('emailList')
+												await supabase.from('email_list')
 													.delete()
-													.eq('id', listItem.id)
-													.then(() => {
-													})
-													.catch(e =>
-														console.log(e)
-													);
+													.eq('id', listItem.id);
 											}
 										}}>
 											<DeleteIcon />

@@ -64,4 +64,4 @@ export async function checkIfEmailExists(email: string):Promise<boolean> {
 }
 
 // create context for the user
-export const TableContext = createContext({});
+// export const TableContext = createContext({});
