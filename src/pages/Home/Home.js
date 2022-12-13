@@ -11,6 +11,7 @@ import BookingDialog from "../../components/bookingDialog";
 import { addDaysToDate, getDateString, matchSearch} from "../../Utils/utilities";
 import ShowMoreWrapper from "../../components/showMoreWrapper/showMoreWrapper";
 import SlotButton from "../../components/slotButton";
+import { useAuth } from "../../Utils/Auth";
 
 /* 
 // remove add devices from nav
@@ -45,6 +46,7 @@ export default function Home() {
 	const [search, setSearch] = useState("");
 	const [dialog, setDialog] = useState(null);
 	const [toastDetails, setToastDetails] = useState({ description: '', isError: true });
+	const { user } = useAuth();
 
 	async function handleBooking(device_id, slot_id, b_date, isUnbook) {
 		const { data, error } = await supabase.rpc((isUnbook) ? "unbook_device" : "bookdevice", {
@@ -53,30 +55,13 @@ export default function Home() {
 			d_id: device_id,
 		});
 		setDialog(null);
-		// console.log(data, error);
+		console.log(data, error);
 		if (error) {
 			setToastDetails({ description: error.message, isError: true });
 		} else if (data.id == null) {
 			setToastDetails({ description: `Unable to ${isUnbook ? 'unbook device' : 'book slot'}`, isError: true });
 		} else {
-			let temp_devices = devices;
-			const index = temp_devices.findIndex(d => d.id === data.device_id);
-			if (index !== -1) {
-				if (isUnbook) {
-					if (temp_devices[index].bookings) {
-						temp_devices[index].bookings = temp_devices[index].bookings.filter(
-							booking => booking.id !== data.id
-						);
-					}
-				} else {
-					if (!temp_devices[index].bookings) {
-						temp_devices[index].bookings = [];
-					}
-					temp_devices[index].bookings.push(data);
-				}
-			}
-			setDevices([...temp_devices]);
-			// getDeviceBooked([...temp_devices]);
+			getAllByDevice();
 		}
 	}
 	
@@ -90,15 +75,27 @@ export default function Home() {
 					days: 1,
 				}	
 			).then(response => {
-					temp = response.data;
-				})
-				.catch(error => {
-					// console.error(error);
-					setToastDetails({ description: error.message, isError: true });
+				temp = response.data;
+				temp.forEach(device => {
+					device.queue_pos = 0;
+					device.queue_booking = null;
+					if (device.bookings) {
+						device.queue_pos = device.bookings.length;
+						device.queue_pos = device.bookings.findIndex(booking => booking.email === user.email);
+						device.queue_booking = device.bookings.find(booking => booking.email === user.email);
+						device.queue_pos = (device.queue_pos === -1) ? device.bookings.length : device.queue_pos;
+					} else {
+						device.bookings = [];
+					}
+					console.log(temp);
 				});
+			})
+			.catch(error => {
+				setToastDetails({ description: error.message, isError: true });
+			});
 			// getDeviceBooked(temp);
 			setDevices(temp);
-		}, [date]);
+		}, [date, user.email]);
 
 	useEffect(() => {
 		getAllByDevice();
@@ -197,19 +194,35 @@ export default function Home() {
 							<div style={{
 								borderLeft: "1px solid #e0e0e0",
 							}}></div>
-							<div className="device-slots">
-								{device != null &&
-										device.slots && device.slots[0] != null && device.slots.map(slot => {
-											return <SlotButton
-													key={slot.id}
-													device={device}
-													slot={slot}
-													date={addDaysToDate(date, 0)}
-													setDialog={setDialog}
-												/>
-										})
-									}
-							</div>
+							{(device.slots && device.slots[0] != null && !device.has_queue) 
+								? (<div className="device-slots">
+									{device.slots.map(slot => {
+									return <SlotButton
+											key={slot.id}
+											device={device}
+											slot={slot}
+											date={addDaysToDate(date, 0)}
+											setDialog={setDialog}
+										/>
+									})}
+								</div>
+								) : (
+									<div className="device-queue">
+										<p>Ahead in queue: {device.queue_pos}</p>
+										<p>Total in queue: {device.bookings.filter(booking => booking.is_completed === false).length}</p>
+										<button
+											onClick={() => {
+												handleBooking(
+													device.id,
+													null,
+													device.queue_booking ? device.queue_booking.booking_date : Date.now(),
+													device.queue_booking
+												);
+											}}>
+											{!device.queue_booking ? "Book" : "Unbook"}
+										</button>
+									</div>
+								)}
 						</div>
 					}}
 				/>

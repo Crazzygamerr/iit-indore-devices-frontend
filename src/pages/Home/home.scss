@@ -32,12 +32,18 @@
 	
 	.device-desc {
 		width: 200px;
+		flex-shrink: 0;
 	}
 
 	.device-slots {
 		display: flex;
 		gap: 10px;
 		flex-wrap: wrap;
+	}
+	
+	.device-queue {
+		@include make-flex(row, center, space-between);
+		width: 100%;
 	}
 }
 

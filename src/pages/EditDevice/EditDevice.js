@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../Utils/supabaseClient';
 
 import AddIcon from '@mui/icons-material/Add';
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { CircularProgress, IconButton, Switch, TextField } from '@mui/material';
@@ -39,6 +41,20 @@ const EditDevice = () => {
 	const { id } = useParams();
 	let navigate = useNavigate();
 
+	async function complete_booking(booking_id) {
+		await supabase.from("bookings")
+			.update({ is_completed: true })
+			.eq("id", booking_id)
+			.then(response => {
+				setBookings(bookings.map(b => {
+					if (b.id === booking_id) {
+						b.is_completed = true;
+					}
+					return b;
+				}));
+			}).catch(error => console.log(error));
+	}
+	
 	function removeBooking(id) {
 		supabase.from("bookings")
 			.delete()
@@ -152,12 +168,13 @@ const EditDevice = () => {
 				// Add slot for each booking
 				if (deviceRes[0].bookings) {
 					var temp = deviceRes[0].bookings;
-					temp.forEach(booking => {
-						booking.slot = deviceRes[0].slots.find(slot => slot.id === booking.slot_id);
-					});
-					temp.sort((a, b) => {
-						return Date.parse(b.booking_date) - Date.parse(a.booking_date);
-					});
+					if(deviceRes[0].slots) {
+						temp.forEach(booking => {	
+							booking.slot = deviceRes[0].slots.find(slot => slot.id === booking.slot_id);
+						});
+					}
+					temp = temp.sort((a, b) => (a.is_completed) ? (b.is_completed ? a.id - b.id : 1) : (b.is_completed ? -1 : a.id - b.id));
+					// console.log(temp);
 					setBookings(temp);
 				}
 
@@ -417,17 +434,29 @@ const EditDevice = () => {
 					}
 					{bookings.length > 0 &&
 						<ShowMoreWrapper
-							columns={['User', 'Date', 'Slot']}
+							columns={device.slots ? ['User', 'Date', 'Slot'] : ['User', 'Date',]}
 							list={bookings}
 							initial_length={10}
-							condition={(booking) => [booking.email, getDateString(booking.booking_date), getTimeString(booking.slot.start_time, booking.slot.end_time)]}
+							condition={(booking) => [booking.email, getDateString(booking.booking_date), device.slots ? getTimeString(booking.slot.start_time, booking.slot.end_time) : ""]}
 							builder={(booking, index) => {
 								return <tr key={booking.id}>
 									<td>{booking.email}</td>
 									<td>{getDateString(booking.booking_date)}</td>
-									<td>
-										{getTimeString(booking.slot.start_time, booking.slot.end_time)}
-									</td>
+									{device.slots &&
+										<td>
+											{getTimeString(booking.slot.start_time, booking.slot.end_time)}
+										</td>
+									}
+									{device.slots == null && !booking.is_completed ?
+										<td>
+											<IconButton onClick={() => {
+												complete_booking(booking.id);
+											}}>
+												<DoneIcon />
+											</IconButton>
+										</td>
+										: <td></td>
+									}
 									<td>
 										<IconButton onClick={() => {
 											setBookingRemoveId(booking.id);
