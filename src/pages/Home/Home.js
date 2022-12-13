@@ -28,10 +28,10 @@ import { useAuth } from "../../Utils/Auth";
 // no need for device
 // one slot booking per equipment
 // Remarks column
+// Allowed users for each device
+// Queue of students for each device
 sort filter search
 slot time validation
-Allowed users for each device
-Queue of students for each device
  */
 
 /* 
